@@ -1,5 +1,5 @@
 public class SlotMachine {
-    
+
 
     /**
      * Constructor de la máquina tragamonedas.

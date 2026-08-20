@@ -24,3 +24,5 @@ hs_err_pid*
 replay_pid*
 slotMachine/.DS_Store
 docs/slotMachine Diagrams.asta.lock
+.iml
+.DS_Store
