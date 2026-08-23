@@ -1,8 +1,11 @@
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import javax.swing.JOptionPane;
 
+
 public class SlotMachine {
-    // ok() method+
+    // ok() method+ and Visible Operation.
     private boolean isVisible;
     private boolean lastOperationOk;
     //Constructor
@@ -15,6 +18,7 @@ public class SlotMachine {
     private int numWheels;
     //Symbols 
     private ArrayList<String> symbols;
+    private ArrayList<String> symbolsToSpin;
 
     /**
      * Constructor of the SlotMachine.
@@ -188,6 +192,24 @@ public class SlotMachine {
     }
 
     public void spin(int wheel) {
+        if (numWheels == 0 || wheels[0] == null) {
+            lastOperationOk = false; 
+            JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
+        } else {
+            if (numWheels < wheel) {
+                JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca en un espacio sin ruedas.");
+                return;
+            }
+        }
+        lastOperationOk = true; 
+        ArrayList<String> symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));        
+        Random random = new Random();
+        int symbolsToSpinSize = symbolsToSpin.size();
+        int randomSymbol = random.nextInt(symbolsToSpinSize);
+        
+        addSymbol(wheel, symbolsToSpin.get(randomSymbol));
+        JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
+
     }
 
     public void spin() {

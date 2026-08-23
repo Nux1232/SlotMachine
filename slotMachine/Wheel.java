@@ -4,13 +4,11 @@
  * @author Samuel Infante Camargo, Juan Pablo Cuervo Contreras 
  * @version 1
  */
-import java.util.ArrayList;
 
 public class Wheel {
     // Atributos de la rueda
     private Rectangle Wheel;
     private Rectangle window;
-    private ArrayList<String> symbols; // Lista dinámica para los colores CSS
     private boolean isVisible;
     /**
     * This is the constructor of the Wheel Class.
@@ -24,9 +22,7 @@ public class Wheel {
         window = new Rectangle();
         window.changeSize(70,70);
         window.changeColor("white");
-        
-        // Inicializamos la lista de símbolos vacía
-        symbols = new ArrayList<String>();
+
     }
 
     public void setPositionWheel(int x, int y){
