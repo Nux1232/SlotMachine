@@ -1,4 +1,3 @@
-import java.awt.*;
 
 /**
  * A rectangle that can be manipulated and that draws itself on a canvas.
@@ -182,5 +181,15 @@ public class Rectangle{
             canvas.erase(this);
         }
     }
+
+    /**
+    * Cambia la posicion absoluta del rectangulo en la pantalla.
+    */
+    public void setPosition(int x, int y) {
+    erase(); 
+    xPosition = x; 
+    yPosition = y;
+    draw(); 
+}
 }
 
