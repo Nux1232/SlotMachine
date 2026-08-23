@@ -1,10 +1,30 @@
-public class SlotMachine {
 
+
+public class SlotMachine {
+    private Rectangle body; 
+    private Circle lever1;
+    private Rectangle lever2;
+    private Rectangle lever3;
 
     /**
-     * Constructor de la máquina tragamonedas.
+     * Constructor of the SlotMachine.
      */
     public SlotMachine() {
+        body = new Rectangle();
+        body.changeSize(10,20);
+        // Acá hay que buscar centrarlo por mientras tanto
+        body.moveHorizontal(0);
+        body.moveVertical(0);
+        body.changeColor("blue");
+
+        // Palanca
+        lever1 = new Circle();
+        lever1.changeColor("red");
+        lever2 = new Rectangle();
+        lever2.changeColor("black");
+        lever3 = new Rectangle();
+        lever3.changeColor("black");
+
     }
 
     public void addWheel(int pos) {
@@ -44,7 +64,14 @@ public class SlotMachine {
         return false;
     }
 
+    /**
+     * Make visible the slotMachine.
+     */
     public void makeVisible() {
+        body.makeVisible();
+        lever1.makeVisible();
+        lever2.makeVisible();
+        lever3.makeVisible();
     }
 
     public void makeInvisible() {
