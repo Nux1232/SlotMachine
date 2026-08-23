@@ -1,15 +1,22 @@
 import javax.swing.JOptionPane;
 
 public class SlotMachine {
+    // ok() method+
     private boolean isVisible;
     private boolean lastOperationOk;
+    //Constructor
     private Rectangle body; 
     private Circle leverCircle;
     private Rectangle leverHorizontal;
+    //Wheels
     private Rectangle leverVertical;
     private Rectangle[] wheels;
     private int numWheels;
-
+    //Symbols
+    private Rectangle[] symbolsRectangles;
+    private Circle[] symbolsCircles;
+    private Triangle[] symbolsTriangles;
+  
     /**
      * Constructor of the SlotMachine.
      */
@@ -58,11 +65,13 @@ public class SlotMachine {
     }
 
     /**
-     * This method creates the wheels.
+     * This method creates and valides the number of wheels.
      */
     public void addWheel(int pos) {
         if (pos <= 0) {
             pos = 1;
+        } else if (pos > numWheels + 1) {
+            pos = numWheels + 1;
         }
         int index = pos - 1;
         if (numWheels >= 9) {
@@ -92,14 +101,35 @@ public class SlotMachine {
             JOptionPane.showMessageDialog(null, "Error: Se intentó cambiar la ubicación de las ruedas sin tener ruedas"); 
             return;
         }
-
         for (int i = 0; i < numWheels; i++) {
             wheels[i].setPosition(startX + (i * space), startY);
             wheels[i].makeVisible();
         }
     }
-
+    /**
+     * This method deletes and valides the number of wheels after deleting.
+     * Also, after deleting replace all the wheels into their order.
+     */
     public void delWheel(int pos) {
+        if (numWheels == 0) {
+            lastOperationOk = false; 
+            if (isVisible) {
+                JOptionPane.showMessageDialog(null, "Error: No se puede borrar llantas, no hay llantas.");
+            }
+        }
+        lastOperationOk = true;
+        if (pos <= 0) {
+            pos = 1; 
+        }else if (pos > numWheels) {
+            pos = numWheels;
+        }
+        int index = pos - 1; 
+        wheels[index].makeInvisible();
+        for (int i = index; i < numWheels - 1; i++) {
+            wheels[i] = wheels[i + 1];
+        }    
+        numWheels--;
+        locationWheel();
     }
 
     public void addSymbol(int pos, String color) {
@@ -166,6 +196,9 @@ public class SlotMachine {
     }
 
     public boolean ok() {
+        if (lastOperationOk) {
+            return true;    
+        }
         return false;
     }
 }

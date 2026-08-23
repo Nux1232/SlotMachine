@@ -183,7 +183,9 @@ public class Rectangle{
     }
 
     /**
-    * Cambia la posicion absoluta del rectangulo en la pantalla.
+    * Change the position of the rectangle
+    * @param x It is the position of X where the rectangle goes to (Horizontal).
+    * @param y It is the position of Y where the rectangle goes to (Vertical).  
     */
     public void setPosition(int x, int y) {
     erase(); 
