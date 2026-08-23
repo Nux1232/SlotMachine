@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class SlotMachine {
@@ -10,20 +11,17 @@ public class SlotMachine {
     private Rectangle leverHorizontal;
     //Wheels
     private Rectangle leverVertical;
-    private Rectangle[] wheels;
+    private Wheel[] wheels;
     private int numWheels;
-    //Symbols
-    private Rectangle[] symbolsRectangles;
-    private Circle[] symbolsCircles;
-    private Triangle[] symbolsTriangles;
-  
+    //Symbols 
+    private ArrayList<String> symbols;
+
     /**
      * Constructor of the SlotMachine.
      */
     public SlotMachine() {
-        isVisible = false;
         lastOperationOk = true;
-        wheels = new Rectangle[9];
+        wheels = new Wheel[9];
         numWheels = 0;
         bodyConstructor();
         leversConstructor();
@@ -32,6 +30,7 @@ public class SlotMachine {
         leverVertical.moveHorizontal(1248);
         leverVertical.moveVertical(80);
         leverCircle.moveHorizontal(1277);
+        symbols = new ArrayList<>();
     }
 
     /**
@@ -84,9 +83,7 @@ public class SlotMachine {
         for(int i = numWheels; i > index; i--) {
             wheels[i] = wheels[i-1];
         }
-        wheels[index] = new Rectangle();
-        wheels[index].changeColor("white");
-        wheels[index].changeSize(210, 70);
+        wheels[index] = new Wheel();
         numWheels++;
         locationWheel();
     }
@@ -102,8 +99,8 @@ public class SlotMachine {
             return;
         }
         for (int i = 0; i < numWheels; i++) {
-            wheels[i].setPosition(startX + (i * space), startY);
-            wheels[i].makeVisible();
+            wheels[i].setPositionWheel(startX + (i * space), startY);
+            wheels[i].makeWheelVisible();
         }
     }
     /**
@@ -124,7 +121,7 @@ public class SlotMachine {
             pos = numWheels;
         }
         int index = pos - 1; 
-        wheels[index].makeInvisible();
+        wheels[index].makeWheelInvisible();
         for (int i = index; i < numWheels - 1; i++) {
             wheels[i] = wheels[i + 1];
         }    
@@ -133,12 +130,61 @@ public class SlotMachine {
     }
 
     public void addSymbol(int pos, String color) {
+        if (numWheels == 0) {
+            lastOperationOk = false; 
+            if (isVisible) {
+                JOptionPane.showMessageDialog(null, "Error: No se puede borrar llantas, no hay llantas.");
+            }
+        }
+        lastOperationOk = true;
+        if (pos <= 0) {
+            pos = 1; 
+        }else if (pos > numWheels) {
+            pos = numWheels;
+        }
+        int index = pos - 1; 
+        if (wheels[index] != null) {
+            wheels[index].addSymbolWheel(color);
+            lastOperationOk = true;
+        }else {
+            lastOperationOk = false;
+        }
+        symbols.add(color);
     }
 
     public void delSymbol(String symbol) {
+        if(numWheels == 0) {
+            lastOperationOk = false;
+        }
+        lastOperationOk = true;
+        for (int i = 0; i < numWheels; i++) {
+            if (wheels[i] != null) {
+                if (symbols.contains(symbol)){
+                    symbols.remove(symbol);
+                    wheels[i].delSymbolWheel(symbol);
+               }   
+            } 
+        }
     }
 
     public void placeSymbol(int wheel, String symbol) {
+        if (numWheels == 0) {
+            lastOperationOk = false; 
+            if (isVisible) {
+                JOptionPane.showMessageDialog(null, "Error: No se puede borrar llantas, no hay llantas.");
+            }
+        }
+        if (wheel <= 0) {
+            wheel = 1;
+        } else if (wheel < numWheels) {
+            wheel = numWheels;
+        }
+        int index = wheel - 1;
+        lastOperationOk = true;
+        if (wheels[index] != null) {
+            wheels[index].placeSymbolWheel(symbol);
+            symbols.set(index, symbol);
+        } 
     }
 
     public void spin(int wheel) {
@@ -147,8 +193,15 @@ public class SlotMachine {
     public void spin() {
     }
 
-    public String[] symbols() {
-        return null;
+   public String[] symbols() {
+        if (numWheels == 0 || wheels[0] == null) {
+           lastOperationOk = false; 
+            return new String[0];
+        }
+        lastOperationOk = true; 
+        String[] inventario = new String[symbols.size()];
+        //for (int i = 0; i < new)
+        //return symbols[];
     }
 
     public int distinctSymbols() {
@@ -167,29 +220,33 @@ public class SlotMachine {
      * Make visible the slotMachine.
      */
     public void makeVisible() {
-        body.makeVisible();
-        leverCircle.makeVisible();
-        leverHorizontal.makeVisible();
-        leverVertical.makeVisible();
-        for (int i = 0; i < numWheels; i++) {
-            if (wheels[i] != null) {
-                wheels[i].makeVisible();
+        isVisible = true;
+        if (isVisible){
+            body.makeVisible();
+            leverCircle.makeVisible();
+            leverHorizontal.makeVisible();
+            leverVertical.makeVisible();
+            for (int i = 0; i < numWheels; i++) {
+                if (wheels[i] != null) {
+                    wheels[i].makeWheelVisible();
             }
         }
-        isVisible = true;
+        }
     }
 
     public void makeInvisible() {
-        body.makeInvisible();
-        leverCircle.makeInvisible();
-        leverHorizontal.makeInvisible();
-        leverVertical.makeInvisible();
-        for (int i = 0; i < numWheels; i++) {
-            if (wheels[i] != null) {
-                wheels[i].makeInvisible();
-            }
-        }
         isVisible = false;
+        if (isVisible == false) {
+            body.makeInvisible();
+            leverCircle.makeInvisible();
+            leverHorizontal.makeInvisible();
+            leverVertical.makeInvisible();
+            for (int i = 0; i < numWheels; i++) {
+                if (wheels[i] != null) {
+                    wheels[i].makeWheelInvisible();
+                }
+        }
+        }
     }
 
     public void exit() {
