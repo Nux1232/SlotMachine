@@ -27,7 +27,7 @@ public class Canvas{
     public static Canvas getCanvas(){
         if(canvasSingleton == null) {
             // Changed Canva's Size to make the SlotMachine bigger.
-            canvasSingleton = new Canvas("SlotMachine", 1000, 1000,
+            canvasSingleton = new Canvas("SlotMachine", 2000, 1000,
                                          Color.white);
         }
         canvasSingleton.setVisible(true);
