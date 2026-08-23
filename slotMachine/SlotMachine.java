@@ -176,7 +176,7 @@ public class SlotMachine {
         }
         if (wheel <= 0) {
             wheel = 1;
-        } else if (wheel < numWheels) {
+        } else if (wheel > numWheels) {
             wheel = numWheels;
         }
         int index = wheel - 1;
@@ -200,8 +200,14 @@ public class SlotMachine {
         }
         lastOperationOk = true; 
         String[] inventario = new String[symbols.size()];
-        //for (int i = 0; i < new)
-        //return symbols[];
+        for (int i = 0; i < numWheels; i++){
+            if (symbols.get(i) != null) {
+                inventario[i] = symbols.get(i);
+            }else {
+                inventario[i] = null;
+            }
+        }
+        return inventario;
     }
 
     public int distinctSymbols() {
