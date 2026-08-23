@@ -213,9 +213,22 @@ public class SlotMachine {
     }
 
     public void spin() {
+        if (numWheels == 0 || wheels[0] == null) {
+            lastOperationOk = false; 
+            JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
+        }
+        lastOperationOk = true; 
+        ArrayList<String> symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));        
+        Random random = new Random();
+        int symbolsToSpinSize = symbolsToSpin.size();
+        
+        for (int i = 0; i < numWheels; i++){
+            int randomSymbol = random.nextInt(symbolsToSpinSize);
+            addSymbol(i + 1, symbolsToSpin.get(randomSymbol));
+        }
     }
 
-   public String[] symbols() {
+    public String[] symbols() {
         if (numWheels == 0 || wheels[0] == null) {
            lastOperationOk = false; 
             return new String[0];
