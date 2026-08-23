@@ -2,29 +2,51 @@
 
 public class SlotMachine {
     private Rectangle body; 
-    private Circle lever1;
-    private Rectangle lever2;
-    private Rectangle lever3;
+    private Circle leverCircle;
+    private Rectangle leverHorizontal;
+    private Rectangle leverVertical;
 
     /**
      * Constructor of the SlotMachine.
      */
     public SlotMachine() {
+        bodyConstructor();
+        leversConstructor();
+        leverHorizontal.moveHorizontal(628);
+        leverHorizontal.moveVertical( 400);
+        leverVertical.moveHorizontal(670);
+        leverVertical.moveVertical(80);
+        leverCircle.moveHorizontal(700);
+    }
+
+    /**
+     * This makes the body of the slotmachine.
+     */
+    public void bodyConstructor() {
         body = new Rectangle();
-        body.changeSize(10,20);
+        body.changeSize(530,620);
         // Acá hay que buscar centrarlo por mientras tanto
-        body.moveHorizontal(0);
-        body.moveVertical(0);
+        body.moveHorizontal(7);
+        body.moveVertical(60);
         body.changeColor("blue");
+    }
 
-        // Palanca
-        lever1 = new Circle();
-        lever1.changeColor("red");
-        lever2 = new Rectangle();
-        lever2.changeColor("black");
-        lever3 = new Rectangle();
-        lever3.changeColor("black");
-
+    /**
+     * This is part of the slotMachine body.
+     */
+    public void leversConstructor() {
+        // This Rectangle makes the horizontal part of the lever
+        leverHorizontal = new Rectangle();
+        leverHorizontal.changeColor("black");
+        leverHorizontal.changeSize(50, 92);
+        // This Rectangle makes the vertical part of the lever
+        leverVertical = new Rectangle();
+        leverVertical.changeColor("black");
+        leverVertical.changeSize(360, 50);
+        // The circle of the lever:
+        leverCircle = new Circle();
+        leverCircle.changeColor("red");
+        leverCircle.changeSize(90);
     }
 
     public void addWheel(int pos) {
@@ -69,9 +91,9 @@ public class SlotMachine {
      */
     public void makeVisible() {
         body.makeVisible();
-        lever1.makeVisible();
-        lever2.makeVisible();
-        lever3.makeVisible();
+        leverCircle.makeVisible();
+        leverHorizontal.makeVisible();
+        leverVertical.makeVisible();
     }
 
     public void makeInvisible() {
