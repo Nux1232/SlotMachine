@@ -26,6 +26,8 @@ public class SlotMachine {
     //Symbols 
     private ArrayList<String> symbols;
     private ArrayList<String> symbolsToSpin;
+    //Winner
+    private boolean Winner;
 
     /**
      * Constructs an empty slot machine and initializes its visual elements.
@@ -120,6 +122,7 @@ public class SlotMachine {
             wheels[i].makeWheelVisible();
         }
     }
+    
     /**
      * Deletes the wheel at the requested position and shifts the remaining
      * wheels to preserve their order.
@@ -247,13 +250,42 @@ public class SlotMachine {
 
         addSymbol(wheel, symbolsToSpin.get(randomSymbol));
         JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
-
     }
 
     /**
      * Spins the slot machine.
      */
     public void spin() {
+        Winner = false;
+        if (numWheels == 0 || wheels[0] == null) {
+            lastOperationOk = false; 
+            JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
+        }
+        lastOperationOk = true; 
+        symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));        
+        Random random = new Random();
+        int symbolsToSpinSize = symbolsToSpin.size();
+        double probability = random.nextDouble();
+        // This part of the spin method is to make sure there is a probability to win.
+        int randomSymbolWinner = random.nextInt(symbolsToSpinSize);
+        String symbolWinner = symbolsToSpin.get(randomSymbolWinner);
+        // Determines the probability to win.
+        if (probability < 0.4) {
+            for (int i = 0; i < numWheels; i++) {
+                addSymbol(i + 1, symbolWinner);
+                Winner = true;
+            }
+        } else {
+            // Determines the probability to lose.
+            for (int i = 0; i < numWheels; i++){
+                int randomSymbol = random.nextInt(symbolsToSpinSize);
+                addSymbol(i + 1, symbolsToSpin.get(randomSymbol));
+            }
+        }
+        // Check directly if the user wins
+        isjackpot();
+        // I had to call MakeVisible, for some reason it explodes after the jackpot.
+        makeVisible();
     }
 
     /**
@@ -285,7 +317,20 @@ public class SlotMachine {
      * @return the number of distinct symbols
      */
     public int distinctSymbols() {
+    if (numWheels == 0) {
+        lastOperationOk = false;
         return 0;
+    }
+    lastOperationOk = true;
+    String[] visibles = configuration();
+    java.util.ArrayList<String> UniqueColors = new java.util.ArrayList<>();   
+    for (int i = 0; i < visibles.length; i++) {
+        String colorActual = visibles[i];
+        if (colorActual != null && !UniqueColors.contains(colorActual)) {
+            UniqueColors.add(colorActual);
+        }
+    }
+    return UniqueColors.size();
     }
 
     /**
@@ -295,7 +340,21 @@ public class SlotMachine {
      *         available
      */
     public String[] configuration() {
-        return null;
+    if (numWheels == 0 || symbols.isEmpty()) {
+        lastOperationOk = false;
+        return new String[0];
+    }
+    lastOperationOk = true;
+    String[] visibles = new String[numWheels];
+    for (int i = 0; i < numWheels; i++) {
+        // Just in case if there is a wheel with no color.
+        if (i < symbols.size() && symbols.get(i) != null) {
+            visibles[i] = symbols.get(i);
+        } else {
+            visibles[i] = "white"; // Default Color
+        }
+    }
+    return visibles;
     }
 
     /**
@@ -305,7 +364,16 @@ public class SlotMachine {
      *         {@code false}
      */
     public boolean isjackpot() {
-        return false;
+        if (Winner) {
+            JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
+            Winner = true;
+            body.changeColor("green");
+            return true;
+        } else {
+            body.changeColor("blue");
+            Winner = false;
+            return false;
+        }
     }
 
     /**

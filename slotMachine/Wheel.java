@@ -7,16 +7,15 @@
  */
 
 public class Wheel {
-    // Atributos de la rueda
     private Rectangle Wheel;
     private Rectangle window;
     private boolean isVisible;
+
     /**
     * This is the constructor of the Wheel Class.
     */
     public Wheel() {
         isVisible = false;
-        // Inicializamos el fondo visual
         Wheel = new Rectangle();
         Wheel.changeSize(210, 70);
         Wheel.changeColor("white");
@@ -26,12 +25,20 @@ public class Wheel {
 
     }
 
+    /**
+    * Set the position of the wheel and the window
+    * @param x The X position in the screen.
+    * @param y The Y position in the screen.
+    */
     public void setPositionWheel(int x, int y){
         Wheel.setPosition(x, y);
         window.setPosition(x, y);
         window.moveVertical(65);
     }
 
+    /**
+    * Makes Visible the wheel and the window.
+    */
     public void makeWheelVisible() {
         isVisible = true;
         if (isVisible) {
@@ -40,6 +47,9 @@ public class Wheel {
         }
     }
 
+    /**
+    * Makes invisible the wheel and the window.
+    */
     public void makeWheelInvisible() {
         isVisible = false;
         if (isVisible == false) {
@@ -48,14 +58,26 @@ public class Wheel {
         }
     }
 
+    /**
+    * Add a symbol in a wheel.
+    * @param color The symbol that is going to be used.
+    */
     public void addSymbolWheel(String color) {
         window.changeColor(color);
     }
 
+    /**
+    * Deletes a symbol in a wheel.
+    * @param color The symbol that is going to be deleted.
+    */
     public void delSymbolWheel(String color) {
         window.changeColor("white");
     }
 
+    /**
+    * Place a Symbol in a Wheel
+    * @param color The symbol that is going to be used.
+    */
     public void placeSymbolWheel(String color) {
         window.changeColor(color);
     }
