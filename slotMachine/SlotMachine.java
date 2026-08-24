@@ -3,7 +3,14 @@ import java.util.List;
 import java.util.Random;
 import javax.swing.JOptionPane;
 
-
+/**
+ * This class represents a slot machine composed of a body, a lever and
+ * up to nine wheels with colored symbols.
+ *
+ * @author Samuel Infante Camargo
+ * @author Juan Pablo Cuervo Contreras
+ * @version Ciclo 1
+ */
 public class SlotMachine {
     // ok() method+ and Visible Operation.
     private boolean isVisible;
@@ -21,7 +28,7 @@ public class SlotMachine {
     private ArrayList<String> symbolsToSpin;
 
     /**
-     * Constructor of the SlotMachine.
+     * Constructs an empty slot machine and initializes its visual elements.
      */
     public SlotMachine() {
         lastOperationOk = true;
@@ -38,7 +45,7 @@ public class SlotMachine {
     }
 
     /**
-     * This makes the body of the slotmachine.
+     * Creates and configures the body of the slot machine.
      */
     public void bodyConstructor() {
         body = new Rectangle();
@@ -50,7 +57,7 @@ public class SlotMachine {
     }
 
     /**
-     * This is part of the slotMachine body.
+     * Creates and configures the three visual elements that form the lever.
      */
     public void leversConstructor() {
         // This Rectangle makes the horizontal part of the lever
@@ -68,7 +75,10 @@ public class SlotMachine {
     }
 
     /**
-     * This method creates and valides the number of wheels.
+     * Adds a wheel at the requested position. Positions outside the current
+     * valid range are adjusted to the nearest valid position.
+     *
+     * @param pos one-based position where the wheel will be inserted
      */
     public void addWheel(int pos) {
         if (pos <= 0) {
@@ -92,6 +102,9 @@ public class SlotMachine {
         locationWheel();
     }
 
+    /**
+     * Repositions all wheels in their current order.
+     */
     public void locationWheel() {
         lastOperationOk = true;
         int startX = 120;
@@ -108,8 +121,10 @@ public class SlotMachine {
         }
     }
     /**
-     * This method deletes and valides the number of wheels after deleting.
-     * Also, after deleting replace all the wheels into their order.
+     * Deletes the wheel at the requested position and shifts the remaining
+     * wheels to preserve their order.
+     *
+     * @param pos one-based position of the wheel to delete
      */
     public void delWheel(int pos) {
         if (numWheels == 0) {
@@ -133,6 +148,12 @@ public class SlotMachine {
         locationWheel();
     }
 
+    /**
+     * Adds a colored symbol to the wheel at the requested position.
+     *
+     * @param pos one-based position of the wheel
+     * @param color color used for the symbol
+     */
     public void addSymbol(int pos, String color) {
         if (numWheels == 0) {
             lastOperationOk = false; 
@@ -156,6 +177,12 @@ public class SlotMachine {
         symbols.add(color);
     }
 
+    /**
+     * Removes the specified symbol from the machine and clears matching
+     * wheel windows.
+     *
+     * @param symbol symbol color to remove
+     */
     public void delSymbol(String symbol) {
         if(numWheels == 0) {
             lastOperationOk = false;
@@ -171,6 +198,12 @@ public class SlotMachine {
         }
     }
 
+    /**
+     * Places or replaces a symbol on the requested wheel.
+     *
+     * @param wheel one-based position of the wheel
+     * @param symbol symbol color to place
+     */
     public void placeSymbol(int wheel, String symbol) {
         if (numWheels == 0) {
             lastOperationOk = false; 
@@ -191,9 +224,14 @@ public class SlotMachine {
         } 
     }
 
+    /**
+     * Spins the requested wheel and assigns it a randomly selected color.
+     *
+     * @param wheel one-based position of the wheel to spin
+     */
     public void spin(int wheel) {
         if (numWheels == 0 || wheels[0] == null) {
-            lastOperationOk = false; 
+            lastOperationOk = false;
             JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
         } else {
             if (numWheels < wheel) {
@@ -201,21 +239,30 @@ public class SlotMachine {
                 return;
             }
         }
-        lastOperationOk = true; 
-        ArrayList<String> symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));        
+        lastOperationOk = true;
+        ArrayList<String> symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));
         Random random = new Random();
         int symbolsToSpinSize = symbolsToSpin.size();
         int randomSymbol = random.nextInt(symbolsToSpinSize);
-        
+
         addSymbol(wheel, symbolsToSpin.get(randomSymbol));
         JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
 
     }
 
+    /**
+     * Spins the slot machine.
+     */
     public void spin() {
     }
 
-   public String[] symbols() {
+    /**
+     * Returns the symbols currently assigned to the machine's wheels.
+     *
+     * @return an array containing the current symbols, or an empty array when
+     *         the machine has no wheels
+     */
+    public String[] symbols() {
         if (numWheels == 0 || wheels[0] == null) {
            lastOperationOk = false; 
             return new String[0];
@@ -232,20 +279,37 @@ public class SlotMachine {
         return inventario;
     }
 
+    /**
+     * Returns the number of distinct symbols in the machine.
+     *
+     * @return the number of distinct symbols
+     */
     public int distinctSymbols() {
         return 0;
     }
 
+    /**
+     * Returns the current configuration of the slot machine.
+     *
+     * @return the machine configuration, or {@code null} if it is not
+     *         available
+     */
     public String[] configuration() {
         return null;
     }
 
+    /**
+     * Determines whether all wheels have the same symbol.
+     *
+     * @return {@code true} when the machine is a jackpot; otherwise
+     *         {@code false}
+     */
     public boolean isjackpot() {
         return false;
     }
 
     /**
-     * Make visible the slotMachine.
+     * Makes the slot machine and all its wheels visible.
      */
     public void makeVisible() {
         isVisible = true;
@@ -262,6 +326,9 @@ public class SlotMachine {
         }
     }
 
+    /**
+     * Makes the slot machine and all its wheels invisible.
+     */
     public void makeInvisible() {
         isVisible = false;
         if (isVisible == false) {
@@ -277,9 +344,24 @@ public class SlotMachine {
         }
     }
 
+    /**
+     * Hides the machine, if necessary, and exits the application.
+     */
     public void exit() {
+        lastOperationOk = true;
+        if(isVisible){
+            makeInvisible();
+        }
+
+        System.exit(0);
     }
 
+    /**
+     * Reports whether the last operation was completed successfully.
+     *
+     * @return {@code true} when the last operation succeeded; otherwise
+     *         {@code false}
+     */
     public boolean ok() {
         if (lastOperationOk) {
             return true;    
