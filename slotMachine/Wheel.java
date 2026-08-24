@@ -1,8 +1,9 @@
 /**
  * This class creates an extension of the Wheels created before.
  * 
- * @author Samuel Infante Camargo, Juan Pablo Cuervo Contreras 
- * @version 1
+ * @author Samuel Infante Camargo
+ * @author Juan Pablo Cuervo Contreras
+ * @version Cliclo 1
  */
 
 public class Wheel {
