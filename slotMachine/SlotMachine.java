@@ -19,6 +19,8 @@ public class SlotMachine {
     //Symbols 
     private ArrayList<String> symbols;
     private ArrayList<String> symbolsToSpin;
+    //Winner
+    private boolean Winner;
 
     /**
      * Constructor of the SlotMachine.
@@ -213,19 +215,36 @@ public class SlotMachine {
     }
 
     public void spin() {
+        Winner = false;
         if (numWheels == 0 || wheels[0] == null) {
             lastOperationOk = false; 
             JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
         }
         lastOperationOk = true; 
-        ArrayList<String> symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));        
+        symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));        
         Random random = new Random();
         int symbolsToSpinSize = symbolsToSpin.size();
-        
-        for (int i = 0; i < numWheels; i++){
-            int randomSymbol = random.nextInt(symbolsToSpinSize);
-            addSymbol(i + 1, symbolsToSpin.get(randomSymbol));
+        double probability = random.nextDouble();
+        // This part of the spin method is to make sure there is a probability to win.
+        int randomSymbolWinner = random.nextInt(symbolsToSpinSize);
+        String symbolWinner = symbolsToSpin.get(randomSymbolWinner);
+        // Determines the probability to win.
+        if (probability < 0.4) {
+            for (int i = 0; i < numWheels; i++) {
+                addSymbol(i + 1, symbolWinner);
+                Winner = true;
+            }
+        } else {
+            // Determines the probability to lose.
+            for (int i = 0; i < numWheels; i++){
+                int randomSymbol = random.nextInt(symbolsToSpinSize);
+                addSymbol(i + 1, symbolsToSpin.get(randomSymbol));
+            }
         }
+        // Check directly if the user wins
+        isjackpot();
+        // I had to call MakeVisible, for some reason it explodes after the jackpot.
+        makeVisible();
     }
 
     public String[] symbols() {
@@ -254,7 +273,16 @@ public class SlotMachine {
     }
 
     public boolean isjackpot() {
-        return false;
+        if (Winner) {
+            JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
+            Winner = true;
+            body.changeColor("green");
+            return true;
+        } else {
+            body.changeColor("blue");
+            Winner = false;
+            return false;
+        }
     }
 
     /**
