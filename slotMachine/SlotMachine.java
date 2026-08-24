@@ -3,7 +3,12 @@ import java.util.List;
 import java.util.Random;
 import javax.swing.JOptionPane;
 
-
+/**
+ * SlotMachine class.
+ * 
+ * @author Samuel Infante Camargo, Juan Pablo Cuervo Contreras 
+ * @version 1
+ */
 public class SlotMachine {
     // ok() method+ and Visible Operation.
     private boolean isVisible;
@@ -71,6 +76,7 @@ public class SlotMachine {
 
     /**
      * This method creates and valides the number of wheels.
+     * @param pos The position to add the wheel.
      */
     public void addWheel(int pos) {
         if (pos <= 0) {
@@ -94,6 +100,9 @@ public class SlotMachine {
         locationWheel();
     }
 
+    /**
+     * Sets the location of the wheels on the screen.
+     */
     public void locationWheel() {
         lastOperationOk = true;
         int startX = 120;
@@ -109,9 +118,11 @@ public class SlotMachine {
             wheels[i].makeWheelVisible();
         }
     }
+    
     /**
      * This method deletes and valides the number of wheels after deleting.
      * Also, after deleting replace all the wheels into their order.
+     * @param pos The position of the wheel to delete.
      */
     public void delWheel(int pos) {
         if (numWheels == 0) {
@@ -135,6 +146,11 @@ public class SlotMachine {
         locationWheel();
     }
 
+    /**
+     * Adds a symbol to the machine at a specific position.
+     * @param pos The position for the symbol.
+     * @param color The color of the symbol.
+     */
     public void addSymbol(int pos, String color) {
         if (numWheels == 0) {
             lastOperationOk = false; 
@@ -158,6 +174,10 @@ public class SlotMachine {
         symbols.add(color);
     }
 
+    /**
+     * Deletes a symbol from the machine.
+     * @param symbol The symbol to delete.
+     */
     public void delSymbol(String symbol) {
         if(numWheels == 0) {
             lastOperationOk = false;
@@ -173,6 +193,11 @@ public class SlotMachine {
         }
     }
 
+    /**
+     * Places a specific symbol on a wheel.
+     * @param wheel The wheel index.
+     * @param symbol The symbol to place.
+     */
     public void placeSymbol(int wheel, String symbol) {
         if (numWheels == 0) {
             lastOperationOk = false; 
@@ -193,6 +218,10 @@ public class SlotMachine {
         } 
     }
 
+    /**
+     * Spins a specific wheel.
+     * @param wheel The wheel to spin.
+     */
     public void spin(int wheel) {
         if (numWheels == 0 || wheels[0] == null) {
             lastOperationOk = false; 
@@ -211,9 +240,11 @@ public class SlotMachine {
         
         addSymbol(wheel, symbolsToSpin.get(randomSymbol));
         JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
-
     }
 
+    /**
+     * Spins all wheels of the slot machine.
+     */
     public void spin() {
         Winner = false;
         if (numWheels == 0 || wheels[0] == null) {
@@ -247,7 +278,11 @@ public class SlotMachine {
         makeVisible();
     }
 
-    public String[] symbols() {
+    /**
+     * Returns the array of symbols.
+     * @return String[] representing the symbols.
+     */
+   public String[] symbols() {
         if (numWheels == 0 || wheels[0] == null) {
            lastOperationOk = false; 
             return new String[0];
@@ -264,14 +299,53 @@ public class SlotMachine {
         return inventario;
     }
 
+    /**
+     * Returns the count of distinct symbols.
+     * @return int distinct symbols count.
+     */
     public int distinctSymbols() {
+    if (numWheels == 0) {
+        lastOperationOk = false;
         return 0;
     }
-
-    public String[] configuration() {
-        return null;
+    lastOperationOk = true;
+    String[] visibles = configuration();
+    java.util.ArrayList<String> UniqueColors = new java.util.ArrayList<>();   
+    for (int i = 0; i < visibles.length; i++) {
+        String colorActual = visibles[i];
+        if (colorActual != null && !UniqueColors.contains(colorActual)) {
+            UniqueColors.add(colorActual);
+        }
+    }
+    return UniqueColors.size();
     }
 
+    /**
+     * Returns the current configuration of visible symbols.
+     * @return String[] of visible symbols.
+     */
+    public String[] configuration() {
+    if (numWheels == 0 || symbols.isEmpty()) {
+        lastOperationOk = false;
+        return new String[0];
+    }
+    lastOperationOk = true;
+    String[] visibles = new String[numWheels];
+    for (int i = 0; i < numWheels; i++) {
+        // Just in case if there is a wheel with no color.
+        if (i < symbols.size() && symbols.get(i) != null) {
+            visibles[i] = symbols.get(i);
+        } else {
+            visibles[i] = "white"; // Default Color
+        }
+    }
+    return visibles;
+    }
+
+    /**
+     * Checks if the user won the jackpot.
+     * @return boolean true if winner.
+     */
     public boolean isjackpot() {
         if (Winner) {
             JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
@@ -303,6 +377,9 @@ public class SlotMachine {
         }
     }
 
+    /**
+     * Make invisible the slotMachine.
+     */
     public void makeInvisible() {
         isVisible = false;
         if (isVisible == false) {
@@ -318,9 +395,16 @@ public class SlotMachine {
         }
     }
 
+    /**
+     * Exits the simulator.
+     */
     public void exit() {
     }
 
+    /**
+     * Checks if the last operation was ok.
+     * @return boolean status.
+     */
     public boolean ok() {
         if (lastOperationOk) {
             return true;    
