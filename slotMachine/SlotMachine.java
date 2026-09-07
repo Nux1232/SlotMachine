@@ -23,10 +23,7 @@ public class SlotMachine {
     private Rectangle leverVertical;
     private Wheel[] wheels;
     private int numWheels;
-    //Symbols 
-    private ArrayList<String> symbols;
-    private ArrayList<String> symbolsToSpin;
-    //winner
+    //Winner
     private boolean winner;
 
     /**
@@ -42,8 +39,6 @@ public class SlotMachine {
         leverVertical.moveHorizontal(1248);
         leverVertical.moveVertical(80);
         leverCircle.moveHorizontal(1277);
-        // This must be erased, we must create a new class.
-        symbols = new ArrayList<>();
     }
 
     /**
@@ -52,6 +47,7 @@ public class SlotMachine {
     public void bodyConstructor() {
         body = new Rectangle();
         body.changeSize(530,1200);
+        // Acá hay que buscar centrarlo por mientras tanto
         body.moveHorizontal(7);
         body.moveVertical(60);
         body.changeColor("blue");
@@ -101,7 +97,6 @@ public class SlotMachine {
             wheels[i] = wheels[i-1];
         }
         wheels[index] = new Wheel();
-        symbols.add(index, null);
         numWheels++;
         locationWheel();
     }
@@ -124,7 +119,7 @@ public class SlotMachine {
             wheels[i].makeWheelVisible();
         }
     }
-    
+
     /**
      * Deletes the wheel at the requested position and shifts the remaining
      * wheels to preserve their order.
@@ -150,7 +145,6 @@ public class SlotMachine {
         for (int i = index; i < numWheels - 1; i++) {
             wheels[i] = wheels[i + 1];
         }    
-        symbols.remove(index);
         numWheels--;
         if (numWheels > 0) {
             locationWheel();
@@ -180,7 +174,6 @@ public class SlotMachine {
         int index = pos - 1; 
         if (wheels[index] != null) {
             wheels[index].addSymbolWheel(color);
-            symbols.set(index, color);
             lastOperationOk = true;
         }else {
             lastOperationOk = false;
@@ -201,8 +194,8 @@ public class SlotMachine {
         lastOperationOk = true;
         for (int i = 0; i < numWheels; i++) {
             if (wheels[i] != null) {
-                if (symbol != null && symbol.equals(symbols.get(i))){
-                    symbols.set(i, null);
+                if (wheels[i].getSymbol() != null
+                        && wheels[i].getSymbol().hasColor(symbol)){
                     wheels[i].delSymbolWheel(symbol);
                }   
             } 
@@ -232,7 +225,6 @@ public class SlotMachine {
         lastOperationOk = true;
         if (wheels[index] != null) {
             wheels[index].placeSymbolWheel(symbol);
-            symbols.set(index, symbol);
         } 
     }
 
@@ -255,9 +247,6 @@ public class SlotMachine {
         Wheel temporaryWheel = wheels[firstIndex];
         wheels[firstIndex] = wheels[secondIndex];
         wheels[secondIndex] = temporaryWheel;
-        String temporarySymbol = symbols.get(firstIndex);
-        symbols.set(firstIndex, symbols.get(secondIndex));
-        symbols.set(secondIndex, temporarySymbol);
         locationWheel();
         lastOperationOk = true;
     }
@@ -310,12 +299,8 @@ public class SlotMachine {
             return;
         }
         lastOperationOk = true;
-        ArrayList<String> symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));
         Random random = new Random();
-        int symbolsToSpinSize = symbolsToSpin.size();
-        int randomSymbol = random.nextInt(symbolsToSpinSize);
-
-        addSymbol(wheel, symbolsToSpin.get(randomSymbol));
+        addSymbol(wheel, Symbol.random(random).getColor());
         JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
     }
 
@@ -325,20 +310,17 @@ public class SlotMachine {
     public void spin() {
         winner = false;
         if (numWheels == 0 || wheels[0] == null) {
-            lastOperationOk = false; 
+            lastOperationOk = false;
             if (isVisible) {
                 JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
             }
             return;
         }
-        lastOperationOk = true; 
-        symbolsToSpin = new ArrayList<>(List.of("red", "green", "pink", "black", "yellow", "orange", "magenta", "cyan"));        
+        lastOperationOk = true;
         Random random = new Random();
-        int symbolsToSpinSize = symbolsToSpin.size();
         double probability = random.nextDouble();
         // This part of the spin method is to make sure there is a probability to win.
-        int randomSymbolWinner = random.nextInt(symbolsToSpinSize);
-        String symbolWinner = symbolsToSpin.get(randomSymbolWinner);
+        String symbolWinner = Symbol.random(random).getColor();
         // Determines the probability to win.
         if (probability < 0.4) {
             for (int i = 0; i < numWheels; i++) {
@@ -351,8 +333,7 @@ public class SlotMachine {
             // Determines the probability to lose.
             for (int i = 0; i < numWheels; i++){
                 if (!wheels[i].isLocked()) {
-                    int randomSymbol = random.nextInt(symbolsToSpinSize);
-                    addSymbol(i + 1, symbolsToSpin.get(randomSymbol));
+                    addSymbol(i + 1, Symbol.random(random).getColor());
                 }
             }
         }
@@ -374,13 +355,9 @@ public class SlotMachine {
             return new String[0];
         }
         lastOperationOk = true; 
-        String[] inventario = new String[symbols.size()];
+        String[] inventario = new String[numWheels];
         for (int i = 0; i < numWheels; i++){
-            if (symbols.get(i) != null) {
-                inventario[i] = symbols.get(i);
-            }else {
-                inventario[i] = null;
-            }
+            inventario[i] = wheels[i].symbolColor();
         }
         return inventario;
     }
@@ -397,7 +374,7 @@ public class SlotMachine {
     }
     lastOperationOk = true;
     String[] visibles = configuration();
-    java.util.ArrayList<String> UniqueColors = new java.util.ArrayList<>();   
+    java.util.ArrayList<String> UniqueColors = new java.util.ArrayList<>();
     for (int i = 0; i < visibles.length; i++) {
         String colorActual = visibles[i];
         if (colorActual != null && !UniqueColors.contains(colorActual)) {
@@ -414,16 +391,15 @@ public class SlotMachine {
      *         available
      */
     public String[] configuration() {
-    if (numWheels == 0 || symbols.isEmpty()) {
+    if (numWheels == 0) {
         lastOperationOk = false;
         return new String[0];
     }
     lastOperationOk = true;
     String[] visibles = new String[numWheels];
     for (int i = 0; i < numWheels; i++) {
-        // Just in case if there is a wheel with no color.
-        if (i < symbols.size() && symbols.get(i) != null) {
-            visibles[i] = symbols.get(i);
+        if (wheels[i].symbolColor() != null) {
+            visibles[i] = wheels[i].symbolColor();
         } else {
             visibles[i] = "white"; // Default Color
         }

@@ -183,15 +183,15 @@ public class Rectangle{
     }
 
     /**
-    * Change the position of the rectangle
-    * @param x It is the position of X where the rectangle goes to (Horizontal).
-    * @param y It is the position of Y where the rectangle goes to (Vertical).  
+    * Change the position of the Rectangle
+    * @param x The distance where the Rectangle will be (Horizontal).
+    * @param y The distance where the Rectangle will be (Vertical).
     */
     public void setPosition(int x, int y) {
     erase(); 
     xPosition = x; 
     yPosition = y;
-    draw(); 
-}
+    draw();
+    }  
 }
 
