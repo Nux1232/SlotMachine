@@ -52,5 +52,3 @@ Mini-ciclo 3 (Consultas y estado de victoria): Desarrollo de los métodos de con
 &#x09;Oracle. (s. f.). Interface List. Oracle Help Center. Recuperado de 	https://docs.oracle.com/javase/8/docs/api/java/util/List.html
 
 	Consultas LLM's para solucionar dudas de programación y implementación 
-	
-

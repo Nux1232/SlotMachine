@@ -10,12 +10,14 @@ public class Wheel {
     private Rectangle Wheel;
     private Rectangle window;
     private boolean isVisible;
+    private boolean locked;
 
     /**
     * This is the constructor of the Wheel Class.
     */
     public Wheel() {
         isVisible = false;
+        locked = false;
         Wheel = new Rectangle();
         Wheel.changeSize(210, 70);
         Wheel.changeColor("white");
@@ -80,6 +82,29 @@ public class Wheel {
     */
     public void placeSymbolWheel(String color) {
         window.changeColor(color);
+    }
+
+    /**
+     * Fixes this wheel so a complete spin does not change its symbol.
+     */
+    public void lock() {
+        locked = true;
+    }
+
+    /**
+     * Releases this wheel so it can change during a complete spin.
+     */
+    public void unlock() {
+        locked = false;
+    }
+
+    /**
+     * Indicates whether this wheel is fixed.
+     *
+     * @return {@code true} when this wheel is locked
+     */
+    public boolean isLocked() {
+        return locked;
     }
 
 }
