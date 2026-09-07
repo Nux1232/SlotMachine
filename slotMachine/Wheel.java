@@ -11,6 +11,7 @@ public class Wheel {
     private Rectangle window;
     private boolean isVisible;
     private boolean locked;
+    private Symbol symbol;
 
     /**
     * This is the constructor of the Wheel Class.
@@ -65,6 +66,7 @@ public class Wheel {
     * @param color The symbol that is going to be used.
     */
     public void addSymbolWheel(String color) {
+        symbol = new Symbol(color);
         window.changeColor(color);
     }
 
@@ -73,7 +75,10 @@ public class Wheel {
     * @param color The symbol that is going to be deleted.
     */
     public void delSymbolWheel(String color) {
-        window.changeColor("white");
+        if (symbol != null && symbol.hasColor(color)) {
+            symbol = null;
+            window.changeColor("white");
+        }
     }
 
     /**
@@ -81,7 +86,26 @@ public class Wheel {
     * @param color The symbol that is going to be used.
     */
     public void placeSymbolWheel(String color) {
+        symbol = new Symbol(color);
         window.changeColor(color);
+    }
+
+    /**
+     * Returns the symbol currently displayed by this wheel.
+     *
+     * @return the current symbol, or null when the wheel has no symbol
+     */
+    public Symbol getSymbol() {
+        return symbol;
+    }
+
+    /**
+     * Returns this wheel's symbol color.
+     *
+     * @return the current color, or null when the wheel has no symbol
+     */
+    public String symbolColor() {
+        return symbol == null ? null : symbol.getColor();
     }
 
     /**
