@@ -49,4 +49,15 @@ public class Symbol {
     public static Symbol random(Random random) {
         return new Symbol(AVAILABLE_COLORS.get(random.nextInt(AVAILABLE_COLORS.size())));
     }
+
+    /**
+     * Checks whether a color belongs to the symbol palette supported by the
+     * current version of the slot machine.
+     *
+     * @param color color to check
+     * @return {@code true} when the color is supported
+     */
+    public static boolean isAvailableColor(String color) {
+        return color != null && AVAILABLE_COLORS.contains(color);
+    }
 }
