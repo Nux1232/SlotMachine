@@ -22,6 +22,7 @@ public class SlotMachine {
     //Wheels
     private Rectangle leverVertical;
     private Wheel[] wheels;
+    // Esto de acá debe ser una arrayList
     private int numWheels;
     //Winner
     private boolean winner;
@@ -39,6 +40,13 @@ public class SlotMachine {
         leverVertical.moveHorizontal(1248);
         leverVertical.moveVertical(80);
         leverCircle.moveHorizontal(1277);
+    }
+
+    /**
+     * Validates if a position may be okay or not (Needs to be implemented)
+     */
+    private void validatePosition(int pos) {
+
     }
 
     /**
