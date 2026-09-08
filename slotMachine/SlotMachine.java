@@ -10,6 +10,8 @@ import javax.swing.JOptionPane;
  * @version Ciclo 1
  */
 public class SlotMachine {
+    private static final int STEP_DELAY_MILLISECONDS = 100;
+
     // ok() method+ and Visible Operation.
     private boolean isVisible;
     private boolean lastOperationOk;
@@ -340,7 +342,145 @@ public class SlotMachine {
         // I had to call MakeVisible, for some reason it explodes after the jackpot.
         makeVisible();
     }
+    /**
+     * Rotates one wheel the requested number of steps. Each step selects a
+     * symbol from the palette supported by the current version. When the
+     * machine is visible, a short pause lets the user see every intermediate
+     * symbol.
+     *
+     * @param wheel one-based position of the wheel to rotate
+     * @param steps number of steps; it must be zero or greater
+     */
+    public void spin(int wheel, int steps) {
+        if (!hasWheels()) {
+            operationError("No puedes girar una rueda sin ruedas.");
+            return;
+        }
+        if (!validWheelPosition(wheel)) {
+            return;
+        }
+        if (steps < 0) {
+            operationError("El número de pasos no puede ser negativo.");
+            return;
+        }
+        if (wheels[wheel - 1].isLocked()) {
+            operationError("No puedes girar una rueda fijada.");
+            return;
+        }
 
+        Random random = new Random();
+        for (int step = 0; step < steps; step++) {
+            wheels[wheel - 1].addSymbolWheel(Symbol.random(random).getColor());
+            if (!pauseBetweenSteps()) {
+                return;
+            }
+        }
+        lastOperationOk = true;
+    }
+
+    /**
+     * Leaves the machine in the configuration described by a string.
+     * Colors may be separated by commas, semicolons, or whitespace. The
+     * configuration must contain exactly one supported color per wheel.
+     * A locked wheel may only keep its current color.
+     *
+     * @param setSymbols desired colors in wheel order
+     */
+    public void spin(String setSymbols) {
+        if (!hasWheels()) {
+            operationError("No puedes establecer una configuración sin ruedas.");
+            return;
+        }
+        String[] requestedSymbols = parseConfiguration(setSymbols);
+        if (requestedSymbols == null) {
+            return;
+        }
+
+        for (int i = 0; i < numWheels; i++) {
+            if (wheels[i].isLocked()
+                    && !requestedSymbols[i].equals(wheels[i].symbolColor())) {
+                operationError("La configuración cambia una rueda fijada.");
+                return;
+            }
+        }
+        for (int i = 0; i < numWheels; i++) {
+            if (!wheels[i].isLocked()) {
+                wheels[i].placeSymbolWheel(requestedSymbols[i]);
+            }
+        }
+        winner = allSymbolsEqual(requestedSymbols);
+        isjackpot();
+        lastOperationOk = true;
+    }
+
+    /**
+     * Checks whether a requested configuration contains the same symbol on
+     * every wheel.
+     */
+    private boolean allSymbolsEqual(String[] requestedSymbols) {
+        for (int i = 1; i < requestedSymbols.length; i++) {
+            if (!requestedSymbols[0].equals(requestedSymbols[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Parses and validates the textual representation of a configuration.
+     */
+    private String[] parseConfiguration(String setSymbols) {
+        if (setSymbols == null) {
+            operationError("La configuración no puede ser nula.");
+            return null;
+        }
+        String configurationText = setSymbols.trim();
+        if (configurationText.startsWith("[") && configurationText.endsWith("]")) {
+            configurationText = configurationText.substring(1, configurationText.length() - 1).trim();
+        }
+        if (configurationText.isEmpty()) {
+            operationError("La configuración no puede estar vacía.");
+            return null;
+        }
+
+        String[] requestedSymbols = configurationText.split("[,;\\s]+");
+        if (requestedSymbols.length != numWheels) {
+            operationError("La configuración debe tener un símbolo por rueda.");
+            return null;
+        }
+        for (String color : requestedSymbols) {
+            if (!Symbol.isAvailableColor(color)) {
+                operationError("El símbolo '" + color
+                        + "' no está permitido en la versión actual.");
+                return null;
+            }
+        }
+        return requestedSymbols;
+    }
+
+    /**
+     * Waits between visible steps without hiding interruption from callers.
+     */
+    private boolean pauseBetweenSteps() {
+        if (!isVisible) {
+            return true;
+        }
+        try {
+            Thread.sleep(STEP_DELAY_MILLISECONDS);
+            return true;
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            operationError("La animación del giro fue interrumpida.");
+            return false;
+        }
+    }
+
+    /**
+     * Indicates whether the machine contains at least one wheel.
+     */
+    private boolean hasWheels() {
+        return numWheels > 0 && wheels[0] != null;
+    }
     /**
      * Returns the symbols currently assigned to the machine's wheels.
      *
