@@ -51,12 +51,12 @@ public class SlotMachineC2Test {
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
         slotMachine.placeSymbol(1, "red");
-        slotMachine.placeSymbol(2, "blue");
+        slotMachine.placeSymbol(2, "black");
 
         slotMachine.swap(1, 2);
 
         assertTrue(slotMachine.ok());
-        assertArrayEquals(new String[]{"blue", "red"}, slotMachine.configuration());
+        assertArrayEquals(new String[]{"black", "red"}, slotMachine.configuration());
     }
 
     @Test
@@ -110,9 +110,9 @@ public class SlotMachineC2Test {
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
 
-        slotMachine.spin("red, blue");
+        slotMachine.spin("red, black");
 
-        assertArrayEquals(new String[]{"red", "blue"},
+        assertArrayEquals(new String[]{"red", "black"},
                 slotMachine.configuration());
         assertTrue(slotMachine.ok());
     }
@@ -189,13 +189,37 @@ public class SlotMachineC2Test {
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
         slotMachine.placeSymbol(1, "red");
-        slotMachine.placeSymbol(2, "blue");
+        slotMachine.placeSymbol(2, "black");
 
         slotMachine.spin("red, purple");
 
-        assertArrayEquals(new String[]{"red", "blue"},
+        assertArrayEquals(new String[]{"red", "black"},
                 slotMachine.configuration());
         assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldRejectBlueAsAnObsoleteSymbol() {
+        slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "blue");
+
+        assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"white"}, slotMachine.configuration());
+    }
+
+    @Test
+    public void accordingCcIcshouldAcceptTheThreeCurrentSymbolColors() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.addWheel(3);
+
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "black");
+        slotMachine.placeSymbol(3, "green");
+
+        assertArrayEquals(new String[]{"red", "black", "green"},
+                slotMachine.configuration());
+        assertTrue(slotMachine.ok());
     }
 
     @Test
