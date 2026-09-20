@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
  * @author  (your name)
  * @version (a version number or a date)
  */
-public class SlowMachineCC2Test
-{
+public class SlowMachineCC2Test{
     /**
      * Verifica que swap intercambie los símbolos de dos ruedas válidas.
      */
@@ -72,6 +71,5 @@ public class SlowMachineCC2Test
         assertEquals(1, slotMachine.configuration().length);
     }
 }
-
 // tomado de Grupo: MoralesS-RojasH
 }

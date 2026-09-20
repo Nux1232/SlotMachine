@@ -26,12 +26,25 @@ public class Canvas{
      */
     public static Canvas getCanvas(){
         if(canvasSingleton == null) {
-            // Changed Canva's Size to make the SlotMachine bigger.
-            canvasSingleton = new Canvas("SlotMachine", 2000, 1000,
+            Dimension screen = screenSize();
+            int width = (int) (screen.width * 0.90);
+            int height = (int) (screen.height * 0.80);
+            canvasSingleton = new Canvas("SlotMachine", width, height,
                                          Color.white);
         }
         canvasSingleton.setVisible(true);
         return canvasSingleton;
+    }
+
+    /**
+     * Returns the usable screen size without creating the graphical canvas.
+     */
+    public static Dimension screenSize() {
+        if (GraphicsEnvironment.isHeadless()) {
+            return new Dimension(1500, 800);
+        }
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        return new Dimension(screen.width, screen.height);
     }
 
     //  ----- instance part -----

@@ -1,13 +1,12 @@
-import java.util.List;
 import java.util.Random;
+import java.util.List;
 
 /**
  * Represents a symbol displayed by a slot machine wheel.
  */
 public class Symbol {
     private static final List<String> AVAILABLE_COLORS = List.of(
-        "red", "green", "pink", "black",
-        "yellow", "orange", "magenta", "cyan"
+        "red", "black", "green"
     );
 
     private final String color;
