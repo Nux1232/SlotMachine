@@ -1,8 +1,10 @@
 /**
- * Esta clase contine los comportamientos comunes de las figuras
+ * Esta clase contiene los atributos y comportamientos comunes de las figuras.
+ *
+ * La clase base conserva la posicion, el color y la visibilidad. Las
+ * subclases solo deben definir como se dibuja su forma concreta.
  */
-
-public class Shapes {
+public abstract class Shapes {
     protected int xPosition;
     protected int yPosition;
     protected String color;
@@ -16,8 +18,13 @@ public class Shapes {
         draw();
     }
 
-    private void draw() {
-    }
+    /**
+     * Dibuja la forma concreta. Debe ser implementado por cada subclase.
+     *
+     * Antes estaba declarado como private y vacio. Por eso los movimientos
+     * heredados no redibujaban Rectangle ni Triangle.
+     */
+    protected abstract void draw();
 
     /**
      * Make this rectangle invisible. If it was already invisible, do nothing.
@@ -127,7 +134,7 @@ public class Shapes {
     /*
      * Erase the rectangle on screen.
      */
-    private void erase(){
+    protected void erase(){
         if(isVisible) {
             Canvas canvas = Canvas.getCanvas();
             canvas.erase(this);

@@ -45,7 +45,8 @@ public class Rectangle extends Shapes{
      * Draw the rectangle with current specifications on screen.
      */
 
-    private void draw() {
+    @Override
+    protected void draw() {
         if(isVisible) {
             Canvas canvas = Canvas.getCanvas();
             canvas.draw(this, color,
@@ -57,4 +58,3 @@ public class Rectangle extends Shapes{
 
 
 }
-
