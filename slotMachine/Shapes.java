@@ -1,92 +1,62 @@
-import java.awt.*;
-import java.awt.geom.*;
-
 /**
- * A circle that can be manipulated and that draws itself on a canvas.
- * 
- * @author  Michael Kolling and David J. Barnes
- * @version 1.0.  (15 July 2000) 
+ * Esta clase contine los comportamientos comunes de las figuras
  */
 
-public class Circle extends Shapes{
+public class Shapes {
+    protected int xPosition;
+    protected int yPosition;
+    protected String color;
+    protected boolean isVisible;
 
-    public static final double PI=3.1416;
-    
-    private int diameter;
-    private int xPosition;
-    private int yPosition;
-    private String color;
-    private boolean isVisible;
-    
-
-    public Circle(){
-        diameter = 30;
-        xPosition = 20;
-        yPosition = 15;
-        color = "blue";
-        isVisible = false;
-    }
-
-
-       
+    /**
+     * Make this rectangle visible. If it was already visible, do nothing.
+     */
     public void makeVisible(){
         isVisible = true;
         draw();
     }
-    
 
+    private void draw() {
+    }
+
+    /**
+     * Make this rectangle invisible. If it was already invisible, do nothing.
+     */
     public void makeInvisible(){
         erase();
         isVisible = false;
     }
 
-    private void draw(){
-        if(isVisible) {
-            Canvas canvas = Canvas.getCanvas();
-            canvas.draw(this, color, 
-                new Ellipse2D.Double(xPosition, yPosition, 
-                diameter, diameter));
-            canvas.wait(10);
-        }
-    }
-
-    private void erase(){
-        if(isVisible) {
-            Canvas canvas = Canvas.getCanvas();
-            canvas.erase(this);
-        }
-    }
-    
     /**
-     * Move the circle a few pixels to the right.
+     * Move the rectangle a few pixels to the right.
      */
     public void moveRight(){
         moveHorizontal(20);
     }
 
     /**
-     * Move the circle a few pixels to the left.
+     * Move the rectangle a few pixels to the left.
      */
     public void moveLeft(){
         moveHorizontal(-20);
     }
 
     /**
-     * Move the circle a few pixels up.
+     * Move the rectangle a few pixels up.
      */
     public void moveUp(){
         moveVertical(-20);
     }
 
     /**
-     * Move the circle a few pixels down.
+     * Move the rectangle a few pixels down.
      */
     public void moveDown(){
         moveVertical(20);
     }
 
     /**
-     * Move the circle horizontally.
+     * Move the rectangle horizontally.
      * @param distance the desired distance in pixels
      */
     public void moveHorizontal(int distance){
@@ -96,7 +66,7 @@ public class Circle extends Shapes{
     }
 
     /**
-     * Move the circle vertically.
+     * Move the rectangle vertically.
      * @param distance the desired distance in pixels
      */
     public void moveVertical(int distance){
@@ -106,7 +76,7 @@ public class Circle extends Shapes{
     }
 
     /**
-     * Slowly move the circle horizontally.
+     * Slowly move the rectangle horizontally.
      * @param distance the desired distance in pixels
      */
     public void slowMoveHorizontal(int distance){
@@ -126,7 +96,7 @@ public class Circle extends Shapes{
     }
 
     /**
-     * Slowly move the circle vertically
+     * Slowly move the rectangle vertically.
      * @param distance the desired distance in pixels
      */
     public void slowMoveVertical(int distance){
@@ -135,7 +105,7 @@ public class Circle extends Shapes{
         if(distance < 0) {
             delta = -1;
             distance = -distance;
-        }else {
+        } else {
             delta = 1;
         }
 
@@ -146,17 +116,7 @@ public class Circle extends Shapes{
     }
 
     /**
-     * Change the size.
-     * @param newDiameter the new size (in pixels). Size must be >=0.
-     */
-    public void changeSize(int newDiameter){
-        erase();
-        diameter = newDiameter;
-        draw();
-    }
-
-    /**
-     * Change the color. 
+     * Change the color.
      * @param color the new color. Valid colors are "red", "yellow", "blue", "green",
      * "magenta" and "black".
      */
@@ -164,7 +124,25 @@ public class Circle extends Shapes{
         color = newColor;
         draw();
     }
+    /*
+     * Erase the rectangle on screen.
+     */
+    private void erase(){
+        if(isVisible) {
+            Canvas canvas = Canvas.getCanvas();
+            canvas.erase(this);
+        }
+    }
 
-
-
+    /**
+     * Change the position of the Rectangle
+     * @param x The distance where the Rectangle will be (Horizontal).
+     * @param y The distance where the Rectangle will be (Vertical).
+     */
+    public void setPosition(int x, int y) {
+        erase();
+        xPosition = x;
+        yPosition = y;
+        draw();
+    }
 }
