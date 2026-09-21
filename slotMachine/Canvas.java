@@ -150,6 +150,8 @@ public class Canvas{
             graphic.setColor(Color.cyan);
         else if(colorString.equals("gray"))
             graphic.setColor(Color.gray);
+        else if(colorString.equals("brown"))
+            graphic.setColor(new Color(102,51,0));
         else
             graphic.setColor(Color.black);
     }

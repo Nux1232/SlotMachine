@@ -3,7 +3,7 @@
  *
  * @author Samuel Infante Camargo
  * @author Juan Pablo Cuervo Contreras
- * @version Cliclo 1
+ * @version Cliclo 3
  */
 
 public class Wheel {
@@ -118,7 +118,26 @@ public class Wheel {
         } else if (symbol.hasColor("green")) {
             symbolShape = new Circle();
             ((Circle) symbolShape).changeSize(50);
+        } else if (symbol.hasColor("orange")) {
+            symbolShape = new Triangle();
+            ((Triangle) symbolShape).changeSize(50,50);
+        } else if (symbol.hasColor("yellow")){
+            symbolShape = new Rectangle();
+            ((Rectangle) symbolShape).changeSize(50,50);
+        } else if(symbol.hasColor("magenta")){
+            symbolShape = new Circle();
+            ((Circle) symbolShape).changeSize(50);
+        }else if(symbol.hasColor("brown")){
+            symbolShape = new Triangle();
+            ((Triangle) symbolShape).changeSize(50,50);
+        } else if(symbol.hasColor("gray")){
+            symbolShape = new Rectangle();
+            ((Rectangle) symbolShape).changeSize(50,50);
+        } else if(symbol.hasColor("pink")){
+            symbolShape = new Circle();
+            ((Circle) symbolShape).changeSize(50);
         }
+
         symbolShape.changeColor(symbol.getColor());
         positionSymbolShape();
         if (isVisible) {

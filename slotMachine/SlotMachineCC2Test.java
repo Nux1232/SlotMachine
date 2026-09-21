@@ -26,6 +26,7 @@ public class SlotMachineCC2Test {
 
         slotMachine.swap(1, 2);
 
+        assertTrue(slotMachine.ok());
         assertArrayEquals(new String[]{"black", "red"},
                 slotMachine.configuration());
     }
@@ -70,7 +71,9 @@ public class SlotMachineCC2Test {
 
         slotMachine.delWheel(10);
 
+        assertTrue(slotMachine.ok());
         assertEquals(1, slotMachine.configuration().length);
+        assertArrayEquals(new String[]{"black"}, slotMachine.configuration());
     }
 
     /**
