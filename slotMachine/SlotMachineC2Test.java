@@ -51,22 +51,31 @@ public class SlotMachineC2Test {
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
         slotMachine.placeSymbol(1, "red");
-        slotMachine.placeSymbol(2, "blue");
+        slotMachine.placeSymbol(2, "black");
 
         slotMachine.swap(1, 2);
 
         assertTrue(slotMachine.ok());
-        assertArrayEquals(new String[]{"blue", "red"}, slotMachine.configuration());
+        assertArrayEquals(new String[]{"black", "red"}, slotMachine.configuration());
     }
 
     @Test
     public void accordingCcIcshouldLockAndUnlockWheel() {
         slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "red");
         slotMachine.lock(1);
         assertTrue(slotMachine.ok());
 
+        slotMachine.spin("red");
+        assertTrue(slotMachine.ok());
+        assertEquals("red", slotMachine.configuration()[0]);
+
         slotMachine.unlock(1);
         assertTrue(slotMachine.ok());
+
+        slotMachine.spin("black");
+        assertTrue(slotMachine.ok());
+        assertEquals("black", slotMachine.configuration()[0]);
     }
 
     @Test
@@ -90,7 +99,7 @@ public class SlotMachineC2Test {
 
         slotMachine.spin(1, 3);
 
-        assertNotNull(slotMachine.configuration()[0]);
+        assertTrue(Symbol.isAvailableColor(slotMachine.configuration()[0]));
         assertTrue(slotMachine.ok());
     }
 
@@ -110,9 +119,9 @@ public class SlotMachineC2Test {
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
 
-        slotMachine.spin("red, blue");
+        slotMachine.spin("red, black");
 
-        assertArrayEquals(new String[]{"red", "blue"},
+        assertArrayEquals(new String[]{"red", "black"},
                 slotMachine.configuration());
         assertTrue(slotMachine.ok());
     }
@@ -130,12 +139,14 @@ public class SlotMachineC2Test {
 
         assertFalse(slotMachine.ok());
         assertEquals(9, slotMachine.configuration().length);
+        assertEquals(9, slotMachine.symbols().length);
     }
 
     @Test
     public void accordingCcIcshouldNotAllowOperationsWhenNoWheelsExist() {
         slotMachine.delWheel(1);
         assertFalse(slotMachine.ok());
+        assertEquals(0, slotMachine.configuration().length);
 
         slotMachine.addSymbol(1, "red");
         assertFalse(slotMachine.ok());
@@ -189,23 +200,51 @@ public class SlotMachineC2Test {
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
         slotMachine.placeSymbol(1, "red");
-        slotMachine.placeSymbol(2, "blue");
+        slotMachine.placeSymbol(2, "black");
 
         slotMachine.spin("red, purple");
 
-        assertArrayEquals(new String[]{"red", "blue"},
+        assertArrayEquals(new String[]{"red", "black"},
                 slotMachine.configuration());
         assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldRejectBlueAsAnObsoleteSymbol() {
+        slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "blue");
+
+        assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"white"}, slotMachine.configuration());
+    }
+
+    @Test
+    public void accordingCcIcshouldAcceptTheThreeCurrentSymbolColors() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.addWheel(3);
+
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "black");
+        slotMachine.placeSymbol(3, "green");
+
+        assertArrayEquals(new String[]{"red", "black", "green"},
+                slotMachine.configuration());
+        assertTrue(slotMachine.ok());
     }
 
     @Test
     public void accordingCcIcshouldNotSetConfigurationWithWrongNumberOfSymbols() {
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "black");
 
         slotMachine.spin("red");
 
         assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"red", "black"},
+                slotMachine.configuration());
     }
 
     @Test

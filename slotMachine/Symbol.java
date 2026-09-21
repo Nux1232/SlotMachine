@@ -1,13 +1,14 @@
-import java.util.List;
 import java.util.Random;
+import java.util.List;
 
 /**
- * Represents a symbol displayed by a slot machine wheel.
+ * Represents one of the three symbols displayed by a slot machine wheel.
+ *
+ * The visual mapping is red = triangle, black = square and green = circle.
  */
 public class Symbol {
     private static final List<String> AVAILABLE_COLORS = List.of(
-        "red", "green", "pink", "black",
-        "yellow", "orange", "magenta", "cyan"
+        "red", "black", "green"
     );
 
     private final String color;
@@ -15,10 +16,14 @@ public class Symbol {
     /**
      * Creates a symbol with the specified color.
      *
-     * @param color color used to display the symbol
+     * @param color color that identifies the symbol
      */
     public Symbol(String color) {
         this.color = color;
+    }
+
+    public static java.util.List<String> getAvailableColors() {
+        return AVAILABLE_COLORS;
     }
 
     /**
@@ -41,7 +46,7 @@ public class Symbol {
     }
 
     /**
-     * Creates a symbol with a randomly selected available color.
+     * Creates a symbol with a randomly selected available symbol color.
      *
      * @param random source used to select the color
      * @return a new randomly colored symbol

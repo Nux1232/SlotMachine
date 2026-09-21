@@ -1,18 +1,19 @@
 
-
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * The test class SlowMachineCC2Test.
- *
- * @author  (your name)
- * @version (a version number or a date)
+ * Pruebas adicionales para SlotMachine (Ciclo 2).
  */
-public class SlowMachineCC2Test
-{
+public class SlotMachineCC2Test {
+    private SlotMachine slotMachine;
+
+    @BeforeEach
+    public void setUp() {
+        slotMachine = new SlotMachine();
+    }
+
     /**
      * Verifica que swap intercambie los símbolos de dos ruedas válidas.
      */
@@ -21,11 +22,12 @@ public class SlowMachineCC2Test
         slotMachine.addWheel(1);
         slotMachine.addWheel(2);
         slotMachine.addSymbol(1, "red");
-        slotMachine.addSymbol(2, "blue");
+        slotMachine.addSymbol(2, "black");
 
         slotMachine.swap(1, 2);
 
-        assertArrayEquals(new String[]{"blue", "red"},
+        assertTrue(slotMachine.ok());
+        assertArrayEquals(new String[]{"black", "red"},
                 slotMachine.configuration());
     }
 
@@ -69,9 +71,39 @@ public class SlowMachineCC2Test
 
         slotMachine.delWheel(10);
 
+        assertTrue(slotMachine.ok());
         assertEquals(1, slotMachine.configuration().length);
+        assertArrayEquals(new String[]{"black"}, slotMachine.configuration());
     }
-}
 
-// tomado de Grupo: MoralesS-RojasH
+    /**
+     * Verifica que los tres colores actuales sean aceptados.
+     */
+    @Test
+    public void shouldAcceptTheCurrentSymbolColors() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.addWheel(3);
+
+        slotMachine.addSymbol(1, "red");
+        slotMachine.addSymbol(2, "black");
+        slotMachine.addSymbol(3, "green");
+
+        assertArrayEquals(new String[]{"red", "black", "green"},
+                slotMachine.configuration());
+        assertTrue(slotMachine.ok());
+    }
+
+    /**
+     * Verifica que un color eliminado no se pueda usar como símbolo.
+     */
+    @Test
+    public void shouldRejectBlueAsASymbol() {
+        slotMachine.addWheel(1);
+        slotMachine.addSymbol(1, "blue");
+
+        assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"white"},
+                slotMachine.configuration());
+    }
 }
