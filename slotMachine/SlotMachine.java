@@ -43,6 +43,50 @@ public class SlotMachine {
     }
 
     /**
+     * Creates a new slotMachine with n wheels and n symbols, randomly started.
+     * @param n wheels and symbols
+     */
+    public SlotMachine(int n) {
+        lastOperationOk = true;
+        wheels = new ArrayList<>();
+        bodyConstructor();
+        leversConstructor();
+        leverVertical.moveHorizontal(1248);
+        leverVertical.moveVertical(80);
+        leverCircle.moveHorizontal(1277);
+
+        if (n > 9) {
+            n = 9;
+        }
+        for (int i = 0; i < n; i++) {
+            addWheel(i);
+        }
+        java.util.List<String> palette = Symbol.getAvailableColors();
+        String[] baseSymbols = new String[n];
+        for (int i = 0; i < n; i++) {
+            // Usamos el % para repetir colores si n es mayor que la paleta actual
+            baseSymbols[i] = palette.get(i % palette.size());
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (String color : baseSymbols) {
+                wheels.get(i).addSymbolWheel(color);
+            }
+        }
+
+        Random random = new Random();
+        for  (int i = 0; i < n; i++) {
+            int randomSteps = random.nextInt(n);
+            spin(i + 1, randomSteps);
+        }
+        while (distinctSymbols() == 1) {
+            spin(1,1);
+        }
+        makeInvisible();
+
+    }
+
+    /**
      * Validates if a position may be okay or not
      */
     private int validatePosition(int pos, int maxLimit) {
@@ -127,7 +171,9 @@ public class SlotMachine {
         }
         for (int i = 0; i < wheels.size(); i++) {
             wheels.get(i).setPositionWheel(startX + (i * space), startY);
-            wheels.get(i).makeWheelVisible();
+            if (this.isVisible) {
+                wheels.get(i).makeWheelVisible();
+            }
         }
     }
 
@@ -324,7 +370,7 @@ public class SlotMachine {
         // This part of the spin method is to make sure there is a probability to win.
         String symbolWinner = Symbol.random(random).getColor();
         // Determines the probability to win.
-        if (probability < 0.4) {
+        if (probability < 0.2) {
             for (int i = 0; i < wheels.size(); i++) {
                 if (!wheels.get(i).isLocked()) {
                     addSymbol(i + 1, symbolWinner);
@@ -561,10 +607,16 @@ public class SlotMachine {
             JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
             winner = true;
             body.changeColor("green");
+            if (isVisible) {
+                makeVisible();
+            }
             return true;
         } else {
             body.changeColor("blue");
             winner = false;
+            if (isVisible){
+                makeVisible();
+            }
             return false;
         }
     }
