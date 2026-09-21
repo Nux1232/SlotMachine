@@ -121,8 +121,8 @@ El estado actual es de cumplimiento total de la arquitectura y diseño del Terce
 
 **3. ¿Cuál fue el tiempo total invertido por cada uno de ustedes? (Horas/Hombre)**
 
-* JUAN PABLO CUERVO CONTRERAS: 12 horas
-* SAMUEL INFANTE CAMARGO: 12 horas
+* JUAN PABLO CUERVO CONTRERAS: 15 horas
+* SAMUEL INFANTE CAMARGO: 15 horas
 
 **4. ¿Cuál consideran fue el mayor logro? ¿Por qué?**
 La correcta separación de responsabilidades exigida por el diseño. Lograr que SlotMachine dejara de tomar decisiones y pasara a ser únicamente una herramienta de prueba invisible, mientras la nueva clase SlotMachineContest asumió el rol del solucionador interactuando a ciegas. Esto blindó nuestra arquitectura.
