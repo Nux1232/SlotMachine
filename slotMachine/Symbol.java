@@ -22,6 +22,10 @@ public class Symbol {
         this.color = color;
     }
 
+    public static java.util.List<String> getAvailableColors() {
+        return AVAILABLE_COLORS;
+    }
+
     /**
      * Returns this symbol's color.
      *
