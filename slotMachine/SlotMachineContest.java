@@ -44,7 +44,9 @@ public class SlotMachineContest {
     public void simulate(int n) {
         SlotMachine machine = new SlotMachine(n);
         // Requisito 3 y 4: La máquina debe ser visible en el simulador
-        machine.makeVisible();
+        if (!java.awt.GraphicsEnvironment.isHeadless()) {
+            machine.makeVisible();
+        }
 
         Random random = new Random();
 

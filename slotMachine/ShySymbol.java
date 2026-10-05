@@ -7,7 +7,7 @@
  * @version Ciclo 4
  */
 public class ShySymbol extends Symbol {
-    private boolean isShy;
+    private boolean isHidden;
 
     /**
      * Creates a ShySymbol with a specefied color.
@@ -16,7 +16,7 @@ public class ShySymbol extends Symbol {
      */
     public ShySymbol(String color) {
         super(color);
-        this.isShy = true;
+        this.isHidden = false;
     }
 
     /**
@@ -24,10 +24,12 @@ public class ShySymbol extends Symbol {
      */
     @Override
     public void spinEffect() {
-        isShy = false;
+        isHidden = !isHidden;
     }
 
     public boolean getIsShy() {
-        return isShy;
+        return isHidden;
     }
+
+    public boolean isHidden() { return isHidden; }
 }

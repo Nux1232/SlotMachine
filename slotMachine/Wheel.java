@@ -7,6 +7,8 @@
  */
 
 public class Wheel {
+    public enum Type { NORMAL, LEFTY, REBEL, CRAZY }
+    private final Type type;
     private Rectangle Wheel;
     private Rectangle window;
     private Shapes symbolShape;
@@ -20,6 +22,11 @@ public class Wheel {
      * This is the constructor of the Wheel Class.
      */
     public Wheel() {
+        this(Type.NORMAL);
+    }
+
+    public Wheel(Type type) {
+        this.type = type == null ? Type.NORMAL : type;
         isVisible = false;
         locked = false;
         Wheel = new Rectangle();
@@ -55,7 +62,7 @@ public class Wheel {
         if (isVisible) {
             Wheel.makeVisible();
             window.makeVisible();
-            if (symbolShape != null) {
+            if (symbolShape != null && !(symbol instanceof ShySymbol && ((ShySymbol) symbol).isHidden())) {
                 symbolShape.makeVisible();
             }
         }
@@ -80,8 +87,47 @@ public class Wheel {
      * @param color The symbol that is going to be used.
      */
     public void addSymbolWheel(String color) {
+        if (!Symbol.isAvailableColor(color)) return;
         symbol = new Symbol(color);
         updateSymbolShape();
+    }
+
+    /** Adds a symbol object while preserving its specialized behavior. */
+    public void addSymbolWheel(Symbol newSymbol) {
+        if (newSymbol == null || !Symbol.isAvailableColor(newSymbol.getColor())) return;
+        symbol = newSymbol;
+        updateSymbolShape();
+    }
+
+    public Type getType() { return type; }
+    public boolean isRebel() { return type == Type.REBEL; }
+
+    /** Applies this wheel's behavior to one spin. */
+    public void spin(String randomColor, String leftColor) {
+        if (type == Type.NORMAL && hasSpecialSymbol()) {
+            symbol.spinEffect();
+            updateSymbolShape();
+            return;
+        }
+        boolean keptSymbol = false;
+        if (type == Type.LEFTY && leftColor != null) {
+            placeSymbolWheel(leftColor);
+        } else if (type == Type.CRAZY) {
+            int choice = new java.util.Random().nextInt(3);
+            if (choice == 0) addSymbolWheel(randomColor);
+            else if (choice == 1 && leftColor != null) placeSymbolWheel(leftColor);
+            else keptSymbol = true;
+        } else {
+            addSymbolWheel(randomColor);
+        }
+        if (keptSymbol && hasSpecialSymbol()) {
+            symbol.spinEffect();
+            updateSymbolShape();
+        }
+    }
+
+    private boolean hasSpecialSymbol() {
+        return symbol != null && symbol.getClass() != Symbol.class;
     }
 
     /**
@@ -100,8 +146,7 @@ public class Wheel {
      * @param color The symbol that is going to be used.
      */
     public void placeSymbolWheel(String color) {
-        symbol = new Symbol(color);
-        updateSymbolShape();
+        addSymbolWheel(color);
     }
 
     private void updateSymbolShape() {
@@ -109,20 +154,12 @@ public class Wheel {
         if (symbol == null) {
             return;
         }
-        if (symbol.hasColor("red")) {
-            symbolShape = new Triangle();
-            ((Triangle) symbolShape).changeSize(50, 50);
-        } else if (symbol.hasColor("black")) {
-            symbolShape = new Rectangle();
-            ((Rectangle) symbolShape).changeSize(50, 50);
-        } else if (symbol.hasColor("green")) {
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
-        }
-        symbolShape.changeColor(symbol.getColor());
+        symbolShape = symbol.symbolShape;
         positionSymbolShape();
-        if (isVisible) {
+        if (isVisible && !(symbol instanceof ShySymbol && ((ShySymbol) symbol).isHidden())) {
             symbolShape.makeVisible();
+        } else {
+            symbolShape.makeInvisible();
         }
     }
 
@@ -171,14 +208,14 @@ public class Wheel {
      * Fixes this wheel so a complete spin does not change its symbol.
      */
     public void lock() {
-        locked = true;
+        if (!isRebel()) locked = true;
     }
 
     /**
      * Releases this wheel so it can change during a complete spin.
      */
     public void unlock() {
-        locked = false;
+        if (!isRebel()) locked = false;
     }
 
     /**

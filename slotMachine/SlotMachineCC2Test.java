@@ -73,7 +73,7 @@ public class SlotMachineCC2Test {
 
         assertTrue(slotMachine.ok());
         assertEquals(1, slotMachine.configuration().length);
-        assertArrayEquals(new String[]{"black"}, slotMachine.configuration());
+        assertArrayEquals(new String[]{"white"}, slotMachine.configuration());
     }
 
     /**
