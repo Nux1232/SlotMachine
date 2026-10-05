@@ -104,7 +104,7 @@ public class SlotMachineCC4Test {
                 slotMachine.configuration());
     }
     
-    // Pruebas tomadas del foro:
+    // Pruebas tomadas del foro Symbols:
     /**
      * Verifica que se puedan agregar simbolos de los tres tipos.
      * (Compartida de RojasH, adaptada.)
