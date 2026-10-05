@@ -7,32 +7,29 @@ import java.util.List;
  * The visual mapping is red = triangle, black = square and green = circle.
  */
 public class Symbol {
-    private static final List<String> AVAILABLE_COLORS = List.of(
-        "red", "black", "green"
-    );
-
+    private static final List<String> AVAILABLE_COLORS = List.of("red", "black", "green",
+    "yellow", "magenta", "orange","cyan", "gray", "brown");
     private final String color;
     protected Shapes symbolShape;
-
-    /**
-     * Creates a symbol with the specified color.
-     *
-     * @param color color that identifies the symbol
-     */
     public Symbol(String color) {
         this.color = color;
-        if ("red".equals(color)) {
-            symbolShape = new Triangle();
-            ((Triangle) symbolShape).changeSize(50,50);
-        } else if ("black".equals(color)) {
-            symbolShape = new Rectangle();
-            ((Rectangle) symbolShape).changeSize(50,50);
-        } else {
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
+        // The shape depends on the position of the color in the palette,
+        // so new colors get a shape automatically.
+        switch (AVAILABLE_COLORS.indexOf(color) % 3) {
+            case 0:
+                symbolShape = new Triangle();
+                ((Triangle) symbolShape).changeSize(50, 50);
+                break;
+            case 1:
+                symbolShape = new Rectangle();
+                ((Rectangle) symbolShape).changeSize(50, 50);
+                break;
+            default:
+                symbolShape = new Circle();
+                ((Circle) symbolShape).changeSize(50);
+                break;
         }
         symbolShape.changeColor(color);
-
     }
     /**
      * Returns this symbol's color.

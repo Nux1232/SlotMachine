@@ -139,7 +139,7 @@ public class Wheel {
         return false;
     }
     
-    private void rotateOnce() {
+    public void rotateOnce() {
         if (symbols.size() <= 1) return;
     
         if (isVisible) {

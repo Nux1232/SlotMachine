@@ -79,7 +79,7 @@ public class SlotMachine {
             int randomSteps = random.nextInt(n);
             spin(i + 1, randomSteps);
         }
-        while (distinctSymbols() == 1) {
+        while (n>1 && distinctSymbols() == 1) {
             spin(1,1);
         }
         makeInvisible();
