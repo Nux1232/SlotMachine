@@ -12,6 +12,7 @@ public class Symbol {
     );
 
     private final String color;
+    protected Shapes symbolShape;
 
     /**
      * Creates a symbol with the specified color.
@@ -20,12 +21,19 @@ public class Symbol {
      */
     public Symbol(String color) {
         this.color = color;
-    }
+        if ("red".equals(color)) {
+            symbolShape = new Triangle();
+            ((Triangle) symbolShape).changeSize(50,50);
+        } else if ("black".equals(color)) {
+            symbolShape = new Rectangle();
+            ((Rectangle) symbolShape).changeSize(50,50);
+        } else {
+            symbolShape = new Circle();
+            ((Circle) symbolShape).changeSize(50);
+        }
+        symbolShape.changeColor(color);
 
-    public static java.util.List<String> getAvailableColors() {
-        return AVAILABLE_COLORS;
     }
-
     /**
      * Returns this symbol's color.
      *
@@ -64,5 +72,54 @@ public class Symbol {
      */
     public static boolean isAvailableColor(String color) {
         return color != null && AVAILABLE_COLORS.contains(color);
+    }
+
+    /**
+     * Return the color list supported by the actual version.
+     * @return AVAILABLE_COLORS Color supported
+     */
+    public static List<String> getAvailableColors() {
+        return AVAILABLE_COLORS;
+    }
+
+    /**
+     * Set the position of the symbol
+     * @param x horizontal place
+     * @param y vertical place
+     */
+    public void setPosition(int x, int y) {
+        if (symbolShape != null) {
+            int adjustedX = x;
+            if (symbolShape instanceof Triangle) {
+                adjustedX = x + 30;
+            }
+            symbolShape.setPosition(adjustedX, y);
+        }
+    }
+
+    /**
+     * Makes visible the symbol
+     */
+    public void makeVisible() {
+        if (symbolShape != null) {
+            symbolShape.makeVisible();
+        }
+    }
+
+    /**
+     * Makes invisible the symbol
+     */
+    public void makeInvisible() {
+        if (symbolShape != null) {
+            symbolShape.makeInvisible();
+        }
+    }
+
+    /**
+     * Reacts to a Spin
+     * In a Normal Symbol this method makes no funtion.
+     */
+    public void spinEffect() {
+
     }
 }

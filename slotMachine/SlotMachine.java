@@ -70,7 +70,7 @@ public class SlotMachine {
 
         for (int i = 0; i < n; i++) {
             for (String color : baseSymbols) {
-                wheels.get(i).addSymbolWheel(color);
+                wheels.get(i).addSymbolWheel(new Symbol(color));
             }
         }
 
@@ -219,7 +219,7 @@ public class SlotMachine {
         }
         pos = validatePosition(pos, wheels.size());
         int index = pos - 1;
-        wheels.get(index).addSymbolWheel(color);
+        wheels.get(index).addSymbolWheel(new Symbol(color));
     }
 
     /**
@@ -347,8 +347,7 @@ public class SlotMachine {
             operationError("No puedes girar una rueda fijada.");
             return;
         }
-        Random random = new Random();
-        addSymbol(wheel, Symbol.random(random).getColor());
+        wheels.get(wheel - 1).spin();
         JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
     }
 
@@ -365,30 +364,24 @@ public class SlotMachine {
             }
             return;
         }
-        Random random = new Random();
-        double probability = random.nextDouble();
-        // This part of the spin method is to make sure there is a probability to win.
-        String symbolWinner = Symbol.random(random).getColor();
-        // Determines the probability to win.
-        if (probability < 0.2) {
-            for (int i = 0; i < wheels.size(); i++) {
-                if (!wheels.get(i).isLocked()) {
-                    addSymbol(i + 1, symbolWinner);
-                    winner = true;
-                }
+        for (Wheel w: wheels) {
+            if (!w.isLocked()) {
+                w.spin();
             }
-        } else {
-            // Determines the probability to lose.
-            for (int i = 0; i < wheels.size(); i++){
-                if (!wheels.get(i).isLocked()) {
-                    addSymbol(i + 1, Symbol.random(random).getColor());
+        }
+        // 20% of Probability of win
+        Random random = new Random();
+        if (random.nextDouble() < 0.2) {
+            String symbolWinner = Symbol.random(random).getColor();
+            for (Wheel w: wheels) {
+                if (!w.isLocked()) {
+                    w.placeSymbolWheel(symbolWinner);
                 }
             }
         }
+        winner = distinctSymbols() == 1;
         // Check directly if the user wins
         isjackpot();
-        // I had to call MakeVisible, for some reason it explodes after the jackpot.
-        makeVisible();
     }
     /**
      * Rotates one wheel the requested number of steps. Each step selects a
@@ -419,7 +412,7 @@ public class SlotMachine {
 
         Random random = new Random();
         for (int step = 0; step < steps; step++) {
-            wheels.get(wheel - 1).addSymbolWheel(Symbol.random(random).getColor());
+            wheels.get(wheel - 1).spin();
             if (!pauseBetweenSteps()) {
                 return;
             }
@@ -447,7 +440,13 @@ public class SlotMachine {
         }
 
         for (int i = 0; i < wheels.size(); i++) {
-            if (wheels.get(i).isLocked() && !requestedSymbols[i].equals(wheels.get(i).symbolColor())) {
+            String currentColor; 
+            if (wheels.get(i).getSymbol() != null) {
+                currentColor = wheels.get(i).getSymbol().getColor();
+            } else {
+                currentColor = "white";
+            }
+            if (wheels.get(i).isLocked() && !requestedSymbols[i].equals(currentColor)) {
                 operationError("La configuración cambia una rueda fijada.");
                 return;
             }
@@ -544,7 +543,11 @@ public class SlotMachine {
 
         String[] inventario = new String[wheels.size()];
         for (int i = 0; i < wheels.size(); i++){
-            inventario[i] = wheels.get(i).symbolColor();
+            if (wheels.get(i).getSymbol() != null) {
+                inventario[i] = wheels.get(i).getSymbol().getColor();
+            } else {
+                inventario[i] = "white";
+            }
         }
         return inventario;
     }
@@ -587,8 +590,8 @@ public class SlotMachine {
 
         String[] visibles = new String[wheels.size()];
         for (int i = 0; i < wheels.size(); i++) {
-            if (wheels.get(i).symbolColor() != null) {
-                visibles[i] = wheels.get(i).symbolColor();
+            if (wheels.get(i).getSymbol() != null) {
+                visibles[i] = wheels.get(i).getSymbol().getColor();
             } else {
                 visibles[i] = "white"; // Default Color
             }
