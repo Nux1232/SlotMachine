@@ -139,6 +139,20 @@ public class SlotMachine {
      * @param pos one-based position where the wheel will be inserted
      */
     public void addWheel(int pos) {
+        addWheel(pos, Wheel.Type.NORMAL);
+    }
+
+    /**
+     * Adds a wheel of the requested type at a one-based position.
+     * Available types are {@link Wheel.Type#NORMAL}, {@link Wheel.Type#LEFTY},
+     * {@link Wheel.Type#REBEL}, and {@link Wheel.Type#CRAZY}.
+     * NORMAL changes randomly, LEFTY copies its left neighbor, REBEL cannot be
+     * locked/swapped/removed, and CRAZY randomly changes, copies left, or keeps
+     * its current symbol on a spin.
+     * @param pos one-based insertion position
+     * @param type behavior for the new wheel
+     */
+    public void addWheel(int pos, Wheel.Type type) {
         lastOperationOk = true;
         if (wheels.size() >= 9) {
             lastOperationOk = false;
@@ -153,8 +167,26 @@ public class SlotMachine {
         
         // We implemented the ArrayList, so at the moment of adding a new
         // Wheel, it justs add one by one
-        wheels.add(index, new Wheel());
+        wheels.add(index, new Wheel(type));
         locationWheel();
+    }
+
+    /**
+     * Adds a wheel using a case-insensitive type name: "normal", "lefty",
+     * "rebel", or "crazy". Unknown names make {@link #ok()} return false.
+     * @param pos one-based insertion position
+     * @param type wheel type name
+     */
+    public void addWheel(int pos, String type) {
+        if (type == null) {
+            operationError("El tipo de rueda no puede ser nulo.");
+            return;
+        }
+        try {
+            addWheel(pos, Wheel.Type.valueOf(type.trim().toUpperCase()));
+        } catch (IllegalArgumentException exception) {
+            operationError("Tipo de rueda desconocido: " + type);
+        }
     }
 
     /**
@@ -195,6 +227,10 @@ public class SlotMachine {
         }
         pos = validatePosition(pos, wheels.size());
         int index = pos - 1; 
+        if (wheels.get(index).isRebel()) {
+            operationError("Una rueda rebelde no se puede eliminar.");
+            return;
+        }
         wheels.get(index).makeWheelInvisible();
         // The arraylist move all the elements to the left
         wheels.remove(index);
@@ -288,6 +324,11 @@ public class SlotMachine {
 
         int firstIndex = first - 1;
         int secondIndex = second - 1;
+        if (wheels.get(firstIndex).isRebel() || wheels.get(secondIndex).isRebel()) {
+            lastOperationOk = false;
+            operationError("Una rueda rebelde no se puede intercambiar.");
+            return;
+        }
         if (wheels.get(firstIndex).isLocked() || wheels.get(secondIndex).isLocked()) {
             lastOperationOk = false;
             operationError("No se pueden intercambiar ruedas fijadas.");
@@ -309,7 +350,12 @@ public class SlotMachine {
         if (!validWheelPosition(pos)) {
             return;
         }
-        wheels.get(pos - 1).lock();
+        Wheel wheel = wheels.get(pos - 1);
+        if (wheel.isRebel()) {
+            operationError("Una rueda rebelde no se puede fijar.");
+            return;
+        }
+        wheel.lock();
     }
 
     /**
@@ -322,7 +368,12 @@ public class SlotMachine {
         if (!validWheelPosition(pos)) {
             return;
         }
-        wheels.get(pos - 1).unlock();
+        Wheel wheel = wheels.get(pos - 1);
+        if (wheel.isRebel()) {
+            operationError("Una rueda rebelde no se puede desbloquear.");
+            return;
+        }
+        wheel.unlock();
     }
     /**
      * Spins the requested wheel and assigns it a randomly selected color.
@@ -349,7 +400,8 @@ public class SlotMachine {
             return;
         }
         Random random = new Random();
-        addSymbol(wheel, Symbol.random(random).getColor());
+        int index = wheel - 1;
+        wheels.get(index).spin(Symbol.random(random).getColor(), index > 0 ? wheels.get(index - 1).symbolColor() : null);
         JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
     }
 
@@ -374,7 +426,7 @@ public class SlotMachine {
         if (probability < 0.2) {
             for (int i = 0; i < wheels.size(); i++) {
                 if (!wheels.get(i).isLocked()) {
-                    addSymbol(i + 1, symbolWinner);
+                    wheels.get(i).spin(symbolWinner, i > 0 ? wheels.get(i - 1).symbolColor() : null);
                     winner = true;
                 }
             }
@@ -382,7 +434,7 @@ public class SlotMachine {
             // Determines the probability to lose.
             for (int i = 0; i < wheels.size(); i++){
                 if (!wheels.get(i).isLocked()) {
-                    addSymbol(i + 1, Symbol.random(random).getColor());
+                    wheels.get(i).spin(Symbol.random(random).getColor(), i > 0 ? wheels.get(i - 1).symbolColor() : null);
                 }
             }
         }
@@ -420,7 +472,8 @@ public class SlotMachine {
 
         Random random = new Random();
         for (int step = 0; step < steps; step++) {
-            wheels.get(wheel - 1).addSymbolWheel(Symbol.random(random).getColor());
+            int index = wheel - 1;
+            wheels.get(index).spin(Symbol.random(random).getColor(), index > 0 ? wheels.get(index - 1).symbolColor() : null);
             if (!pauseBetweenSteps()) {
                 return;
             }

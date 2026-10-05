@@ -2,13 +2,14 @@ import java.util.Random;
 import java.util.List;
 
 /**
- * Represents one of the three symbols displayed by a slot machine wheel.
+ * Represents one of the symbols displayed by a slot machine wheel.
  *
- * The visual mapping is red = triangle, black = square and green = circle.
+ * Symbols are identified by color and rendered as one of the supported shapes.
  */
 public class Symbol {
     private static final List<String> AVAILABLE_COLORS = List.of(
-        "red", "black", "green"
+        "red", "black", "green", "orange", "yellow", "magenta",
+        "brown", "gray", "pink"
     );
 
     private final String color;
