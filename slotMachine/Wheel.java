@@ -1,212 +1,193 @@
-/**
- * This class creates an extension of the Wheels created before.
- *
- * @author Samuel Infante Camargo
- * @author Juan Pablo Cuervo Contreras
- * @version Cliclo 3
- */
+import java.util.ArrayList;
+import java.util.Random;
 
+/** A graphical wheel that holds symbols and displays one selected symbol. */
 public class Wheel {
-    private Rectangle Wheel;
-    private Rectangle window;
-    private Shapes symbolShape;
+    public enum Type { NORMAL, LEFTY, REBEL, CRAZY }
+
+    private final Type type;
+    private final ArrayList<Symbol> symbols = new ArrayList<>();
+    private final Rectangle wheelShape = new Rectangle();
+    private final Rectangle window = new Rectangle();
+    private int selectedIndex = -1;
     private int xPosition;
     private int yPosition;
-    private boolean isVisible;
+    private boolean visible;
     private boolean locked;
-    private Symbol symbol;
 
-    /**
-     * This is the constructor of the Wheel Class.
-     */
-    public Wheel() {
-        isVisible = false;
-        locked = false;
-        Wheel = new Rectangle();
-        Wheel.changeSize(210, 70);
-        Wheel.changeColor("white");
-        window = new Rectangle();
-        window.changeSize(70,70);
+    public Wheel() { this(Type.NORMAL); }
+
+    public Wheel(Type type) {
+        this.type = type == null ? Type.NORMAL : type;
+        wheelShape.changeSize(210, 70);
+        wheelShape.changeColor("white");
+        window.changeSize(70, 70);
         window.changeColor("white");
-
     }
 
-    /**
-     * Set the position of the wheel and the window
-     * @param x The X position in the screen.
-     * @param y The Y position in the screen.
-     */
-    public void setPositionWheel(int x, int y){
+    public Type getType() { return type; }
+    public boolean isRebel() { return type == Type.REBEL; }
+    public boolean isLocked() { return locked; }
+
+    public void setPositionWheel(int x, int y) {
         xPosition = x;
         yPosition = y;
-        Wheel.setPosition(x, y);
-        window.setPosition(x, y);
-        window.moveVertical(65);
-        if (symbolShape != null) {
-            positionSymbolShape();
-        }
+        wheelShape.setPosition(x, y);
+        window.setPosition(x, y + 65);
+        positionSelectedSymbol();
     }
 
-    /**
-     * Makes Visible the wheel and the window.
-     */
     public void makeWheelVisible() {
-        isVisible = true;
-        if (isVisible) {
-            Wheel.makeVisible();
-            window.makeVisible();
-            if (symbolShape != null) {
-                symbolShape.makeVisible();
-            }
-        }
+        visible = true;
+        wheelShape.makeVisible();
+        window.makeVisible();
+        showSelectedSymbol();
     }
 
-    /**
-     * Makes invisible the wheel and the window.
-     */
     public void makeWheelInvisible() {
-        isVisible = false;
-        if (isVisible == false) {
-            Wheel.makeInvisible();
-            window.makeInvisible();
-            if (symbolShape != null) {
-                symbolShape.makeInvisible();
+        visible = false;
+        wheelShape.makeInvisible();
+        window.makeInvisible();
+        if (getSymbol() != null) getSymbol().makeInvisible();
+    }
+
+    /** Adds a symbol to this wheel's symbol set. */
+    public void addSymbolWheel(String color) {
+        if (Symbol.isAvailableColor(color)) addSymbolWheel(new Symbol(color));
+    }
+
+    /** Adds a symbol while retaining its specialized behavior. */
+    public void addSymbolWheel(Symbol symbol) {
+        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;
+        symbols.add(symbol);
+        if (selectedIndex < 0) selectedIndex = 0;
+        positionSelectedSymbol();
+        showSelectedSymbol();
+    }
+
+    /** Replaces the symbol set with one symbol of the given color. */
+    public void placeSymbolWheel(String color) {
+        if (!Symbol.isAvailableColor(color)) return;
+        clearSymbols();
+        addSymbolWheel(new Symbol(color));
+    }
+
+    public void placeSymbolWheel(Symbol symbol) {
+        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;
+        clearSymbols();
+        addSymbolWheel(symbol);
+    }
+
+    public void delSymbolWheel(String color) {
+        for (int i = symbols.size() - 1; i >= 0; i--) {
+            if (symbols.get(i).hasColor(color)) {
+                boolean selected = i == selectedIndex;
+                symbols.get(i).makeInvisible();
+                symbols.remove(i);
+                if (symbols.isEmpty()) selectedIndex = -1;
+                else if (i < selectedIndex) selectedIndex--;
+                else if (selected) selectedIndex %= symbols.size();
             }
         }
+        showSelectedSymbol();
     }
 
-    /**
-     * Add a symbol in a wheel.
-     * @param color The symbol that is going to be used.
-     */
-    public void addSymbolWheel(String color) {
-        symbol = new Symbol(color);
-        updateSymbolShape();
-    }
+    /** Rotates according to this wheel's type. */
+    public void spin() { spin((Wheel) null); }
 
-    /**
-     * Deletes a symbol in a wheel.
-     * @param color The symbol that is going to be deleted.
-     */
-    public void delSymbolWheel(String color) {
-        if (symbol != null && symbol.hasColor(color)) {
-            symbol = null;
-            removeSymbolShape();
+    public void spin(Wheel leftNeighbor) {
+        if (locked || symbols.isEmpty()) return;
+        switch (type) {
+            case LEFTY:
+                if (leftNeighbor != null && leftNeighbor.getSymbol() != null) {
+                    copySelectedFrom(leftNeighbor);
+                } else {
+                    rotateOnce();
+                }
+                break;
+            case CRAZY:
+                int choice = new Random().nextInt(3);
+                if (choice == 0) rotateOnce();
+                else if (choice == 1 && leftNeighbor != null && leftNeighbor.getSymbol() != null) {
+                    copySelectedFrom(leftNeighbor);
+                } else {
+                    applySelectedEffect();
+                }
+                break;
+            case NORMAL:
+            case REBEL:
+            default:
+                rotateOnce();
+                break;
         }
     }
 
-    /**
-     * Place a Symbol in a Wheel
-     * @param color The symbol that is going to be used.
-     */
-    public void placeSymbolWheel(String color) {
-        symbol = new Symbol(color);
-        updateSymbolShape();
-    }
-
-    private void updateSymbolShape() {
-        removeSymbolShape();
-        if (symbol == null) {
-            return;
-        }
-        if (symbol.hasColor("red")) {
-            symbolShape = new Triangle();
-            ((Triangle) symbolShape).changeSize(50, 50);
-        } else if (symbol.hasColor("black")) {
-            symbolShape = new Rectangle();
-            ((Rectangle) symbolShape).changeSize(50, 50);
-        } else if (symbol.hasColor("green")) {
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
-        } else if (symbol.hasColor("orange")) {
-            symbolShape = new Triangle();
-            ((Triangle) symbolShape).changeSize(50,50);
-        } else if (symbol.hasColor("yellow")){
-            symbolShape = new Rectangle();
-            ((Rectangle) symbolShape).changeSize(50,50);
-        } else if(symbol.hasColor("magenta")){
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
-        }else if(symbol.hasColor("brown")){
-            symbolShape = new Triangle();
-            ((Triangle) symbolShape).changeSize(50,50);
-        } else if(symbol.hasColor("gray")){
-            symbolShape = new Rectangle();
-            ((Rectangle) symbolShape).changeSize(50,50);
-        } else if(symbol.hasColor("pink")){
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
-        }
-
-        symbolShape.changeColor(symbol.getColor());
-        positionSymbolShape();
-        if (isVisible) {
-            symbolShape.makeVisible();
+    /** Applies one deterministic step for the supplied spin/test values. */
+    public void spin(String randomColor, String leftColor) {
+        if (locked || symbols.isEmpty()) return;
+        if (type == Type.LEFTY && Symbol.isAvailableColor(leftColor)) {
+            placeSymbolWheel(leftColor);
+        } else if (type == Type.CRAZY) {
+            spin();
+        } else if (Symbol.isAvailableColor(randomColor)) {
+            if (symbols.size() == 1) placeSymbolWheel(randomColor);
+            else rotateOnce();
         }
     }
 
-    /**
-     * Positions the symbol inside the 70x70 window.
-     *
-     * Rectangle and Circle use x/y as their upper-left corner. Triangle
-     * uses x as the horizontal center of its upper vertex, so it needs a
-     * different horizontal coordinate.
-     */
-    private void positionSymbolShape() {
-        int symbolX = xPosition + 10;
-        int symbolY = yPosition + 75;
-        if (symbolShape instanceof Triangle) {
-            symbolX = xPosition + 35;
-        }
-        symbolShape.setPosition(symbolX, symbolY);
+    public void rotateOnce() {
+        if (symbols.isEmpty()) return;
+        if (selectedIndex >= 0) symbols.get(selectedIndex).makeInvisible();
+        selectedIndex = (selectedIndex + 1) % symbols.size();
+        applySelectedEffect();
     }
 
-    private void removeSymbolShape() {
-        if (symbolShape != null) {
-            symbolShape.makeInvisible();
-            symbolShape = null;
+    private void applySelectedEffect() {
+        Symbol selected = getSymbol();
+        if (selected != null) selected.spinEffect();
+        positionSelectedSymbol();
+        showSelectedSymbol();
+    }
+
+    private void copySelectedFrom(Wheel leftNeighbor) {
+        Symbol source = leftNeighbor.getSymbol();
+        placeSymbolWheel(source.copy());
+        positionSelectedSymbol();
+        showSelectedSymbol();
+    }
+
+    private void clearSymbols() {
+        for (Symbol symbol : symbols) symbol.makeInvisible();
+        symbols.clear();
+        selectedIndex = -1;
+    }
+
+    private void positionSelectedSymbol() {
+        Symbol selected = getSymbol();
+        if (selected != null) selected.setPosition(xPosition + 10, yPosition + 75);
+    }
+
+    private void showSelectedSymbol() {
+        Symbol selected = getSymbol();
+        if (!visible || selected == null) return;
+        if (selected instanceof ShySymbol && !((ShySymbol) selected).isShyVisible()) {
+            selected.makeInvisible();
+        } else {
+            selected.makeVisible();
         }
     }
 
-    /**
-     * Returns the symbol currently displayed by this wheel.
-     *
-     * @return the current symbol, or null when the wheel has no symbol
-     */
     public Symbol getSymbol() {
-        return symbol;
+        return selectedIndex < 0 || selectedIndex >= symbols.size() ? null : symbols.get(selectedIndex);
     }
 
-    /**
-     * Returns this wheel's symbol color.
-     *
-     * @return the current color, or null when the wheel has no symbol
-     */
     public String symbolColor() {
-        return symbol == null ? null : symbol.getColor();
+        Symbol selected = getSymbol();
+        if (selected == null) return null;
+        if (selected instanceof ShySymbol && !((ShySymbol) selected).isShyVisible()) return "";
+        return selected.getColor();
     }
 
-    /**
-     * Fixes this wheel so a complete spin does not change its symbol.
-     */
-    public void lock() {
-        locked = true;
-    }
-
-    /**
-     * Releases this wheel so it can change during a complete spin.
-     */
-    public void unlock() {
-        locked = false;
-    }
-
-    /**
-     * Indicates whether this wheel is fixed.
-     *
-     * @return {@code true} when this wheel is locked
-     */
-    public boolean isLocked() {
-        return locked;
-    }
-
+    public void lock() { if (!isRebel()) locked = true; }
+    public void unlock() { if (!isRebel()) locked = false; }
 }

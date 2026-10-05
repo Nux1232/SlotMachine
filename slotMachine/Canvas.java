@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.*;
 
@@ -32,7 +33,7 @@ public class Canvas{
             canvasSingleton = new Canvas("SlotMachine", width, height,
                                          Color.white);
         }
-        canvasSingleton.setVisible(true);
+        canvasSingleton.setVisible(!GraphicsEnvironment.isHeadless());
         return canvasSingleton;
     }
 
@@ -65,13 +66,15 @@ public class Canvas{
      * @param bgClour  the desired background colour of the canvas
      */
     private Canvas(String title, int width, int height, Color bgColour){
-        frame = new JFrame();
         canvas = new CanvasPane();
-        frame.setContentPane(canvas);
-        frame.setTitle(title);
         canvas.setPreferredSize(new Dimension(width, height));
+        if (!GraphicsEnvironment.isHeadless()) {
+            frame = new JFrame();
+            frame.setContentPane(canvas);
+            frame.setTitle(title);
+            frame.pack();
+        }
         backgroundColour = bgColour;
-        frame.pack();
         objects = new ArrayList <Object>();
         shapes = new HashMap <Object,ShapeDescription>();
     }
@@ -88,13 +91,18 @@ public class Canvas{
             // first time: instantiate the offscreen image and fill it with
             // the background colour
             Dimension size = canvas.getSize();
-            canvasImage = canvas.createImage(size.width, size.height);
+            if (size.width <= 0 || size.height <= 0) {
+                size = canvas.getPreferredSize();
+            }
+            canvasImage = GraphicsEnvironment.isHeadless()
+                    ? new BufferedImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB)
+                    : canvas.createImage(size.width, size.height);
             graphic = (Graphics2D)canvasImage.getGraphics();
             graphic.setColor(backgroundColour);
             graphic.fillRect(0, 0, size.width, size.height);
             graphic.setColor(Color.black);
         }
-        frame.setVisible(visible);
+        if (frame != null) frame.setVisible(visible);
     }
 
     /**

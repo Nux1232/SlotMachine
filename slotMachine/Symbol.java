@@ -2,30 +2,40 @@ import java.util.Random;
 import java.util.List;
 
 /**
- * Represents one of the three symbols displayed by a slot machine wheel.
+ * Represents one of the symbols displayed by a slot machine wheel.
  *
- * The visual mapping is red = triangle, black = square and green = circle.
+ * Symbols are identified by color and rendered as one of the supported shapes.
  */
 public class Symbol {
     private static final List<String> AVAILABLE_COLORS = List.of(
-        "red", "black", "green"
+        "red", "black", "green", "orange", "yellow", "magenta",
+        "brown", "gray", "pink", "cyan"
     );
-
     private final String color;
-
-    /**
-     * Creates a symbol with the specified color.
-     *
-     * @param color color that identifies the symbol
-     */
+    protected Shapes symbolShape;
     public Symbol(String color) {
+        if (!isAvailableColor(color)) {
+            throw new IllegalArgumentException("Unsupported symbol color: " + color);
+        }
         this.color = color;
+        // The shape depends on the position of the color in the palette,
+        // so new colors get a shape automatically.
+        switch (Math.floorMod(AVAILABLE_COLORS.indexOf(color), 3)) {
+            case 0:
+                symbolShape = new Triangle();
+                ((Triangle) symbolShape).changeSize(50, 50);
+                break;
+            case 1:
+                symbolShape = new Rectangle();
+                ((Rectangle) symbolShape).changeSize(50, 50);
+                break;
+            default:
+                symbolShape = new Circle();
+                ((Circle) symbolShape).changeSize(50);
+                break;
+        }
+        symbolShape.changeColor(color);
     }
-
-    public static java.util.List<String> getAvailableColors() {
-        return AVAILABLE_COLORS;
-    }
-
     /**
      * Returns this symbol's color.
      *
@@ -34,6 +44,9 @@ public class Symbol {
     public String getColor() {
         return color;
     }
+
+    /** Creates an independent copy for wheels that mirror a neighbor. */
+    Symbol copy() { return new Symbol(color); }
 
     /**
      * Checks whether this symbol has the specified color.
@@ -64,5 +77,54 @@ public class Symbol {
      */
     public static boolean isAvailableColor(String color) {
         return color != null && AVAILABLE_COLORS.contains(color);
+    }
+
+    /**
+     * Return the color list supported by the actual version.
+     * @return AVAILABLE_COLORS Color supported
+     */
+    public static List<String> getAvailableColors() {
+        return AVAILABLE_COLORS;
+    }
+
+    /**
+     * Set the position of the symbol
+     * @param x horizontal place
+     * @param y vertical place
+     */
+    public void setPosition(int x, int y) {
+        if (symbolShape != null) {
+            int adjustedX = x;
+            if (symbolShape instanceof Triangle) {
+                adjustedX = x + 30;
+            }
+            symbolShape.setPosition(adjustedX, y);
+        }
+    }
+
+    /**
+     * Makes visible the symbol
+     */
+    public void makeVisible() {
+        if (symbolShape != null) {
+            symbolShape.makeVisible();
+        }
+    }
+
+    /**
+     * Makes invisible the symbol
+     */
+    public void makeInvisible() {
+        if (symbolShape != null) {
+            symbolShape.makeInvisible();
+        }
+    }
+
+    /**
+     * Reacts to a Spin
+     * In a Normal Symbol this method makes no funtion.
+     */
+    public void spinEffect() {
+
     }
 }
