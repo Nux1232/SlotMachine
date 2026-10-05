@@ -2,33 +2,34 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Class that resolves and simulates the SlotMachine problem
+ * Class that resolves and simulates the SlotMachine problem.
+ * The solver only knows how many distinct symbols the machine shows
+ * after each action, like in the original problem.
+ *
+ * @author Samuel Infante Camargo
+ * @author Juan Pablo Cuervo Contreras
+ * @version Ciclo 4
  */
 public class SlotMachineContest {
+    private static final int MAX_ACTIONS = 10000;
 
     /**
-     * Return the sequence of actions (i, j) to win.
-     * The machine must be invisible.
+     * Returns the sequence of actions (i, j) needed to win.
+     * The machine is invisible.
+     *
      * @param n wheels and symbols
-     * @return Matrix where each row is an action: {wheel, steps}
+     * @return matrix where each row is an action: {wheel, steps}
+     */
+     * @param n wheels and symbols
+     * @return matrix where each row is an action: {wheel, steps}
      */
     public int[][] solve(int n) {
         SlotMachine machine = new SlotMachine(n);
         // Garantiza que la máquina permanezca invisible según la regla 4
         machine.makeInvisible();
+        ArrayList<int[]> moves = play(machine, n);
 
-        ArrayList<int[]> moves = new ArrayList<>();
-        Random random = new Random();
-
-        // Se usa exclusivamente distinctSymbols() para evaluar el estado
-        while (machine.distinctSymbols() > 1) {
-            int wheelToSpin = random.nextInt(n) + 1;
-            int stepsToSpin = 1;
-
-            machine.spin(wheelToSpin, stepsToSpin);
-            moves.add(new int[]{wheelToSpin, stepsToSpin});
-        }
-
+        ArrayList<int[]> moves = play(machine, n);
         int[][] result = new int[moves.size()][2];
         for (int i = 0; i < moves.size(); i++) {
             result[i] = moves.get(i);
@@ -37,9 +38,9 @@ public class SlotMachineContest {
     }
 
     /**
-     * Simulates the actions necessaries to win.
-     * The machine must be visible in this method.
-     * @param n wheels and symbols.
+     * Simulates the actions needed to win. The machine is visible.
+     *
+     * @param n wheels and symbols
      */
     public void simulate(int n) {
         SlotMachine machine = new SlotMachine(n);
@@ -47,16 +48,9 @@ public class SlotMachineContest {
         if (!java.awt.GraphicsEnvironment.isHeadless()) {
             machine.makeVisible();
         }
-
-        Random random = new Random();
-
-        // Iteramos visualmente hasta que las ruedas coincidan (k == 1)
-        while (machine.distinctSymbols() > 1) {
-            int wheelToSpin = random.nextInt(n) + 1;
-            int stepsToSpin = 1;
-
-            // Único método de acción permitido
-            machine.spin(wheelToSpin, stepsToSpin);
+        play(machine, n);
+        machine.isjackpot();
         }
+        return moves;
     }
 }

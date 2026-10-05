@@ -142,6 +142,45 @@ public class Wheel {
     }
 
     /**
+    /**
+     * Spins the wheel. A random color is picked; if the wheel does not
+     * have it yet, a symbol of that color is added. Then the wheel rotates
+     * one position. Once every available color is present, it only rotates.
+     */
+    public void spin() {
+        if (locked) return;
+    
+        List<String> colors = Symbol.getAvailableColors();
+        String color = colors.get(random.nextInt(colors.size()));
+        if (!containsColor(color)) {
+            addSymbolWheel(new Symbol(color));
+        }
+        rotateOnce();
+    }
+    
+    private boolean containsColor(String color) {
+        for (Symbol s : symbols) {
+            if (s.hasColor(color)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public void rotateOnce() {
+        if (symbols.size() <= 1) return;
+    
+        if (isVisible) {
+            symbols.get(0).makeInvisible();
+        }
+        Symbol last = symbols.remove(symbols.size() - 1);
+        symbols.add(0, last);
+        symbols.get(0).spinEffect();
+        symbols.get(0).setPosition(xPosition, yPosition + 65);
+        if (isVisible) {
+            symbols.get(0).makeVisible();
+        }
+    }
      * Place a Symbol in a Wheel
      * @param color The symbol that is going to be used.
      */
