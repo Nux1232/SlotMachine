@@ -1,6 +1,6 @@
 # SlotMachine
 
-## Tipos de rueda en BlueJ
+## Tipos de rueda en 
 
 En el banco de objetos de BlueJ, crea un objeto `SlotMachine` y ejecuta
 `addWheel(int pos, String type)`. `pos` es la posición de inserción empezando
