@@ -3,22 +3,10 @@
  *
  * @author Samuel Infante Camargo
  * @author Juan Pablo Cuervo Contreras
- * @version Cliclo 3
+ * @version Cliclo 1
  */
 
 public class Wheel {
-    /** Wheel behaviors available when creating a slot machine. */
-    public enum Type {
-        /** Changes to a randomly selected symbol on every spin. */
-        NORMAL,
-        /** Copies the symbol from the wheel immediately to its left. */
-        LEFTY,
-        /** Cannot be locked, swapped, or removed. */
-        REBEL,
-        /** Each spin randomly changes, copies its left neighbor, or keeps its symbol. */
-        CRAZY
-    }
-    private final Type type;
     private Rectangle Wheel;
     private Rectangle window;
     private Shapes symbolShape;
@@ -32,16 +20,6 @@ public class Wheel {
      * This is the constructor of the Wheel Class.
      */
     public Wheel() {
-        this(Type.NORMAL);
-    }
-
-    /**
-     * Creates a wheel with the selected behavior.
-     * Accepted types are NORMAL, LEFTY, REBEL, and CRAZY. A null type uses NORMAL.
-     * @param type behavior for this wheel
-     */
-    public Wheel(Type type) {
-        this.type = type == null ? Type.NORMAL : type;
         isVisible = false;
         locked = false;
         Wheel = new Rectangle();
@@ -106,26 +84,6 @@ public class Wheel {
         updateSymbolShape();
     }
 
-    public Type getType() { return type; }
-
-    public boolean isRebel() { return type == Type.REBEL; }
-
-    /** Applies the wheel-specific spin rule. */
-    public void spin(String randomColor, String leftColor) {
-        if (type == Type.LEFTY && leftColor != null) {
-            placeSymbolWheel(leftColor);
-        } else if (type == Type.CRAZY) {
-            int choice = new java.util.Random().nextInt(3);
-            if (choice == 0) {
-                addSymbolWheel(randomColor);
-            } else if (choice == 1 && leftColor != null) {
-                placeSymbolWheel(leftColor);
-            }
-        } else {
-            addSymbolWheel(randomColor);
-        }
-    }
-
     /**
      * Deletes a symbol in a wheel.
      * @param color The symbol that is going to be deleted.
@@ -160,29 +118,7 @@ public class Wheel {
         } else if (symbol.hasColor("green")) {
             symbolShape = new Circle();
             ((Circle) symbolShape).changeSize(50);
-        } else if (symbol.hasColor("orange")) {
-            symbolShape = new Triangle();
-            ((Triangle) symbolShape).changeSize(50,50);
-        } else if (symbol.hasColor("yellow")){
-            symbolShape = new Rectangle();
-            ((Rectangle) symbolShape).changeSize(50,50);
-        } else if(symbol.hasColor("magenta")){
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
-        }else if(symbol.hasColor("brown")){
-            symbolShape = new Triangle();
-            ((Triangle) symbolShape).changeSize(50,50);
-        } else if(symbol.hasColor("gray")){
-            symbolShape = new Rectangle();
-            ((Rectangle) symbolShape).changeSize(50,50);
-        } else if(symbol.hasColor("pink")){
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
-        } else {
-            symbolShape = new Circle();
-            ((Circle) symbolShape).changeSize(50);
         }
-
         symbolShape.changeColor(symbol.getColor());
         positionSymbolShape();
         if (isVisible) {
@@ -235,14 +171,14 @@ public class Wheel {
      * Fixes this wheel so a complete spin does not change its symbol.
      */
     public void lock() {
-        if (!isRebel()) locked = true;
+        locked = true;
     }
 
     /**
      * Releases this wheel so it can change during a complete spin.
      */
     public void unlock() {
-        if (!isRebel()) locked = false;
+        locked = false;
     }
 
     /**
