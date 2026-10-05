@@ -221,6 +221,38 @@ public class SlotMachine {
         int index = pos - 1;
         wheels.get(index).addSymbolWheel(new Symbol(color));
     }
+    
+    /**
+     * Adds a symbol of the given type to the wheel at the requested position.
+     *
+     * @param type  symbol type: "normal", "ephemeral" or "shy"
+     * @param pos   one-based position of the wheel
+     * @param color color used for the symbol
+     */
+    public void addSymbol(String type, int pos, String color) {
+        lastOperationOk = true;
+        if (wheels.isEmpty()) {
+            return;
+        }
+        if (!Symbol.isAvailableColor(color)) {
+            return;
+        }
+        Symbol symbol;
+        if (type == null) {
+            return;
+        } else if (type.equalsIgnoreCase("normal")) {
+            symbol = new Symbol(color);
+        } else if (type.equalsIgnoreCase("ephemeral")) {
+            symbol = new EphemeralSymbol(color);
+        } else if (type.equalsIgnoreCase("shy")) {
+            symbol = new ShySymbol(color);
+        } else {
+            return;
+        }
+    
+        pos = validatePosition(pos, wheels.size());
+        wheels.get(pos - 1).addSymbolWheel(symbol);
+    }
 
     /**
      * Removes the specified symbol from the machine and clears matching

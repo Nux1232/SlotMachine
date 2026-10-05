@@ -1,15 +1,124 @@
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-
+import static org.junit.jupiter.api.Assertions.*;
 import java.time.Duration;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Regression tests for wheel and symbol features added in Cycle 4. */
 public class SlotMachineC4Test {
+
+    private SlotMachine slotMachine;
+
+    @BeforeEach
+    public void setUp() {
+        slotMachine = new SlotMachine();
+    }
+
+    @Test
+    public void accordingCcIcshouldAddWheelSuccessfully() {
+        slotMachine.addWheel(1);
+
+        assertTrue(slotMachine.ok());
+        assertEquals(1, slotMachine.configuration().length);
+    }
+
+    @Test
+    public void accordingCcIcshouldAddSymbolToExistingWheel() {
+        slotMachine.addWheel(1);
+        slotMachine.addSymbol(1, "red");
+
+        assertTrue(slotMachine.ok());
+        assertArrayEquals(new String[]{"red"}, slotMachine.symbols());
+    }
+
+    @Test
+    public void accordingCcIcshouldDeleteWheelCorrectly() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.delWheel(1);
+
+        assertTrue(slotMachine.ok());
+        assertEquals(1, slotMachine.configuration().length);
+    }
+
+    @Test
+    public void accordingCcIcshouldSwapUnlockedWheels() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "black");
+
+        slotMachine.swap(1, 2);
+
+        assertTrue(slotMachine.ok());
+        assertArrayEquals(new String[]{"black", "red"}, slotMachine.configuration());
+    }
+
+    @Test
+    public void accordingCcIcshouldLockAndUnlockWheel() {
+        slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.lock(1);
+        assertTrue(slotMachine.ok());
+
+        slotMachine.spin("red");
+        assertTrue(slotMachine.ok());
+        assertEquals("red", slotMachine.configuration()[0]);
+
+        slotMachine.unlock(1);
+        assertTrue(slotMachine.ok());
+
+        slotMachine.spin("black");
+        assertTrue(slotMachine.ok());
+        assertEquals("black", slotMachine.configuration()[0]);
+    }
+
+    @Test
+    public void accordingCcIcshouldCalculateDistinctSymbolsCorrectly() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.addWheel(3);
+
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "red");
+        slotMachine.placeSymbol(3, "green");
+
+        assertEquals(2, slotMachine.distinctSymbols());
+        assertTrue(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldSpinWheelTheRequestedNumberOfSteps() {
+        slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "red");
+
+        slotMachine.spin(1, 3);
+
+        assertTrue(Symbol.isAvailableColor(slotMachine.configuration()[0]));
+        assertTrue(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldKeepWheelSymbolWhenSpinHasZeroSteps() {
+        slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "red");
+
+        slotMachine.spin(1, 0);
+
+        assertEquals("red", slotMachine.configuration()[0]);
+        assertTrue(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldSetConfigurationWithSpinString() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+
+        slotMachine.spin("red, black");
+
+        assertArrayEquals(new String[]{"red", "black"},
+                slotMachine.configuration());
+        assertTrue(slotMachine.ok());
+    }
 
     @Test
     public void shouldExposeAllFourWheelTypesThroughBlueJFriendlyMethods() {
@@ -153,5 +262,171 @@ public class SlotMachineC4Test {
         SlotMachine empty = new SlotMachine(-3);
         assertNotNull(empty.configuration());
         assertEquals(0, empty.configuration().length);
+    }
+
+    @Test
+    public void accordingCcIcshouldNotExceedMaximumWheelsLimit() {
+        for (int i = 1; i <= 10; i++) {
+            slotMachine.addWheel(i);
+        }
+
+        assertFalse(slotMachine.ok());
+        assertEquals(9, slotMachine.configuration().length);
+        assertEquals(9, slotMachine.symbols().length);
+    }
+
+    @Test
+    public void accordingCcIcshouldNotAllowOperationsWhenNoWheelsExist() {
+        slotMachine.delWheel(1);
+        assertFalse(slotMachine.ok());
+        assertEquals(0, slotMachine.configuration().length);
+
+        slotMachine.addSymbol(1, "red");
+        assertFalse(slotMachine.ok());
+
+        slotMachine.spin(1);
+        assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotSwapSameWheel() {
+        slotMachine.addWheel(1);
+        slotMachine.swap(1, 1);
+
+        assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotSwapLockedWheels() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.lock(1);
+
+        slotMachine.swap(1, 2);
+
+        assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotSpinLockedWheel() {
+        slotMachine.addWheel(1);
+        slotMachine.lock(1);
+
+        slotMachine.spin(1);
+
+        assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotSpinWheelWithNegativeSteps() {
+        slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "red");
+
+        slotMachine.spin(1, -1);
+
+        assertEquals("red", slotMachine.configuration()[0]);
+        assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotSetConfigurationWithUnsupportedSymbol() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "black");
+
+        slotMachine.spin("red, purple");
+
+        assertArrayEquals(new String[]{"red", "black"},
+                slotMachine.configuration());
+        assertFalse(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldRejectBlueAsAnObsoleteSymbol() {
+        slotMachine.addWheel(1);
+        slotMachine.placeSymbol(1, "blue");
+
+        assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"white"}, slotMachine.configuration());
+    }
+
+    @Test
+    public void accordingCcIcshouldAcceptTheThreeCurrentSymbolColors() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.addWheel(3);
+
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "black");
+        slotMachine.placeSymbol(3, "green");
+
+        assertArrayEquals(new String[]{"red", "black", "green"},
+                slotMachine.configuration());
+        assertTrue(slotMachine.ok());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotSetConfigurationWithWrongNumberOfSymbols() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.placeSymbol(1, "red");
+        slotMachine.placeSymbol(2, "black");
+
+        slotMachine.spin("red");
+
+        assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"red", "black"},
+                slotMachine.configuration());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotFailOnInvalidWheelIndexWhenAdding() {
+        slotMachine.addWheel(-5);
+        assertTrue(slotMachine.ok());
+
+        slotMachine.addWheel(99);
+        assertTrue(slotMachine.ok());
+
+        assertEquals(2, slotMachine.configuration().length);
+    }
+
+    @Test
+    public void accordingCcIcshouldShrinkEphemeralWhenItReachesTheWindow() {
+        Wheel wheel = new Wheel();
+        wheel.addSymbolWheel(new EphemeralSymbol("red"));
+        wheel.addSymbolWheel(new Symbol("black"));
+
+        wheel.rotateOnce();
+        wheel.rotateOnce();
+
+        assertEquals("red", wheel.getSymbol().getColor());
+        assertEquals(40, ((EphemeralSymbol) wheel.getSymbol()).getCurrentSize());
+    }
+
+    @Test
+    public void accordingCcIcshouldHideShyWhenItIsSelectedInTheWheel() {
+        Wheel wheel = new Wheel();
+        wheel.addSymbolWheel(new ShySymbol("red"));
+        wheel.addSymbolWheel(new Symbol("black"));
+
+        wheel.rotateOnce();
+        wheel.rotateOnce();
+
+        assertEquals("red", wheel.getSymbol().getColor());
+        assertTrue(((ShySymbol) wheel.getSymbol()).isHidden());
+    }
+
+    @Test
+    public void accordingCcIcshouldNotAddSymbolWithUnknownType() {
+        slotMachine.addWheel(1);
+
+        slotMachine.addSymbol("giant", 1, "red");
+
+        assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"white"}, slotMachine.configuration());
+    }
+}
+
     }
 }
