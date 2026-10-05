@@ -1,33 +1,47 @@
 /**
- * Represents a "shy" symbol in the slot machine.
- * A shy symbol alternates its visibility state (visible to invisible and vice versa)
- * each time it is selected (moved to the window position) after a spin.
- *
- * @author Samuel Infante Camargo, Juan Pablo Cuervo Contreras
- * @version Ciclo 4
+ * A symbol that alternates between visible and invisible
+ * each time it is selected in the wheel.
  */
 public class ShySymbol extends Symbol {
     private boolean isShy;
-
+ 
     /**
-     * Creates a ShySymbol with a specefied color.
-     * Uses the constructor of the parent Class Symbol
-     * @param color color used to display the symbol
+     * Creates a shy symbol of the given color. It starts visible.
+     *
+     * @param color symbol color
      */
     public ShySymbol(String color) {
         super(color);
-        this.isShy = true;
+        isShy = false;
     }
-
+ 
     /**
-     * Alternates the visibility state of this symbol.
+     * Toggles between hidden and visible.
      */
     @Override
     public void spinEffect() {
-        isShy = false;
+        isShy = !isShy;
+        if (isShy) {
+            super.makeInvisible();
+        }
     }
-
-    public boolean getIsShy() {
+ 
+    /**
+     * Shows the symbol only when it is not currently hidden.
+     */
+    @Override
+    public void makeVisible() {
+        if (!isShy) {
+            super.makeVisible();
+        }
+    }
+ 
+    /**
+     * Indicates whether the symbol is currently hidden.
+     *
+     * @return true when hidden
+     */
+    public boolean isHidden() {
         return isShy;
     }
 }

@@ -4,9 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pruebas adicionales para SlotMachine (Ciclo 2).
+ * Pruebas adicionales para SlotMachine (Ciclo 4).
  */
-public class SlotMachineCC2Test {
+public class SlotMachineCC4Test {
     private SlotMachine slotMachine;
 
     @BeforeEach
@@ -102,5 +102,41 @@ public class SlotMachineCC2Test {
         assertFalse(slotMachine.ok());
         assertArrayEquals(new String[]{"white"},
                 slotMachine.configuration());
+    }
+    
+    // Pruebas tomadas del foro:
+    /**
+     * Verifica que se puedan agregar simbolos de los tres tipos.
+     * (Compartida de RojasH, adaptada.)
+     */
+    @Test
+    public void shouldAddSymbolsOfEveryType() {
+        slotMachine.addWheel(1);
+        slotMachine.addWheel(2);
+        slotMachine.addWheel(3);
+ 
+        slotMachine.addSymbol("normal", 1, "red");
+        slotMachine.addSymbol("ephemeral", 2, "black");
+        slotMachine.addSymbol("shy", 3, "green");
+ 
+        assertTrue(slotMachine.ok());
+        assertEquals(3, slotMachine.symbols().length);
+        assertArrayEquals(new String[]{"red", "black", "green"},
+                slotMachine.configuration());
+    }
+ 
+    /**
+     * Verifica que un simbolo ephemeral disminuya
+     * su tamaño cada vez que se ejecuta un giro.
+     * (Compartida de BustosL-GomezG, adaptada.)
+     */
+    @Test
+    public void shouldDecreaseEphemeralSymbolSize() {
+        EphemeralSymbol symbol = new EphemeralSymbol("red");
+        int initialSize = symbol.getCurrentSize();
+ 
+        symbol.spinEffect();
+ 
+        assertTrue(symbol.getCurrentSize() < initialSize);
     }
 }

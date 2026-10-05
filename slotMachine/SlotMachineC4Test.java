@@ -3,9 +3,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Casos de prueba unitaria para SlotMachine (Ciclo 2) en modo invisible.
+ * Casos de prueba unitaria para SlotMachine (Ciclo 4) en modo invisible.
  */
-public class SlotMachineC2Test {
+public class SlotMachineC4Test {
 
     private SlotMachine slotMachine;
 
@@ -242,5 +242,48 @@ public class SlotMachineC2Test {
         assertTrue(slotMachine.ok());
 
         assertEquals(2, slotMachine.configuration().length);
+    }
+    
+    // Para Symbols nuevos:
+    @Test
+    public void accordingCcIcshouldShrinkEphemeralWhenItReachesTheWindow() {
+        Wheel wheel = new Wheel();
+        wheel.addSymbolWheel(new EphemeralSymbol("red"));
+        wheel.addSymbolWheel(new Symbol("black"));
+ 
+        wheel.rotateOnce(); // black llega a la ventana
+        wheel.rotateOnce(); // red vuelve a la ventana y se encoge
+ 
+        assertEquals("red", wheel.getSymbol().getColor());
+        assertEquals(40, ((EphemeralSymbol) wheel.getSymbol()).getCurrentSize());
+    }
+ 
+    /**
+     * Verifica que un simbolo shy se oculte cuando es seleccionado en la rueda.
+     */
+    @Test
+    public void accordingCcIcshouldHideShyWhenItIsSelectedInTheWheel() {
+        Wheel wheel = new Wheel();
+        wheel.addSymbolWheel(new ShySymbol("red"));
+        wheel.addSymbolWheel(new Symbol("black"));
+ 
+        wheel.rotateOnce(); // black llega a la ventana
+        wheel.rotateOnce(); // shy red es seleccionado
+ 
+        assertEquals("red", wheel.getSymbol().getColor());
+        assertTrue(((ShySymbol) wheel.getSymbol()).isHidden());
+    }
+ 
+    /**
+     * Verifica que no se pueda agregar un simbolo de un tipo inexistente.
+     */
+    @Test
+    public void accordingCcIcshouldNotAddSymbolWithUnknownType() {
+        slotMachine.addWheel(1);
+ 
+        slotMachine.addSymbol("giant", 1, "red");
+ 
+        assertFalse(slotMachine.ok());
+        assertArrayEquals(new String[]{"white"}, slotMachine.configuration());
     }
 }
