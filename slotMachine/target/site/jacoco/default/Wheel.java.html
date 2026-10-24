@@ -203,5 +203,25 @@ public class Wheel {
 <span class="fc" id="L203">        }</span>
 <span class="fc" id="L204">        return colors;</span>
     }
+    /**
+     * Selects the symbol of the given color if this wheel has one.
+     *
+     * @param color color to show
+     * @return true when the wheel has a symbol with that color
+     */
+    public boolean selectColor(String color) {
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (int i = 0; i &lt; symbols.size(); i++) {</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (symbols.get(i).hasColor(color)) {</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">                if (selectedIndex &gt;= 0) {</span>
+<span class="nc" id="L216">                    symbols.get(selectedIndex).makeInvisible();</span>
+                }
+<span class="nc" id="L218">                selectedIndex = i;</span>
+<span class="nc" id="L219">                positionSelectedSymbol();</span>
+<span class="nc" id="L220">                showSelectedSymbol();</span>
+<span class="nc" id="L221">                return true;</span>
+            }
+        }
+<span class="nc" id="L224">        return false;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

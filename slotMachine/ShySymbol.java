@@ -2,7 +2,13 @@
 public class ShySymbol extends Symbol {
     private boolean hidden;
 
-    public ShySymbol(String color) { super(color); }
+    public ShySymbol(String color) {
+        super(color);
+        Rectangle mark = new Rectangle();
+        mark.changeSize(BADGE_SIZE, BADGE_SIZE);
+        mark.changeColor("blue");
+        setBadge(mark);
+    }
 
     /** Compatibility constructor: the project represents symbols by color only. */
     public ShySymbol(String color, String ignoredShape) { this(color); }

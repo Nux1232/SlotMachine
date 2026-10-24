@@ -15,6 +15,10 @@ public class EphemeralSymbol extends Symbol {
 
     public EphemeralSymbol(String color) {
         super(color);
+        Circle mark = new Circle();
+        mark.changeSize(BADGE_SIZE);
+        mark.changeColor("black");
+        setBadge(mark);
         resizeShape();
     }
  

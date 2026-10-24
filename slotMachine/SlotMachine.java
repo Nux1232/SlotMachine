@@ -347,23 +347,23 @@ public class SlotMachine {
     }
 
     /**
-     * Removes the specified symbol from the machine and clears matching
-     * wheel windows.
+     * Removes the symbols of the given color from the wheels that currently
+     * show that color.
      *
-     * @param symbol symbol color to remove
+     * @param color color of the symbol to remove
      * @throws SlotMachineException if there are no wheels or the color is not allowed
      */
-    public void delSymbol(String symbol) throws SlotMachineException {
+    public void delSymbol(String color) throws SlotMachineException {
         lastOperationOk = false;
         if (wheels.isEmpty()) {
             throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
-        if (!Symbol.isAvailableColor(symbol)) {
+        if (!Symbol.isAvailableColor(color)) {
             throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
         }
         for (Wheel wheel : wheels) {
-            if (wheel.getSymbol() != null && wheel.getSymbol().hasColor(symbol)) {
-                wheel.delSymbolWheel(symbol);
+            if (wheel.getSymbol() != null && wheel.getSymbol().hasColor(color)) {
+                wheel.delSymbolWheel(color);
             }
         }
         lastOperationOk = true;
@@ -477,7 +477,6 @@ public class SlotMachine {
      * @throws SlotMachineException if there are no wheels
      */
     public void spin() throws SlotMachineException {
-        winner = false;
         lastOperationOk = false;
         if (wheels.isEmpty()) {
             throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
@@ -491,10 +490,13 @@ public class SlotMachine {
         // 20% of Probability of win
         Random random = new Random();
         if (random.nextDouble() < 0.2) {
-            String symbolWinner = Symbol.random(random).getColor();
-            for (Wheel w: wheels) {
-                if (!w.isLocked()) {
-                    w.placeSymbolWheel(symbolWinner);
+            String[] available = symbols();
+            if (available.length > 0) {
+                String symbolWinner = available[random.nextInt(available.length)];
+                for (Wheel w : wheels) {
+                    if (!w.isLocked()) {
+                        w.selectColor(symbolWinner);
+                    }
                 }
             }
         }
@@ -534,22 +536,20 @@ public class SlotMachine {
     }
 
     /**
-     * Leaves the machine in the configuration described by a string.
-     * Colors may be separated by commas, semicolons, or whitespace. The
-     * configuration must contain exactly one supported color per wheel.
-     * A locked wheel may only keep its current color.
+     * Leaves the machine in the configuration described by an array with one
+     * color per wheel. A locked wheel may only keep its current color.
      *
      * @param setSymbols desired colors in wheel order
-     * @throws SlotMachineException if there are no wheels, the configuration
-     *         is null, empty or has a wrong size, a color is not allowed, or
-     *         the configuration changes a locked wheel
+     * @throws SlotMachineException if there are no wheels, the array is null or
+     *         has a wrong size, a color is not allowed, or the configuration
+     *         changes a locked wheel
      */
-    public void spin(String setSymbols) throws SlotMachineException {
+    public void spin(String[] setSymbols) throws SlotMachineException {
         lastOperationOk = false;
         if (!hasWheels()) {
             throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
-        String[] requestedSymbols = parseConfiguration(setSymbols);
+        validateConfiguration(setSymbols);
 
         for (int i = 0; i < wheels.size(); i++) {
             String currentColor;
@@ -558,16 +558,16 @@ public class SlotMachine {
             } else {
                 currentColor = "white";
             }
-            if (wheels.get(i).isLocked() && !requestedSymbols[i].equals(currentColor)) {
+            if (wheels.get(i).isLocked() && !setSymbols[i].equals(currentColor)) {
                 throw new SlotMachineException(SlotMachineException.CONFIGURATION_LOCKED);
             }
         }
         for (int i = 0; i < wheels.size(); i++) {
             if (!wheels.get(i).isLocked()) {
-                wheels.get(i).placeSymbolWheel(requestedSymbols[i]);
+                wheels.get(i).placeSymbolWheel(setSymbols[i]);
             }
         }
-        winner = allSymbolsEqual(requestedSymbols);
+        winner = allSymbolsEqual(setSymbols);
         lastOperationOk = true;
         isjackpot();
     }
@@ -605,12 +605,11 @@ public class SlotMachine {
     }
 
     /**
-     * Parses and validates the textual representation of a configuration.
+     * Splits the textual representation of a configuration into colors.
      *
      * @param setSymbols text with one color per wheel
-     * @return the requested colors, one per wheel
-     * @throws SlotMachineException if the text is null, empty, has a wrong
-     *         number of colors, or contains a color that is not allowed
+     * @return the colors found in the text
+     * @throws SlotMachineException if the text is null or empty
      */
     private String[] parseConfiguration(String setSymbols) throws SlotMachineException {
         if (setSymbols == null) {
@@ -623,16 +622,7 @@ public class SlotMachine {
         if (configurationText.isEmpty()) {
             throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
         }
-        String[] requestedSymbols = configurationText.split("[,;\\s]+");
-        if (requestedSymbols.length != wheels.size()) {
-            throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
-        }
-        for (String color : requestedSymbols) {
-            if (!Symbol.isAvailableColor(color)) {
-                throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
-            }
-        }
-        return requestedSymbols;
+        return configurationText.split("[,;\\s]+");
     }
 
     /**
@@ -845,4 +835,23 @@ public class SlotMachine {
             throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
     }
+    /**
+     * Validates a requested configuration.
+     *
+     * @param requested colors, one per wheel
+     * @throws SlotMachineException if the array is null, has a wrong number of
+     *         colors, or contains a color that is not allowed
+     */
+    private void validateConfiguration(String[] requested) throws SlotMachineException {
+        if (requested == null || requested.length != wheels.size()) {
+            throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
+        }
+        for (String color : requested) {
+            if (!Symbol.isAvailableColor(color)) {
+                throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
+            }
+        }
+    }
+    
 }
+    

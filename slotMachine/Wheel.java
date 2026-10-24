@@ -203,4 +203,24 @@ public class Wheel {
         }
         return colors;
     }
+    /**
+     * Selects the symbol of the given color if this wheel has one.
+     *
+     * @param color color to show
+     * @return true when the wheel has a symbol with that color
+     */
+    public boolean selectColor(String color) {
+        for (int i = 0; i < symbols.size(); i++) {
+            if (symbols.get(i).hasColor(color)) {
+                if (selectedIndex >= 0) {
+                    symbols.get(selectedIndex).makeInvisible();
+                }
+                selectedIndex = i;
+                positionSelectedSymbol();
+                showSelectedSymbol();
+                return true;
+            }
+        }
+        return false;
+    }
 }

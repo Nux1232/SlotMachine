@@ -2,7 +2,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
@@ -18,15 +18,21 @@ public class SlotMachineC4Test {
     }
 
     @Test
-    public void shouldSetAndReportAnExplicitWinningConfiguration() throws SlotMachineException{
+    public void shouldSetAndReportAnExplicitWinningConfiguration() throws SlotMachineException {
         SlotMachine machine = new SlotMachine();
         machine.addWheel(1);
         machine.addWheel(2);
-
-        machine.spin("red, red");
-
+    
+        machine.spin(new String[] { "red", "red" });
+    
         assertArrayEquals(new String[] { "red", "red" }, machine.configuration());
         assertTrue(machine.isJackpot());
         machine.makeInvisible();
+    }
+    @Test
+    public void specialSymbolsShouldHaveABadgeAndNormalOnesNot() {
+        assertFalse(new Symbol("red").hasBadge());
+        assertTrue(new ShySymbol("red").hasBadge());
+        assertTrue(new EphemeralSymbol("red").hasBadge());
     }
 }

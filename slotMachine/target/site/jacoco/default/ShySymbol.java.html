@@ -2,40 +2,46 @@
 public class ShySymbol extends Symbol {
     private boolean hidden;
 
-<span class="fc" id="L5">    public ShySymbol(String color) { super(color); }</span>
+    public ShySymbol(String color) {
+<span class="fc" id="L6">        super(color);</span>
+<span class="fc" id="L7">        Rectangle mark = new Rectangle();</span>
+<span class="fc" id="L8">        mark.changeSize(BADGE_SIZE, BADGE_SIZE);</span>
+<span class="fc" id="L9">        mark.changeColor(&quot;blue&quot;);</span>
+<span class="fc" id="L10">        setBadge(mark);</span>
+<span class="fc" id="L11">    }</span>
 
     /** Compatibility constructor: the project represents symbols by color only. */
-<span class="nc" id="L8">    public ShySymbol(String color, String ignoredShape) { this(color); }</span>
+<span class="nc" id="L14">    public ShySymbol(String color, String ignoredShape) { this(color); }</span>
 
     @Override
-<span class="fc" id="L11">    public void spinEffect() { onSelected(); }</span>
+<span class="fc" id="L17">    public void spinEffect() { onSelected(); }</span>
 
     public void onSelected() {
-<span class="pc bpc" id="L14" title="2 of 4 branches missed.">        boolean shapeWasVisible = symbolShape != null &amp;&amp; symbolShape.isVisible;</span>
-<span class="fc bfc" id="L15" title="All 2 branches covered.">        hidden = !hidden;</span>
-<span class="pc bpc" id="L16" title="1 of 2 branches missed.">        if (shapeWasVisible) {</span>
-<span class="nc bnc" id="L17" title="All 2 branches missed.">            if (hidden) super.makeInvisible();</span>
-<span class="nc" id="L18">            else super.makeVisible();</span>
+<span class="pc bpc" id="L20" title="2 of 4 branches missed.">        boolean shapeWasVisible = symbolShape != null &amp;&amp; symbolShape.isVisible;</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        hidden = !hidden;</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        if (shapeWasVisible) {</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">            if (hidden) super.makeInvisible();</span>
+<span class="nc" id="L24">            else super.makeVisible();</span>
         }
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L26">    }</span>
 
     @Override
     public void makeVisible() {
-<span class="nc bnc" id="L24" title="All 2 branches missed.">        if (!hidden) super.makeVisible();</span>
-<span class="nc" id="L25">    }</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (!hidden) super.makeVisible();</span>
+<span class="nc" id="L31">    }</span>
 
-<span class="fc bfc" id="L27" title="All 2 branches covered.">    public boolean isShyVisible() { return !hidden; }</span>
-<span class="nc" id="L28">    public boolean isHidden() { return hidden; }</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">    public boolean isShyVisible() { return !hidden; }</span>
+<span class="nc" id="L34">    public boolean isHidden() { return hidden; }</span>
 
     void setShyVisible(boolean visible) {
-<span class="nc bnc" id="L31" title="All 2 branches missed.">        hidden = !visible;</span>
-<span class="nc" id="L32">    }</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        hidden = !visible;</span>
+<span class="nc" id="L38">    }</span>
 
     @Override
     Symbol copy() {
-<span class="nc" id="L36">        ShySymbol copy = new ShySymbol(getColor());</span>
-<span class="nc" id="L37">        copy.setShyVisible(isShyVisible());</span>
-<span class="nc" id="L38">        return copy;</span>
+<span class="nc" id="L42">        ShySymbol copy = new ShySymbol(getColor());</span>
+<span class="nc" id="L43">        copy.setShyVisible(isShyVisible());</span>
+<span class="nc" id="L44">        return copy;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
