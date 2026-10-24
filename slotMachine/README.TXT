@@ -1,44 +1,41 @@
-Project "shapes"
-Authors: Michael Kolling and David J. Barnes
+Slot Machine
+============
 
-This project is part of the material for the book
+This Java project models and displays a slot machine with up to nine wheels.
+Each wheel displays one selected colored symbol, and the machine supports
+spinning, locking, swapping, configuration, and jackpot detection.
 
-   Objects First with Java - A Practical Introduction using BlueJ
-   David J. Barnes and Michael Kolling
-   Pearson Education, 2002
+Wheel types
+-----------
 
-It is discussed in chapter 1.
+Wheel is the base class for wheel behavior. The built-in subclasses are:
 
-This is a very simple project to demonstrate some characteristics of
-objects.
+- NormalWheel: advances through its symbols in insertion order.
+- LeftyWheel: copies the selected symbol from its left neighbor.
+- RebelWheel: cannot be locked, unlocked, swapped, or deleted.
+- CrazyWheel: randomly advances, copies its left neighbor, or reapplies the
+  selected symbol's effect.
 
-You can create various shapes, and you will see, if you do, that those
-shapes are drawn on screen (in a window that we call the "canvas").
+SlotMachine keeps the legacy Wheel.Type API and creates the matching subclass
+through WheelFactory. Custom wheel behavior can be added by extending Wheel
+and passing an instance to SlotMachine.addWheel(position, wheel).
 
-You can then manipulate these objects: change their position, size and 
-colour. Try it out: create a few different squares, triangles and circles.
+Symbols and graphics
+--------------------
 
-This project is designed as a first example of object-oriented programming.
-It illustrates a number of concepts:
+Symbol represents a colored shape. ShySymbol alternates visibility, while
+EphemeralSymbol shrinks when selected. Shapes, Circle, Rectangle, and Triangle
+provide the drawing primitives; Canvas owns the shared drawing surface.
 
- - a Java project (application) is a collection of classes
- - objects can be created from classes
- - from any one class, many objects may be created
- - objects have operations (methods)
- - operations can have parameters
- - parameters have types (at least String and int)
- - objects hold data (fields)
- - the operations and fields are common to all objects
- - the values stored in the fields can be different for each object
+The supported symbol colors are red, black, green, orange, yellow, magenta,
+brown, gray, pink, and cyan.
 
-The project also demonstrates
+Build and tests
+---------------
 
- - BlueJ object creation
- - interactive method invocation
- - parameter passing
+The Maven project file is pom.xml. From this directory, run:
 
-A good second project to look at after this is "picture", which adds a class
-to those ones in this project. That class (named "Picture") uses the shapes
-to draw a picture. It can be used to experiment with coding.
+    mvn test
 
-Michael Kolling, July 2000
+The tests use JUnit 5 and cover shapes, wheel and symbol behavior, slot-machine
+operations, and the contest solver.

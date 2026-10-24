@@ -7,12 +7,10 @@ public class EphemeralSymbol extends Symbol {
     private int x;
     private int y;
     /**
-     * Remembers the position so it can be restored after resizing.
+     * Creates an ephemeral symbol that shrinks whenever it is selected.
      *
-     * @param x horizontal place
-     * @param y vertical place
+     * @param color supported symbol color
      */
-
     public EphemeralSymbol(String color) {
         super(color);
         Circle mark = new Circle();
@@ -22,6 +20,7 @@ public class EphemeralSymbol extends Symbol {
         resizeShape();
     }
 
+    /** Remembers its position and updates the symbol and badge positions. */
     @Override
     public void setPosition(int x, int y) {
         this.x = x;
@@ -29,9 +28,11 @@ public class EphemeralSymbol extends Symbol {
         super.setPosition(x, y);
     }
 
+    /** Shrinks this symbol when selected by its wheel. */
     @Override
     public void spinEffect() { onWheelSpin(); }
 
+    /** Reduces the symbol size by one step, down to the minimum size. */
     public void onWheelSpin() {
         if (size > MINIMUM_SIZE) {
             size = Math.max(MINIMUM_SIZE, size - SIZE_STEP);
@@ -40,6 +41,7 @@ public class EphemeralSymbol extends Symbol {
         }
     }
 
+    /** @return the current symbol size in pixels */
     public int getSize() { return size; }
 
     void setSize(int newSize) {

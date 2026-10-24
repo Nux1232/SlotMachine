@@ -2,6 +2,11 @@
 public class ShySymbol extends Symbol {
     private boolean hidden;
 
+    /**
+     * Creates a shy symbol that alternates visibility when selected.
+     *
+     * @param color supported symbol color
+     */
     public ShySymbol(String color) {
         super(color);
         Rectangle mark = new Rectangle();
@@ -10,9 +15,11 @@ public class ShySymbol extends Symbol {
         setBadge(mark);
     }
 
+    /** Toggles this symbol's visibility. */
     @Override
     public void spinEffect() { onSelected(); }
 
+    /** Toggles whether this symbol is visible. */
     public void onSelected() {
         boolean shapeWasVisible = symbolShape != null && symbolShape.isVisible;
         hidden = !hidden;
@@ -22,12 +29,16 @@ public class ShySymbol extends Symbol {
         }
     }
 
+    /** Makes the symbol visible only when its hidden state permits it. */
     @Override
     public void makeVisible() {
         if (!hidden) super.makeVisible();
     }
 
+    /** @return whether this symbol is currently visible */
     public boolean isShyVisible() { return !hidden; }
+
+    /** @return whether this symbol is currently hidden */
     public boolean isHidden() { return hidden; }
 
     void setShyVisible(boolean visible) {

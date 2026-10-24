@@ -1,23 +1,14 @@
 
-/**
- * A rectangle that can be manipulated and that draws itself on a canvas.
- * 
- * @author  Michael Kolling and David J. Barnes (Modified)
- * @version 1.0  (15 July 2000)()
- */
-
-
- 
+/** A movable, resizable rectangle rendered on the shared canvas. */
 public class Rectangle extends Shapes{
 
+    /** Number of edges in a rectangle. */
     public static int EDGES = 4;
     
     private int height;
     private int width;
 
-    /**
-     * Create a new rectangle at default position with default color.
-     */
+    /** Creates a rectangle at its default position, size, and color. */
     public Rectangle(){
         height = 30;
         width = 40;
@@ -28,9 +19,10 @@ public class Rectangle extends Shapes{
     }
 
     /**
-     * Change the size to the new size
-     * @param newHeight the new height in pixels. newHeight must be >=0.
-     * @param newWidht the new width in pixels. newWidth must be >=0.
+     * Changes the height and width of this rectangle.
+     *
+     * @param newHeight new height in pixels
+     * @param newWidth new width in pixels
      */
     public void changeSize(int newHeight, int newWidth) {
         erase();
@@ -41,10 +33,7 @@ public class Rectangle extends Shapes{
     
 
 
-    /*
-     * Draw the rectangle with current specifications on screen.
-     */
-
+    /** Draws this rectangle on the shared canvas when it is visible. */
     @Override
     protected void draw() {
         if(isVisible) {

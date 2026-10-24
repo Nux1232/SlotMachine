@@ -1,8 +1,23 @@
 import java.util.ArrayList;
 
-/** A graphical wheel that holds symbols and displays one selected symbol. */
+/**
+ * Graphical base class for slot-machine wheels.
+ *
+ * <p>A wheel owns its symbols, renders its selected symbol, and exposes
+ * overridable spin behavior for specialized wheel implementations.</p>
+ */
 public class Wheel {
-    public enum Type { NORMAL, LEFTY, REBEL, CRAZY }
+    /** Built-in wheel behaviors supported by the legacy type-based API. */
+    public enum Type {
+        /** Advances through the wheel's symbols in insertion order. */
+        NORMAL,
+        /** Copies the selected symbol from the wheel immediately to the left. */
+        LEFTY,
+        /** Cannot be locked, unlocked, swapped, or deleted. */
+        REBEL,
+        /** Randomly advances, copies a neighbor, or reapplies an effect. */
+        CRAZY
+    }
 
     private final Type type;
     private final ArrayList<Symbol> symbols = new ArrayList<>();
@@ -17,8 +32,10 @@ public class Wheel {
     private boolean visible;
     private boolean locked;
 
+    /** Creates a standard wheel that advances through its symbols. */
     public Wheel() { this(Type.NORMAL); }
 
+    /** Creates a wheel tagged with the supplied built-in type. */
     protected Wheel(Type type) {
         this.type = type;
         wheelShape.changeSize(210, 70);
@@ -31,8 +48,13 @@ public class Wheel {
         typeMarkerAccent = createTypeMarkerAccent(type);
     }
 
+    /** @return the built-in type associated with this wheel */
     public Type getType() { return type; }
+
+    /** @return whether this wheel has rebel restrictions */
     public boolean isRebel() { return false; }
+
+    /** @return whether this wheel is currently locked */
     public boolean isLocked() { return locked; }
 
     private String typeColor(Type wheelType) {
@@ -69,6 +91,12 @@ public class Wheel {
         return accent;
     }
 
+    /**
+     * Positions the wheel body, type indicator, window, and selected symbol.
+     *
+     * @param x horizontal coordinate of the wheel body
+     * @param y vertical coordinate of the wheel body
+     */
     public void setPositionWheel(int x, int y) {
         xPosition = x;
         yPosition = y;
@@ -80,6 +108,7 @@ public class Wheel {
         positionSelectedSymbol();
     }
 
+    /** Shows the wheel and its selected symbol. */
     public void makeWheelVisible() {
         visible = true;
         wheelShape.makeVisible();
@@ -90,6 +119,7 @@ public class Wheel {
         showSelectedSymbol();
     }
 
+    /** Hides the wheel and its selected symbol. */
     public void makeWheelInvisible() {
         visible = false;
         wheelShape.makeInvisible();
@@ -100,12 +130,20 @@ public class Wheel {
         if (getSymbol() != null) getSymbol().makeInvisible();
     }
 
-    /** Adds a symbol to this wheel's symbol set. */
+    /**
+     * Adds a normal symbol with the requested color.
+     *
+     * @param color supported symbol color
+     */
     public void addSymbolWheel(String color) {
         if (Symbol.isAvailableColor(color)) addSymbolWheel(new Symbol(color));
     }
 
-    /** Adds a symbol while retaining its specialized behavior. */
+    /**
+     * Adds a symbol object, retaining any specialized symbol behavior.
+     *
+     * @param symbol symbol to add
+     */
     public void addSymbolWheel(Symbol symbol) {
         if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;
         symbols.add(symbol);
@@ -114,19 +152,33 @@ public class Wheel {
         showSelectedSymbol();
     }
 
-    /** Replaces the symbol set with one symbol of the given color. */
+    /**
+     * Replaces all symbols with a normal symbol of the requested color.
+     *
+     * @param color supported symbol color
+     */
     public void placeSymbolWheel(String color) {
         if (!Symbol.isAvailableColor(color)) return;
         clearSymbols();
         addSymbolWheel(new Symbol(color));
     }
 
+    /**
+     * Replaces all symbols with the supplied symbol object.
+     *
+     * @param symbol symbol to place
+     */
     public void placeSymbolWheel(Symbol symbol) {
         if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;
         clearSymbols();
         addSymbolWheel(symbol);
     }
 
+    /**
+     * Removes every symbol with the requested color.
+     *
+     * @param color color of the symbols to remove
+     */
     public void delSymbolWheel(String color) {
         for (int i = symbols.size() - 1; i >= 0; i--) {
             if (symbols.get(i).hasColor(color)) {
@@ -141,15 +193,29 @@ public class Wheel {
         showSelectedSymbol();
     }
 
-    /** Rotates this wheel once. Specialized wheels override this behavior. */
+    /**
+     * Spins this wheel once without a left neighbor.
+     * Specialized wheels can override either spin overload.
+     */
     public void spin() { spin((Wheel) null); }
 
+    /**
+     * Spins this wheel once, optionally using its left neighbor.
+     *
+     * @param leftNeighbor wheel immediately to the left, or {@code null}
+     */
     public void spin(Wheel leftNeighbor) {
         if (locked || symbols.isEmpty()) return;
         rotateOnce();
     }
 
-    /** Applies one deterministic step for the supplied spin/test values. */
+    /**
+     * Applies one step using caller-supplied values, primarily for deterministic
+     * configuration and tests.
+     *
+     * @param randomColor color supplied for the standard-wheel behavior
+     * @param leftColor color supplied by the left-neighbor behavior
+     */
     public void spin(String randomColor, String leftColor) {
         if (locked || symbols.isEmpty()) return;
         if (Symbol.isAvailableColor(randomColor)) {
@@ -158,6 +224,7 @@ public class Wheel {
         }
     }
 
+    /** Advances the selected symbol by one position and applies its spin effect. */
     public void rotateOnce() {
         if (symbols.isEmpty()) return;
         if (selectedIndex >= 0) symbols.get(selectedIndex).makeInvisible();
@@ -165,6 +232,7 @@ public class Wheel {
         applySelectedEffect();
     }
 
+    /** Applies the selected symbol's spin effect and refreshes its display. */
     protected void applySelectedEffect() {
         Symbol selected = getSymbol();
         if (selected != null) selected.spinEffect();
@@ -172,6 +240,11 @@ public class Wheel {
         showSelectedSymbol();
     }
 
+    /**
+     * Replaces this wheel's symbols with a copy of the neighbor's selection.
+     *
+     * @param leftNeighbor neighbor that supplies the selected symbol
+     */
     protected void copySelectedFrom(Wheel leftNeighbor) {
         Symbol source = leftNeighbor.getSymbol();
         placeSymbolWheel(source.copy());
@@ -200,10 +273,17 @@ public class Wheel {
         }
     }
 
+    /** Returns the currently selected symbol, if any. */
     public Symbol getSymbol() {
         return selectedIndex < 0 || selectedIndex >= symbols.size() ? null : symbols.get(selectedIndex);
     }
 
+    /**
+     * Returns the visible color of the selected symbol.
+     *
+     * @return selected color, an empty string for a hidden shy symbol, or
+     *         {@code null} when the wheel has no selected symbol
+     */
     public String symbolColor() {
         Symbol selected = getSymbol();
         if (selected == null) return null;
@@ -211,7 +291,10 @@ public class Wheel {
         return selected.getColor();
     }
 
+    /** Locks this wheel unless the wheel type disallows locking. */
     public void lock() { if (!isRebel()) locked = true; }
+
+    /** Unlocks this wheel unless the wheel type disallows unlocking. */
     public void unlock() { if (!isRebel()) locked = false; }
 
     /**

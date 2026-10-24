@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
  */
 public class SlotMachineContestTest {
 
+    /** Confirms a one-wheel machine already has no distinct-symbol mismatch. */
     @Test
     public void accordingCcIcsolveShouldReturnAnEmptyPlanForOneWheel() {
         SlotMachineContest contest = new SlotMachineContest();
@@ -23,6 +24,7 @@ public class SlotMachineContestTest {
         assertEquals(0, result.length);
     }
 
+    /** Checks solver actions contain valid wheel positions and single steps. */
     @Test
     public void accordingCcIcsolveShouldReturnActionsWithValidWheelAndStepValues() {
         SlotMachineContest contest = new SlotMachineContest();
@@ -40,6 +42,7 @@ public class SlotMachineContestTest {
         }
     }
 
+    /** Ensures a short graphical simulation completes without throwing. */
     @Test
     public void accordingCcIcsimulateShouldFinishForTwoWheels() {
         SlotMachineContest contest = new SlotMachineContest();

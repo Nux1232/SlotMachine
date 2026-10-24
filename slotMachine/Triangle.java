@@ -1,22 +1,15 @@
 import java.awt.Polygon;
 
-/**
- * A triangle that can be manipulated and that draws itself on a canvas.
- * 
- * @author  Michael Kolling and David J. Barnes
- * @version 1.0  (15 July 2000)
- */
-
+/** A movable, resizable triangle rendered on the shared canvas. */
 public class Triangle extends Shapes{
     
+    /** Number of vertices in a triangle. */
     public static int VERTICES=3;
     
     private int height;
     private int width;
 
-    /**
-     * Create a new triangle at default position with default color.
-     */
+    /** Creates a triangle at its default position, size, and color. */
     public Triangle(){
         height = 30;
         width = 40;
@@ -27,9 +20,10 @@ public class Triangle extends Shapes{
     }
 
     /**
-     * Change the size to the new size
-     * @param newHeight the new height in pixels. newHeight must be >=0.
-     * @param newWidht the new width in pixels. newWidht must be >=0.
+     * Changes the height and base width of this triangle.
+     *
+     * @param newHeight new height in pixels
+     * @param newWidth new base width in pixels
      */
     public void changeSize(int newHeight, int newWidth) {
         erase();
@@ -38,9 +32,7 @@ public class Triangle extends Shapes{
         draw();
     }
     
-    /*
-     * Draw the triangle with current specifications on screen.
-     */
+    /** Draws this triangle on the shared canvas when it is visible. */
     @Override
     protected void draw(){
         if(isVisible) {

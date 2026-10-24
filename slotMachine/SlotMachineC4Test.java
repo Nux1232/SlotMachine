@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 /** General regression checks for the fourth cycle. */
 public class SlotMachineC4Test {
+    /** Ensures construction with one wheel terminates and creates that wheel. */
     @Test
     public void oneWheelConstructorShouldReturnWithoutLooping() {
         assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
@@ -17,6 +18,7 @@ public class SlotMachineC4Test {
         });
     }
 
+    /** Assigns a matching explicit configuration and verifies jackpot detection. */
     @Test
     public void shouldSetAndReportAnExplicitWinningConfiguration() throws SlotMachineException {
         SlotMachine machine = new SlotMachine();
@@ -29,6 +31,7 @@ public class SlotMachineC4Test {
         assertTrue(machine.isJackpot());
         machine.makeInvisible();
     }
+    /** Confirms only special symbols have a visual badge. */
     @Test
     public void specialSymbolsShouldHaveABadgeAndNormalOnesNot() {
         assertFalse(new Symbol("red").hasBadge());

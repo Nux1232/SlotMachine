@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
  */
 public class ShapesTest {
 
+    /** Checks absolute positioning and horizontal movement. */
     @Test
     public void shouldSetPositionAndMoveHorizontally() {
         TestShape shape = new TestShape();
@@ -21,6 +22,7 @@ public class ShapesTest {
         assertTrue(shape.getDrawCount() >= 2);
     }
 
+    /** Checks absolute positioning and vertical movement. */
     @Test
     public void shouldSetPositionAndMoveVertically() {
         TestShape shape = new TestShape();
@@ -33,6 +35,7 @@ public class ShapesTest {
         assertTrue(shape.getDrawCount() >= 2);
     }
 
+    /** Checks the four fixed-distance movement convenience methods. */
     @Test
     public void shouldMoveUsingConvenienceMethods() {
         TestShape shape = new TestShape();
@@ -47,6 +50,7 @@ public class ShapesTest {
         assertEquals(100, shape.getY());
     }
 
+    /** Checks incremental movement in both positive and negative directions. */
     @Test
     public void shouldMoveSlowlyInBothDirections() {
         TestShape shape = new TestShape();
@@ -60,6 +64,7 @@ public class ShapesTest {
         assertEquals(9, shape.getDrawCount());
     }
 
+    /** Checks color changes and visibility state transitions. */
     @Test
     public void shouldChangeColorAndVisibility() {
         TestShape shape = new TestShape();

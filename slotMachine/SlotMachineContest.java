@@ -5,7 +5,12 @@ import java.util.Random;
 public class SlotMachineContest {
     private static final int MAX_ACTIONS = 10000;
 
-    /** Returns wheel/step actions that try to reach a jackpot. */
+    /**
+     * Computes single-step wheel spins intended to reach a jackpot.
+     *
+     * @param n number of wheels in the simulated machine
+     * @return actions represented as {@code [wheel position, step count]} pairs
+     */
     public int[][] solve(int n) {
         SlotMachine machine;
         try {
@@ -17,7 +22,12 @@ public class SlotMachineContest {
         return play(machine);
     }
 
-    /** Runs the same solution loop with graphics when a display is available. */
+    /**
+     * Runs the solver and displays the machine when a graphical environment is
+     * available.
+     *
+     * @param n number of wheels in the simulated machine
+     */
     public void simulate(int n) {
         SlotMachine machine;
         try {
@@ -30,6 +40,13 @@ public class SlotMachineContest {
         machine.isJackpot();
     }
 
+    /**
+     * Spins randomly selected wheels until a jackpot is reached or the attempt
+     * limit is exhausted.
+     *
+     * @param machine machine instance to operate on
+     * @return recorded actions as wheel-position and step-count pairs
+     */
     private int[][] play(SlotMachine machine) {
         ArrayList<int[]> actions = new ArrayList<>();
         int wheelCount = machine.configuration().length;

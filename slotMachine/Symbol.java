@@ -16,6 +16,12 @@ public class Symbol {
     protected Shapes badge;
     protected static final int BADGE_SIZE = 10;
 
+    /**
+     * Creates a symbol and chooses its graphical shape from the color palette.
+     *
+     * @param color supported symbol color
+     * @throws IllegalArgumentException if the color is not supported
+     */
     public Symbol(String color) {
         if (!isAvailableColor(color)) {
             throw new IllegalArgumentException("Unsupported symbol color: " + color);
@@ -82,18 +88,16 @@ public class Symbol {
         return color != null && AVAILABLE_COLORS.contains(color);
     }
 
-    /**
-     * Return the color list supported by the actual version.
-     * @return AVAILABLE_COLORS Color supported
-     */
+    /** @return an immutable list of supported symbol colors */
     public static List<String> getAvailableColors() {
         return AVAILABLE_COLORS;
     }
 
     /**
-     * Set the position of the symbol
-     * @param x horizontal place
-     * @param y vertical place
+     * Sets the position of the symbol and its badge.
+     *
+     * @param x horizontal coordinate
+     * @param y vertical coordinate
      */
     public void setPosition(int x, int y) {
         if (symbolShape != null) {
@@ -109,7 +113,7 @@ public class Symbol {
     }
 
     /**
-     * Makes visible the symbol
+     * Makes the symbol and its badge visible.
      */
     public void makeVisible() {
         if (symbolShape != null) {
@@ -121,7 +125,7 @@ public class Symbol {
     }
 
     /**
-     * Makes invisible the symbol
+     * Makes the symbol and its badge invisible.
      */
     public void makeInvisible() {
         if (symbolShape != null) {
@@ -133,8 +137,8 @@ public class Symbol {
     }
 
     /**
-     * Reacts to a Spin
-     * In a Normal Symbol this method makes no funtion.
+     * Applies the symbol's effect when selected during a spin.
+     * The standard symbol has no additional effect.
      */
     public void spinEffect() {
 
