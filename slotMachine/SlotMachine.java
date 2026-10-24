@@ -210,7 +210,7 @@ public class SlotMachine {
      * @param pos one-based position of the wheel to delete
      */
     public void delWheel(int pos) {
-        lastOperationOk = true;
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
             lastOperationOk = false; 
             if (isVisible) {
@@ -230,6 +230,7 @@ public class SlotMachine {
         if (!wheels.isEmpty()) {
             locationWheel();
         }
+        lastOperationOk = true;
     }
 
     /**
@@ -261,7 +262,7 @@ public class SlotMachine {
      *
      * @param type  symbol type: "normal", "ephemeral" or "shy"
      * @param pos   one-based position of the wheel
-     * @param color color used for the symbol
+     * @param color color used for the symbol  (Class forName())
      */
     public void addSymbol(String type, int pos, String color) {
         lastOperationOk = true;
@@ -730,10 +731,11 @@ public class SlotMachine {
 
     /**
      * Makes the slot machine and all its wheels visible.
+     * Revisa la manera en como se hace vicivle
      */
     public void makeVisible() {
         isVisible = true;
-        if (isVisible){
+        
             body.makeVisible();
             leverCircle.makeVisible();
             leverHorizontal.makeVisible();
@@ -741,7 +743,7 @@ public class SlotMachine {
             for (Wheel wheel : wheels) {
                 wheel.makeWheelVisible();
             }
-        }
+    
     }
 
     /**
@@ -779,10 +781,7 @@ public class SlotMachine {
      *         {@code false}
      */
     public boolean ok() {
-        if (lastOperationOk) {
-            return true;    
-        }
-        return false;
+        return lastOperationOk;
     }
 
     /**
