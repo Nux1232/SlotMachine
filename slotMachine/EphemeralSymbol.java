@@ -21,9 +21,6 @@ public class EphemeralSymbol extends Symbol {
         setBadge(mark);
         resizeShape();
     }
- 
-    /** Compatibility constructor: the project represents symbols by color only. */
-    public EphemeralSymbol(String color, String ignoredShape) { this(color); }
 
     @Override
     public void setPosition(int x, int y) {

@@ -51,7 +51,7 @@ public class SlotMachine {
      * @throws SlotMachineException if any wheel or spin of the initialization fails
      */
     public SlotMachine(int n) throws SlotMachineException {
-        lastOperationOk = true;
+        lastOperationOk = false;
         wheels = new ArrayList<>();
         bodyConstructor();
         leversConstructor();
@@ -82,6 +82,7 @@ public class SlotMachine {
             while (n > 1 && distinctSymbols() == 1) {
                 spin(1, 1);
             }
+            lastOperationOk = true;
         } catch (SlotMachineException exception) {
             throw new SlotMachineException(exception.getMessage());
         }
@@ -108,18 +109,21 @@ public class SlotMachine {
      * Creates and configures the body of the slot machine.
      */
     private void bodyConstructor() {
+        lastOperationOk = false;
         body = new Rectangle();
         body.changeSize(530,1200);
         // Acá hay que buscar centrarlo por mientras tanto
         body.moveHorizontal(7);
         body.moveVertical(60);
         body.changeColor("blue");
+        lastOperationOk = true;
     }
 
     /**
      * Creates and configures the three visual elements that form the lever.
      */
     private void leversConstructor() {
+        lastOperationOk = false;
         // This Rectangle makes the horizontal part of the lever
         leverHorizontal = new Rectangle();
         leverHorizontal.changeColor("black");
@@ -134,6 +138,7 @@ public class SlotMachine {
         leverCircle = new Circle();
         leverCircle.changeColor("red");
         leverCircle.changeSize(90);
+        lastOperationOk = true;
     }
 
     /**
@@ -190,6 +195,7 @@ public class SlotMachine {
             throw new SlotMachineException(SlotMachineException.WHEEL_TYPE_NOTFOUND);
         }
         addWheel(pos, parsedType);
+        lastOperationOk = true;
     }
 
     /**
@@ -219,15 +225,13 @@ public class SlotMachine {
     /**
      * Repositions all wheels in their current order.
      */
-    private void locationWheel() {
-        lastOperationOk = true;
+    private void locationWheel() throws SlotMachineException {
+        lastOperationOk = false;
         int startX = 120;
         int startY = 210;
         int space = 130;
         if (wheels.isEmpty()) {
-            lastOperationOk = false;
-            JOptionPane.showMessageDialog(null, "Error: Se intentó cambiar la ubicación de las ruedas sin tener ruedas"); 
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
         for (int i = 0; i < wheels.size(); i++) {
             wheels.get(i).setPositionWheel(startX + (i * space), startY);
@@ -235,6 +239,7 @@ public class SlotMachine {
                 wheels.get(i).makeWheelVisible();
             }
         }
+        lastOperationOk = true;
     }
 
     /**
@@ -594,6 +599,7 @@ public class SlotMachine {
      * @return true when every wheel shows the same visible color
      */
     private boolean hasJackpot() {
+        lastOperationOk = false;
         if (wheels.isEmpty()) return false;
         String first = wheels.get(0).symbolColor();
         if (first == null || first.isEmpty()) return false;
@@ -601,6 +607,7 @@ public class SlotMachine {
             String current = wheels.get(i).symbolColor();
             if (current == null || current.isEmpty() || !first.equals(current)) return false;
         }
+        lastOperationOk = true;
         return true;
     }
 
@@ -612,6 +619,7 @@ public class SlotMachine {
      * @throws SlotMachineException if the text is null or empty
      */
     private String[] parseConfiguration(String setSymbols) throws SlotMachineException {
+        lastOperationOk = false;
         if (setSymbols == null) {
             throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
         }
@@ -622,6 +630,7 @@ public class SlotMachine {
         if (configurationText.isEmpty()) {
             throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
         }
+        lastOperationOk = true;
         return configurationText.split("[,;\\s]+");
     }
 
@@ -725,6 +734,7 @@ public class SlotMachine {
      *         {@code false}
      */
     public boolean isjackpot() {
+        lastOperationOk = false;
         winner = hasJackpot();
         if (winner) {
             if (isVisible) JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
@@ -742,6 +752,7 @@ public class SlotMachine {
             }
             return false;
         }
+        lastOperationOk = true;
     }
 
     /**
@@ -756,6 +767,7 @@ public class SlotMachine {
      * Makes the slot machine and all its wheels visible.
      */
     public void makeVisible() {
+        lastOperationOk = false;
         isVisible = true;
         if (isVisible){
             body.makeVisible();
@@ -766,12 +778,14 @@ public class SlotMachine {
                 wheel.makeWheelVisible();
             }
         }
+        lastOperationOk = true;
     }
 
     /**
      * Makes the slot machine and all its wheels invisible.
      */
     public void makeInvisible() {
+        lastOperationOk = false;
         isVisible = false;
         if (isVisible == false) {
             body.makeInvisible();
@@ -782,17 +796,18 @@ public class SlotMachine {
                 wheel.makeWheelInvisible();
             }
         }
+        lastOperationOk = true;
     }
 
     /**
      * Hides the machine, if necessary, and exits the application.
      */
     public void exit() {
-        lastOperationOk = true;
+        lastOperationOk = false;
         if(isVisible){
             makeInvisible();
         }
-
+        lastOperationOk = true;
         System.exit(0);
     }
 

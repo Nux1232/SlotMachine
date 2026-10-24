@@ -10,9 +10,6 @@ public class ShySymbol extends Symbol {
         setBadge(mark);
     }
 
-    /** Compatibility constructor: the project represents symbols by color only. */
-    public ShySymbol(String color, String ignoredShape) { this(color); }
-
     @Override
     public void spinEffect() { onSelected(); }
 
