@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import javax.swing.JOptionPane;
 
@@ -55,9 +56,7 @@ public class SlotMachine {
         leverVertical.moveVertical(80);
         leverCircle.moveHorizontal(1277);
 
-        if (n > 9) {
-            n = 9;
-        }
+        n = Math.max(0, Math.min(n, 9));
         for (int i = 0; i < n; i++) {
             addWheel(i);
         }
@@ -79,7 +78,7 @@ public class SlotMachine {
             int randomSteps = random.nextInt(n);
             spin(i + 1, randomSteps);
         }
-        while (n>1 && distinctSymbols() == 1) {
+        while (n > 1 && distinctSymbols() == 1) {
             spin(1,1);
         }
         makeInvisible();
@@ -138,6 +137,11 @@ public class SlotMachine {
      * @param pos one-based position where the wheel will be inserted
      */
     public void addWheel(int pos) {
+        addWheel(pos, Wheel.Type.NORMAL);
+    }
+
+    /** Adds a wheel with one of the supported wheel behaviors. */
+    public void addWheel(int pos, Wheel.Type type) {
         lastOperationOk = true;
         if (wheels.size() >= 9) {
             lastOperationOk = false;
@@ -152,7 +156,7 @@ public class SlotMachine {
         
         // We implemented the ArrayList, so at the moment of adding a new
         // Wheel, it justs add one by one
-        wheels.add(index, new Wheel());
+        wheels.add(index, new Wheel(type));
         locationWheel();
     }
 
@@ -170,16 +174,13 @@ public class SlotMachine {
         }
     }
 
-    /** 
-     * Convenience parameter order for BlueJ's object bench. 
-     **/
+    /** Convenience parameter order for BlueJ's object bench. */
     public void addWheel(String type, int pos) { addWheel(pos, type); }
 
     public Wheel.Type wheelType(int pos) {
         if (!validWheelPosition(pos)) return null;
         return wheels.get(pos - 1).getType();
     }
-
 
     /**
      * Repositions all wheels in their current order.
@@ -219,6 +220,10 @@ public class SlotMachine {
         }
         pos = validatePosition(pos, wheels.size());
         int index = pos - 1; 
+        if (wheels.get(index).isRebel()) {
+            operationError("Una rueda rebelde no se puede eliminar.");
+            return;
+        }
         wheels.get(index).makeWheelInvisible();
         // The arraylist move all the elements to the left
         wheels.remove(index);
@@ -240,6 +245,10 @@ public class SlotMachine {
             if (isVisible) {
                 JOptionPane.showMessageDialog(null, "Error: No se puede borrar llantas, no hay llantas.");
             }
+            return;
+        }
+        if (!Symbol.isAvailableColor(color)) {
+            operationError("El símbolo no está permitido: " + color);
             return;
         }
         pos = validatePosition(pos, wheels.size());
@@ -269,14 +278,14 @@ public class SlotMachine {
         if (type == null) {
             throw new SlotMachineException(SlotMachineException.SYMBOL_TYPE_NOTFOUND);
         }
-    
+
         String className;
         if (type.equalsIgnoreCase("normal")) {
             className = "Symbol";
         } else {
             className = type;
         }
-    
+
         try {
             Symbol symbol = (Symbol) Class.forName(className).getConstructor(String.class).newInstance(color);
             wheels.get(pos - 1).addSymbolWheel(symbol);
@@ -333,6 +342,10 @@ public class SlotMachine {
             }
             return;
         }
+        if (!Symbol.isAvailableColor(symbol)) {
+            operationError("El símbolo no está permitido: " + symbol);
+            return;
+        }
         wheel = validatePosition(wheel, wheels.size());
         int index = wheel - 1;
         lastOperationOk = true;
@@ -363,6 +376,10 @@ public class SlotMachine {
 
         int firstIndex = first - 1;
         int secondIndex = second - 1;
+        if (wheels.get(firstIndex).isRebel() || wheels.get(secondIndex).isRebel()) {
+            operationError("Una rueda rebelde no se puede intercambiar.");
+            return;
+        }
         if (wheels.get(firstIndex).isLocked() || wheels.get(secondIndex).isLocked()) {
             lastOperationOk = false;
             operationError("No se pueden intercambiar ruedas fijadas.");
@@ -384,6 +401,10 @@ public class SlotMachine {
         if (!validWheelPosition(pos)) {
             return;
         }
+        if (wheels.get(pos - 1).isRebel()) {
+            operationError("Una rueda rebelde no se puede bloquear.");
+            return;
+        }
         wheels.get(pos - 1).lock();
     }
 
@@ -395,6 +416,10 @@ public class SlotMachine {
     public void unlock(int pos) {
         lastOperationOk = true;
         if (!validWheelPosition(pos)) {
+            return;
+        }
+        if (wheels.get(pos - 1).isRebel()) {
+            operationError("Una rueda rebelde no se puede desbloquear.");
             return;
         }
         wheels.get(pos - 1).unlock();
@@ -423,8 +448,9 @@ public class SlotMachine {
             operationError("No puedes girar una rueda fijada.");
             return;
         }
-        wheels.get(wheel - 1).spin();
-        JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
+        int index = wheel - 1;
+        wheels.get(index).spin(index > 0 ? wheels.get(index - 1) : null);
+        if (isVisible) JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
     }
 
     /**
@@ -440,9 +466,10 @@ public class SlotMachine {
             }
             return;
         }
-        for (Wheel w: wheels) {
-            if (!w.isLocked()) {
-                w.spin();
+        for (int i = 0; i < wheels.size(); i++) {
+            Wheel wheel = wheels.get(i);
+            if (!wheel.isLocked()) {
+                wheel.spin(i > 0 ? wheels.get(i - 1) : null);
             }
         }
         // 20% of Probability of win
@@ -455,7 +482,7 @@ public class SlotMachine {
                 }
             }
         }
-        winner = distinctSymbols() == 1;
+        winner = hasJackpot();
         // Check directly if the user wins
         isjackpot();
     }
@@ -488,7 +515,8 @@ public class SlotMachine {
 
         Random random = new Random();
         for (int step = 0; step < steps; step++) {
-            wheels.get(wheel - 1).spin();
+            int index = wheel - 1;
+            wheels.get(index).spin(index > 0 ? wheels.get(index - 1) : null);
             if (!pauseBetweenSteps()) {
                 return;
             }
@@ -545,6 +573,17 @@ public class SlotMachine {
             if (!requestedSymbols[0].equals(requestedSymbols[i])) {
                 return false;
             }
+        }
+        return true;
+    }
+
+    private boolean hasJackpot() {
+        if (wheels.isEmpty()) return false;
+        String first = wheels.get(0).symbolColor();
+        if (first == null || first.isEmpty()) return false;
+        for (int i = 1; i < wheels.size(); i++) {
+            String current = wheels.get(i).symbolColor();
+            if (current == null || current.isEmpty() || !first.equals(current)) return false;
         }
         return true;
     }
@@ -611,20 +650,16 @@ public class SlotMachine {
      *         the machine has no wheels
      */
     public String[] symbols() {
-        lastOperationOk = true;
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
-           lastOperationOk = false; 
             return new String[0];
         }
 
         String[] inventario = new String[wheels.size()];
         for (int i = 0; i < wheels.size(); i++){
-            if (wheels.get(i).getSymbol() != null) {
-                inventario[i] = wheels.get(i).getSymbol().getColor();
-            } else {
-                inventario[i] = "white";
-            }
+            inventario[i] = wheels.get(i).symbolColor();
         }
+        lastOperationOk = true;
         return inventario;
     }
 
@@ -634,9 +669,8 @@ public class SlotMachine {
      * @return the number of distinct symbols
      */
     public int distinctSymbols() {
-        lastOperationOk = true;
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
-            lastOperationOk = false;
             return 0;
         }
 
@@ -648,6 +682,7 @@ public class SlotMachine {
                 UniqueColors.add(colorActual);
             }
         }
+        lastOperationOk = true;
         return UniqueColors.size();
         }
 
@@ -658,20 +693,17 @@ public class SlotMachine {
      *         available
      */
     public String[] configuration() {
-        lastOperationOk = true;
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
-            lastOperationOk = false;
             return new String[0];
         }
 
         String[] visibles = new String[wheels.size()];
         for (int i = 0; i < wheels.size(); i++) {
-            if (wheels.get(i).getSymbol() != null) {
-                visibles[i] = wheels.get(i).getSymbol().getColor();
-            } else {
-                visibles[i] = "white"; // Default Color
-            }
+            String current = wheels.get(i).symbolColor();
+            visibles[i] = current == null ? "white" : current;
         }
+        lastOperationOk = true;
         return visibles;
         }
 
@@ -682,8 +714,9 @@ public class SlotMachine {
      *         {@code false}
      */
     public boolean isjackpot() {
+        winner = hasJackpot();
         if (winner) {
-            JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
+            if (isVisible) JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
             winner = true;
             body.changeColor("green");
             if (isVisible) {
@@ -699,6 +732,9 @@ public class SlotMachine {
             return false;
         }
     }
+
+    /** Same jackpot query with conventional Java camel-case spelling. */
+    public boolean isJackpot() { return isjackpot(); }
 
     /**
      * Makes the slot machine and all its wheels visible.

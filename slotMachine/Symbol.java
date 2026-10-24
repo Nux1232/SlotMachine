@@ -2,20 +2,25 @@ import java.util.Random;
 import java.util.List;
 
 /**
- * Represents one of the three symbols displayed by a slot machine wheel.
+ * Represents one of the symbols displayed by a slot machine wheel.
  *
- * The visual mapping is red = triangle, black = square and green = circle.
+ * Symbols are identified by color and rendered as one of the supported shapes.
  */
 public class Symbol {
-    private static final List<String> AVAILABLE_COLORS = List.of("red", "black", "green",
-    "yellow", "magenta", "orange","cyan", "gray", "brown");
+    private static final List<String> AVAILABLE_COLORS = List.of(
+        "red", "black", "green", "orange", "yellow", "magenta",
+        "brown", "gray", "pink", "cyan"
+    );
     private final String color;
     protected Shapes symbolShape;
     public Symbol(String color) {
+        if (!isAvailableColor(color)) {
+            throw new IllegalArgumentException("Unsupported symbol color: " + color);
+        }
         this.color = color;
         // The shape depends on the position of the color in the palette,
         // so new colors get a shape automatically.
-        switch (AVAILABLE_COLORS.indexOf(color) % 3) {
+        switch (Math.floorMod(AVAILABLE_COLORS.indexOf(color), 3)) {
             case 0:
                 symbolShape = new Triangle();
                 ((Triangle) symbolShape).changeSize(50, 50);
@@ -39,6 +44,9 @@ public class Symbol {
     public String getColor() {
         return color;
     }
+
+    /** Creates an independent copy for wheels that mirror a neighbor. */
+    Symbol copy() { return new Symbol(color); }
 
     /**
      * Checks whether this symbol has the specified color.

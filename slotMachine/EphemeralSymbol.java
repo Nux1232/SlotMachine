@@ -1,23 +1,17 @@
-/**
- * A symbol that shrinks every time it is selected by a spin,
- * until it is reduced to a point.
- */
+/** A symbol that becomes smaller each time the wheel selects it. */
 public class EphemeralSymbol extends Symbol {
-    private static final int MIN_SIZE = 1;
-    private static final int REDUCTION_STEP = 10;
-    private int currentSize;
-    private int xPos;
-    private int yPos;
- 
-    /**
-     * Creates an ephemeral symbol of the given color.
-     *
-     * @param color symbol color
-     */
+    private static final int INITIAL_SIZE = 50;
+    private static final int MINIMUM_SIZE = 10;
+    private static final int SIZE_STEP = 5;
+    private int size = INITIAL_SIZE;
+    private int x;
+    private int y;
+
     public EphemeralSymbol(String color) {
         super(color);
-        currentSize = 50;
+        resizeShape();
     }
+<<<<<<< HEAD
  
     /**
      * Remembers the position so it can be restored after resizing.
@@ -29,37 +23,47 @@ public class EphemeralSymbol extends Symbol {
     /** 
      * Compatibility constructor: the project represents symbols by color only. 
      **/
+=======
+
+    /** Compatibility constructor: the project represents symbols by color only. */
+>>>>>>> Juan-avance
     public EphemeralSymbol(String color, String ignoredShape) { this(color); }
 
     @Override
     public void setPosition(int x, int y) {
-        xPos = x;
-        yPos = y;
+        this.x = x;
+        this.y = y;
         super.setPosition(x, y);
     }
- 
-    /**
-     * Reduces the size of the symbol, down to a minimum of one point.
-     */
+
     @Override
-    public void spinEffect() {
-        currentSize = Math.max(MIN_SIZE, currentSize - REDUCTION_STEP);
-        if (symbolShape instanceof Triangle) {
-            ((Triangle) symbolShape).changeSize(currentSize, currentSize);
-        } else if (symbolShape instanceof Rectangle) {
-            ((Rectangle) symbolShape).changeSize(currentSize, currentSize);
-        } else if (symbolShape instanceof Circle) {
-            ((Circle) symbolShape).changeSize(currentSize);
+    public void spinEffect() { onWheelSpin(); }
+
+    public void onWheelSpin() {
+        if (size > MINIMUM_SIZE) {
+            size = Math.max(MINIMUM_SIZE, size - SIZE_STEP);
+            resizeShape();
+            super.setPosition(x, y);
         }
-        super.setPosition(xPos, yPos);
     }
- 
-    /**
-     * Returns the current size of the symbol.
-     *
-     * @return current size
-     */
-    public int getCurrentSize() {
-        return currentSize;
+
+    public int getSize() { return size; }
+
+    void setSize(int newSize) {
+        size = Math.max(MINIMUM_SIZE, Math.min(INITIAL_SIZE, newSize));
+        resizeShape();
+    }
+
+    @Override
+    Symbol copy() {
+        EphemeralSymbol copy = new EphemeralSymbol(getColor());
+        copy.setSize(size);
+        return copy;
+    }
+
+    private void resizeShape() {
+        if (symbolShape instanceof Circle) ((Circle) symbolShape).changeSize(size);
+        else if (symbolShape instanceof Rectangle) ((Rectangle) symbolShape).changeSize(size, size);
+        else if (symbolShape instanceof Triangle) ((Triangle) symbolShape).changeSize(size, size);
     }
 }

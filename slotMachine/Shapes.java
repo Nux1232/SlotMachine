@@ -97,8 +97,7 @@ public abstract class Shapes {
         }
 
         for(int i = 0; i < distance; i++){
-            xPosition += delta;
-            draw();
+            moveHorizontal(delta);
         }
     }
 
@@ -117,8 +116,7 @@ public abstract class Shapes {
         }
 
         for(int i = 0; i < distance; i++){
-            yPosition += delta;
-            draw();
+            moveVertical(delta);
         }
     }
 
