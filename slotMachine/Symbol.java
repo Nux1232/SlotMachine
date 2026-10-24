@@ -13,6 +13,9 @@ public class Symbol {
     );
     private final String color;
     protected Shapes symbolShape;
+    protected Shapes badge;
+    protected static final int BADGE_SIZE = 10;
+
     public Symbol(String color) {
         if (!isAvailableColor(color)) {
             throw new IllegalArgumentException("Unsupported symbol color: " + color);
@@ -100,6 +103,9 @@ public class Symbol {
             }
             symbolShape.setPosition(adjustedX, y);
         }
+        if (badge != null) {
+            badge.setPosition(x + 50, y - 10);
+        }
     }
 
     /**
@@ -108,6 +114,9 @@ public class Symbol {
     public void makeVisible() {
         if (symbolShape != null) {
             symbolShape.makeVisible();
+        }
+        if (badge != null) {
+            badge.makeVisible();
         }
     }
 
@@ -118,6 +127,9 @@ public class Symbol {
         if (symbolShape != null) {
             symbolShape.makeInvisible();
         }
+        if (badge != null) {
+            badge.makeInvisible();
+        }
     }
 
     /**
@@ -126,5 +138,24 @@ public class Symbol {
      */
     public void spinEffect() {
 
+    }
+
+    /**
+     * Sets the small mark that tells this symbol type apart from the others.
+     * Normal symbols have no badge.
+     *
+     * @param newBadge shape drawn in the upper right corner of the wheel window
+     */
+    protected void setBadge(Shapes newBadge) {
+        badge = newBadge;
+    }
+
+    /**
+     * Tells whether this symbol has a badge.
+     *
+     * @return true when the symbol is marked as a special type
+     */
+    public boolean hasBadge() {
+        return badge != null;
     }
 }

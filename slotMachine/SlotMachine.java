@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
  *
  * @author Samuel Infante Camargo
  * @author Juan Pablo Cuervo Contreras
- * @version Ciclo 1
+ * @version Cierre
  */
 public class SlotMachine {
     private static final int STEP_DELAY_MILLISECONDS = 100;
@@ -45,10 +45,13 @@ public class SlotMachine {
 
     /**
      * Creates a new slotMachine with n wheels and n symbols, randomly started.
-     * @param n wheels and symbols
+     * The value of n is limited to the range from 0 to 9.
+     *
+     * @param n number of wheels and symbols
+     * @throws SlotMachineException if any wheel or spin of the initialization fails
      */
-    public SlotMachine(int n) {
-        lastOperationOk = true;
+    public SlotMachine(int n) throws SlotMachineException {
+        lastOperationOk = false;
         wheels = new ArrayList<>();
         bodyConstructor();
         leversConstructor();
@@ -57,36 +60,41 @@ public class SlotMachine {
         leverCircle.moveHorizontal(1277);
 
         n = Math.max(0, Math.min(n, 9));
-        for (int i = 0; i < n; i++) {
-            addWheel(i);
-        }
-        java.util.List<String> palette = Symbol.getAvailableColors();
-        String[] baseSymbols = new String[n];
-        for (int i = 0; i < n; i++) {
-            // Usamos el % para repetir colores si n es mayor que la paleta actual
-            baseSymbols[i] = palette.get(i % palette.size());
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (String color : baseSymbols) {
-                wheels.get(i).addSymbolWheel(new Symbol(color));
+        try {
+            for (int i = 0; i < n; i++) {
+                addWheel(i);
             }
-        }
-
-        Random random = new Random();
-        for  (int i = 0; i < n; i++) {
-            int randomSteps = random.nextInt(n);
-            spin(i + 1, randomSteps);
-        }
-        while (n > 1 && distinctSymbols() == 1) {
-            spin(1,1);
+            List<String> palette = Symbol.getAvailableColors();
+            String[] baseSymbols = new String[n];
+            for (int i = 0; i < n; i++) {
+                baseSymbols[i] = palette.get(i % palette.size());
+            }
+            for (int i = 0; i < n; i++) {
+                for (String color : baseSymbols) {
+                    wheels.get(i).addSymbolWheel(new Symbol(color));
+                }
+            }
+            Random random = new Random();
+            for (int i = 0; i < n; i++) {
+                int randomSteps = random.nextInt(n);
+                spin(i + 1, randomSteps);
+            }
+            while (n > 1 && distinctSymbols() == 1) {
+                spin(1, 1);
+            }
+            lastOperationOk = true;
+        } catch (SlotMachineException exception) {
+            throw new SlotMachineException(exception.getMessage());
         }
         makeInvisible();
-
     }
 
     /**
-     * Validates if a position may be okay or not
+     * Adjusts a position to the closest valid one in the range 1..maxLimit.
+     *
+     * @param pos position to validate
+     * @param maxLimit highest valid position
+     * @return the position adjusted to the valid range
      */
     private int validatePosition(int pos, int maxLimit) {
         if (pos <= 0) {
@@ -95,25 +103,27 @@ public class SlotMachine {
             return maxLimit;
         }
         return pos;
-
     }
 
     /**
      * Creates and configures the body of the slot machine.
      */
     private void bodyConstructor() {
+        lastOperationOk = false;
         body = new Rectangle();
         body.changeSize(530,1200);
         // Acá hay que buscar centrarlo por mientras tanto
         body.moveHorizontal(7);
         body.moveVertical(60);
         body.changeColor("blue");
+        lastOperationOk = true;
     }
 
     /**
      * Creates and configures the three visual elements that form the lever.
      */
     private void leversConstructor() {
+        lastOperationOk = false;
         // This Rectangle makes the horizontal part of the lever
         leverHorizontal = new Rectangle();
         leverHorizontal.changeColor("black");
@@ -128,72 +138,100 @@ public class SlotMachine {
         leverCircle = new Circle();
         leverCircle.changeColor("red");
         leverCircle.changeSize(90);
+        lastOperationOk = true;
     }
 
     /**
-     * Adds a wheel at the requested position. Positions outside the current
-     * valid range are adjusted to the nearest valid position.
+     * Adds a normal wheel at the requested position. Positions outside the
+     * current valid range are adjusted to the nearest valid position.
      *
      * @param pos one-based position where the wheel will be inserted
+     * @throws SlotMachineException if the machine already has nine wheels
      */
-    public void addWheel(int pos) {
+    public void addWheel(int pos) throws SlotMachineException {
         addWheel(pos, Wheel.Type.NORMAL);
     }
 
-    /** Adds a wheel with one of the supported wheel behaviors. */
-    public void addWheel(int pos, Wheel.Type type) {
-        lastOperationOk = true;
+    /**
+     * Adds a wheel with one of the supported wheel behaviors. Positions outside
+     * the current valid range are adjusted to the nearest valid position.
+     *
+     * @param pos one-based position where the wheel will be inserted
+     * @param type behavior of the wheel
+     * @throws SlotMachineException if the machine already has nine wheels
+     */
+    public void addWheel(int pos, Wheel.Type type) throws SlotMachineException {
+        lastOperationOk = false;
         if (wheels.size() >= 9) {
-            lastOperationOk = false;
-            if (isVisible) {
-            JOptionPane.showMessageDialog(null, "Error: No se puede tener más de 9 ruedas"); 
-            }
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_LIMIT_REACHED);
         }
-        // The max limit allowed to add is the actual size + 1
         pos = validatePosition(pos, wheels.size() + 1);
-        int index= pos - 1;
-        
-        // We implemented the ArrayList, so at the moment of adding a new
-        // Wheel, it justs add one by one
+        int index = pos - 1;
         wheels.add(index, new Wheel(type));
         locationWheel();
-    }
-
-    /** Adds a wheel using the case-insensitive names normal, lefty, rebel, or crazy. */
-    public void addWheel(int pos, String type) {
         lastOperationOk = true;
-        if (type == null) {
-            operationError("El tipo de rueda no puede ser nulo.");
-            return;
-        }
-        try {
-            addWheel(pos, Wheel.Type.valueOf(type.trim().toUpperCase(Locale.ROOT)));
-        } catch (IllegalArgumentException exception) {
-            operationError("Tipo de rueda desconocido: " + type);
-        }
     }
 
-    /** Convenience parameter order for BlueJ's object bench. */
-    public void addWheel(String type, int pos) { addWheel(pos, type); }
+    /**
+     * Adds a wheel using the case-insensitive names normal, lefty, rebel, or crazy.
+     *
+     * @param pos one-based position where the wheel will be inserted
+     * @param type name of the wheel type
+     * @throws SlotMachineException if the type is null or unknown, or the
+     *         machine already has nine wheels
+     */
+    public void addWheel(int pos, String type) throws SlotMachineException {
+        lastOperationOk = false;
+        if (type == null) {
+            throw new SlotMachineException(SlotMachineException.WHEEL_TYPE_NOTFOUND);
+        }
+        Wheel.Type parsedType = null;
+        for (Wheel.Type candidate : Wheel.Type.values()) {
+            if (candidate.name().equalsIgnoreCase(type.trim())) {
+                parsedType = candidate;
+            }
+        }
+        if (parsedType == null) {
+            throw new SlotMachineException(SlotMachineException.WHEEL_TYPE_NOTFOUND);
+        }
+        addWheel(pos, parsedType);
+        lastOperationOk = true;
+    }
 
-    public Wheel.Type wheelType(int pos) {
-        if (!validWheelPosition(pos)) return null;
+    /**
+     * Convenience parameter order for BlueJ's object bench.
+     *
+     * @param type name of the wheel type
+     * @param pos one-based position where the wheel will be inserted
+     * @throws SlotMachineException if the type is null or unknown, or the
+     *         machine already has nine wheels
+     */
+    public void addWheel(String type, int pos) throws SlotMachineException {
+        addWheel(pos, type);
+    }
+
+    /**
+     * Returns the type of the wheel at the requested position.
+     *
+     * @param pos one-based position of the wheel
+     * @return the type of the wheel
+     * @throws SlotMachineException if the wheel does not exist
+     */
+    public Wheel.Type wheelType(int pos) throws SlotMachineException {
+        validWheelPosition(pos);
         return wheels.get(pos - 1).getType();
     }
 
     /**
      * Repositions all wheels in their current order.
      */
-    private void locationWheel() {
-        lastOperationOk = true;
+    private void locationWheel() throws SlotMachineException {
+        lastOperationOk = false;
         int startX = 120;
         int startY = 210;
         int space = 130;
         if (wheels.isEmpty()) {
-            lastOperationOk = false;
-            JOptionPane.showMessageDialog(null, "Error: Se intentó cambiar la ubicación de las ruedas sin tener ruedas"); 
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
         for (int i = 0; i < wheels.size(); i++) {
             wheels.get(i).setPositionWheel(startX + (i * space), startY);
@@ -201,31 +239,28 @@ public class SlotMachine {
                 wheels.get(i).makeWheelVisible();
             }
         }
+        lastOperationOk = true;
     }
 
     /**
      * Deletes the wheel at the requested position and shifts the remaining
-     * wheels to preserve their order.
+     * wheels to preserve their order. Positions outside the valid range are
+     * adjusted to the nearest valid position.
      *
      * @param pos one-based position of the wheel to delete
+     * @throws SlotMachineException if there are no wheels or the wheel is rebel
      */
-    public void delWheel(int pos) {
+    public void delWheel(int pos) throws SlotMachineException {
         lastOperationOk = false;
         if (wheels.isEmpty()) {
-            lastOperationOk = false; 
-            if (isVisible) {
-                JOptionPane.showMessageDialog(null, "Error: No se puede borrar llantas, no hay llantas.");
-            }
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
         pos = validatePosition(pos, wheels.size());
-        int index = pos - 1; 
+        int index = pos - 1;
         if (wheels.get(index).isRebel()) {
-            operationError("Una rueda rebelde no se puede eliminar.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_REBEL);
         }
         wheels.get(index).makeWheelInvisible();
-        // The arraylist move all the elements to the left
         wheels.remove(index);
         if (!wheels.isEmpty()) {
             locationWheel();
@@ -234,123 +269,130 @@ public class SlotMachine {
     }
 
     /**
-     * Adds a colored symbol to the wheel at the requested position.
+     * Adds a normal colored symbol to the wheel at the requested position.
+     * Positions outside the valid range are adjusted to the nearest valid one.
      *
      * @param pos one-based position of the wheel
      * @param color color used for the symbol
+     * @throws SlotMachineException if there are no wheels or the color is not allowed
      */
-    public void addSymbol(int pos, String color) {
-        lastOperationOk = true;
+    public void addSymbol(int pos, String color) throws SlotMachineException {
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
-            lastOperationOk = false; 
-            if (isVisible) {
-                JOptionPane.showMessageDialog(null, "Error: No se puede borrar llantas, no hay llantas.");
-            }
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
         if (!Symbol.isAvailableColor(color)) {
-            operationError("El símbolo no está permitido: " + color);
-            return;
+            throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
         }
         pos = validatePosition(pos, wheels.size());
-        int index = pos - 1;
-        wheels.get(index).addSymbolWheel(new Symbol(color));
+        wheels.get(pos - 1).addSymbolWheel(new Symbol(color));
+        lastOperationOk = true;
     }
     
     /**
      * Adds a symbol of the given type to the wheel at the requested position.
+     * The symbol class is loaded by its name, so any subclass of Symbol that
+     * has a public constructor receiving the color can be used.
      *
-     * @param type  symbol type: "normal", "ephemeral" or "shy"
+     * @param type  "normal" or the name of a Symbol subclass, for example
+     *              "EphemeralSymbol" or "ShySymbol"
      * @param pos   one-based position of the wheel
-     * @param color color used for the symbol  (Class forName())
+     * @param color color used for the symbol
+     * @throws SlotMachineException if there are no wheels, the wheel does not
+     *         exist, the color is not allowed, or the type is null, unknown or
+     *         not a subclass of Symbol
      */
-    public void addSymbol(String type, int pos, String color) {
-        lastOperationOk = true;
+    public void addSymbol(String type, int pos, String color) throws SlotMachineException {
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
-            lastOperationOk = false;
-            operationError("No se puede añadir un símbolo sin ruedas.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
+        }
+        if (pos < 1 || pos > wheels.size()) {
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
         if (!Symbol.isAvailableColor(color)) {
-            lastOperationOk = false;
-            operationError("El símbolo no está permitido: " + color);
-            return;
+            throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
         }
-        Symbol symbol;
         if (type == null) {
-            lastOperationOk = false;
-            operationError("El tipo de símbolo no puede ser nulo.");
-            return;
-        } else if (type.equalsIgnoreCase("normal")) {
-            symbol = new Symbol(color);
-        } else if (type.equalsIgnoreCase("ephemeral")) {
-            symbol = new EphemeralSymbol(color);
-        } else if (type.equalsIgnoreCase("shy")) {
-            symbol = new ShySymbol(color);
+            throw new SlotMachineException(SlotMachineException.SYMBOL_TYPE_NOTFOUND);
+        }
+
+        String className;
+        if (type.equalsIgnoreCase("normal")) {
+            className = "Symbol";
         } else {
-            lastOperationOk = false;
-            operationError("Tipo de símbolo desconocido: " + type);
-            return;
+            className = type;
         }
-        if (!validWheelPosition(pos)) return;
-        wheels.get(pos - 1).addSymbolWheel(symbol);
-    }
 
-    public void addSymbol(int pos, Symbol symbol) {
-        lastOperationOk = true;
-        if (!validWheelPosition(pos)) return;
-        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) {
-            operationError("El símbolo no es válido.");
-            return;
+        try {
+            Symbol symbol = (Symbol) Class.forName(className).getConstructor(String.class).newInstance(color);
+            wheels.get(pos - 1).addSymbolWheel(symbol);
+            lastOperationOk = true;
+        } catch (ReflectiveOperationException | ClassCastException exception) {
+            throw new SlotMachineException(SlotMachineException.SYMBOL_TYPE_NOTFOUND);
         }
-        wheels.get(pos - 1).addSymbolWheel(symbol);
     }
 
     /**
-     * Removes the specified symbol from the machine and clears matching
-     * wheel windows.
+     * Adds an already created symbol to the wheel at the requested position.
      *
-     * @param symbol symbol color to remove
+     * @param pos one-based position of the wheel
+     * @param symbol symbol to add
+     * @throws SlotMachineException if the wheel does not exist, or the symbol
+     *         is null or has a color that is not allowed
      */
-    public void delSymbol(String symbol) {
+    public void addSymbol(int pos, Symbol symbol) throws SlotMachineException {
+        lastOperationOk = false;
+        validWheelPosition(pos);
+        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) {
+            throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
+        }
+        wheels.get(pos - 1).addSymbolWheel(symbol);
         lastOperationOk = true;
-        if(wheels.isEmpty()){
-            lastOperationOk = false;
-            return;
-        }
-
-        for (Wheel wheel: wheels) {
-                if (wheel.getSymbol() != null && wheel.getSymbol().hasColor(symbol)){
-                    wheel.delSymbolWheel(symbol);
-               }   
-        }
     }
 
     /**
-     * Places or replaces a symbol on the requested wheel.
+     * Removes the symbols of the given color from the wheels that currently
+     * show that color.
+     *
+     * @param color color of the symbol to remove
+     * @throws SlotMachineException if there are no wheels or the color is not allowed
+     */
+    public void delSymbol(String color) throws SlotMachineException {
+        lastOperationOk = false;
+        if (wheels.isEmpty()) {
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
+        }
+        if (!Symbol.isAvailableColor(color)) {
+            throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
+        }
+        for (Wheel wheel : wheels) {
+            if (wheel.getSymbol() != null && wheel.getSymbol().hasColor(color)) {
+                wheel.delSymbolWheel(color);
+            }
+        }
+        lastOperationOk = true;
+    }
+
+    /**
+     * Places a symbol on the requested wheel, replacing the ones it had.
+     * Positions outside the valid range are adjusted to the nearest valid one.
      *
      * @param wheel one-based position of the wheel
      * @param symbol symbol color to place
+     * @throws SlotMachineException if there are no wheels or the color is not allowed
      */
-    public void placeSymbol(int wheel, String symbol) {
-        lastOperationOk = true;
-        if (wheels.size() == 0) {
-            lastOperationOk = false; 
-            if (isVisible) {
-                JOptionPane.showMessageDialog(null, "Error: No se puede borrar llantas, no hay llantas.");
-            }
-            return;
+    public void placeSymbol(int wheel, String symbol) throws SlotMachineException {
+        lastOperationOk = false;
+        if (wheels.isEmpty()) {
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
         if (!Symbol.isAvailableColor(symbol)) {
-            operationError("El símbolo no está permitido: " + symbol);
-            return;
+            throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
         }
         wheel = validatePosition(wheel, wheels.size());
-        int index = wheel - 1;
+        wheels.get(wheel - 1).placeSymbolWheel(symbol);
         lastOperationOk = true;
-        if (wheels.get(index) != null) {
-            wheels.get(index).placeSymbolWheel(symbol);
-        } 
     }
 
     /**
@@ -358,112 +400,91 @@ public class SlotMachine {
      *
      * @param first one-based position of the first wheel
      * @param second one-based position of the second wheel
+     * @throws SlotMachineException if a wheel does not exist, both positions
+     *         are the same, or any of the wheels is rebel or locked
      */
-    public void swap(int first, int second) {
-        lastOperationOk = true;
-        if (!validWheelPositions(first, second)) {
-            return;
-        }
-        first = validatePosition(first, wheels.size());
-        second = validatePosition(second, wheels.size());
-
-        if (first == second) {
-            lastOperationOk = false;
-            operationError("No se puede intercambiar una rueda consigo misma.");
-            return;
-        }
+    public void swap(int first, int second) throws SlotMachineException {
+        lastOperationOk = false;
+        validWheelPositions(first, second);
 
         int firstIndex = first - 1;
         int secondIndex = second - 1;
         if (wheels.get(firstIndex).isRebel() || wheels.get(secondIndex).isRebel()) {
-            operationError("Una rueda rebelde no se puede intercambiar.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_REBEL);
         }
         if (wheels.get(firstIndex).isLocked() || wheels.get(secondIndex).isLocked()) {
-            lastOperationOk = false;
-            operationError("No se pueden intercambiar ruedas fijadas.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_LOCKED);
         }
         Wheel temporaryWheel = wheels.get(firstIndex);
         wheels.set(firstIndex, wheels.get(secondIndex));
         wheels.set(secondIndex, temporaryWheel);
         locationWheel();
+        lastOperationOk = true;
     }
 
     /**
      * Fixes a wheel so a complete spin leaves it unchanged.
      *
      * @param pos one-based position of the wheel
+     * @throws SlotMachineException if the wheel does not exist or is rebel
      */
-    public void lock(int pos) {
-        lastOperationOk = true;
-        if (!validWheelPosition(pos)) {
-            return;
-        }
+    public void lock(int pos) throws SlotMachineException {
+        lastOperationOk = false;
+        validWheelPosition(pos);
         if (wheels.get(pos - 1).isRebel()) {
-            operationError("Una rueda rebelde no se puede bloquear.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_REBEL);
         }
         wheels.get(pos - 1).lock();
+        lastOperationOk = true;
     }
 
     /**
      * Releases a previously fixed wheel.
      *
      * @param pos one-based position of the wheel
+     * @throws SlotMachineException if the wheel does not exist or is rebel
      */
-    public void unlock(int pos) {
-        lastOperationOk = true;
-        if (!validWheelPosition(pos)) {
-            return;
-        }
+    public void unlock(int pos) throws SlotMachineException {
+        lastOperationOk = false;
+        validWheelPosition(pos);
         if (wheels.get(pos - 1).isRebel()) {
-            operationError("Una rueda rebelde no se puede desbloquear.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_REBEL);
         }
         wheels.get(pos - 1).unlock();
+        lastOperationOk = true;
     }
+    
     /**
-     * Spins the requested wheel and assigns it a randomly selected color.
+     * Spins the requested wheel once, according to the behavior of its type.
      *
      * @param wheel one-based position of the wheel to spin
+     * @throws SlotMachineException if the wheel does not exist or is locked
      */
-    public void spin(int wheel) {
-        lastOperationOk = true;
-        if (wheels.isEmpty()) {
-            lastOperationOk = false;
-            if (isVisible) {
-                JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
-            }
-            return;
-        } else if (wheel < 1 || wheel > wheels.size()) {
-                operationError("No puedes girar la palanca en un espacio sin ruedas.");
-                lastOperationOk = false;
-                return;
-            }
-        
+    public void spin(int wheel) throws SlotMachineException {
+        lastOperationOk = false;
+        if (wheels.isEmpty() || wheel < 1 || wheel > wheels.size()) {
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
+        }
         if (wheels.get(wheel - 1).isLocked()) {
-            lastOperationOk = false;
-            operationError("No puedes girar una rueda fijada.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_LOCKED);
         }
         int index = wheel - 1;
         wheels.get(index).spin(index > 0 ? wheels.get(index - 1) : null);
+        lastOperationOk = true;
         if (isVisible) JOptionPane.showMessageDialog(null, "Se ha girado la palanca!");
     }
 
     /**
-     * Spins the slot machine.
+     * Spins all the wheels that are not locked. There is a 20% chance that
+     * every unlocked wheel ends with the same random color. Then the jackpot
+     * state is updated.
+     *
+     * @throws SlotMachineException if there are no wheels
      */
-    public void spin() {
-        winner = false;
-        lastOperationOk = true;
+    public void spin() throws SlotMachineException {
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
-            lastOperationOk = false;
-            if (isVisible) {
-                JOptionPane.showMessageDialog(null, "Error: No puedes girar la palanca sin ruedas.");
-            }
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
         for (int i = 0; i < wheels.size(); i++) {
             Wheel wheel = wheels.get(i);
@@ -474,98 +495,94 @@ public class SlotMachine {
         // 20% of Probability of win
         Random random = new Random();
         if (random.nextDouble() < 0.2) {
-            String symbolWinner = Symbol.random(random).getColor();
-            for (Wheel w: wheels) {
-                if (!w.isLocked()) {
-                    w.placeSymbolWheel(symbolWinner);
+            String[] available = symbols();
+            if (available.length > 0) {
+                String symbolWinner = available[random.nextInt(available.length)];
+                for (Wheel w : wheels) {
+                    if (!w.isLocked()) {
+                        w.selectColor(symbolWinner);
+                    }
                 }
             }
         }
-        winner = hasJackpot();
-        // Check directly if the user wins
+        lastOperationOk = true;
         isjackpot();
     }
+    
     /**
-     * Rotates one wheel the requested number of steps. Each step selects a
-     * symbol from the palette supported by the current version. When the
-     * machine is visible, a short pause lets the user see every intermediate
-     * symbol.
+     * Rotates one wheel the requested number of steps. Each step spins the
+     * wheel according to its type. When the machine is visible, a short pause
+     * lets the user see every intermediate symbol.
      *
      * @param wheel one-based position of the wheel to rotate
      * @param steps number of steps; it must be zero or greater
+     * @throws SlotMachineException if there are no wheels, the wheel does not
+     *         exist, steps is negative, the wheel is locked or the animation
+     *         is interrupted
      */
-    public void spin(int wheel, int steps) {
-        lastOperationOk = true;
+    public void spin(int wheel, int steps) throws SlotMachineException {
+        lastOperationOk = false;
         if (!hasWheels()) {
-            operationError("No puedes girar una rueda sin ruedas.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
-        if (!validWheelPosition(wheel)) {
-            return;
-        }
+        validWheelPosition(wheel);
         if (steps < 0) {
-            operationError("El número de pasos no puede ser negativo.");
-            return;
+            throw new SlotMachineException(SlotMachineException.STEPS_NEGATIVE);
         }
         if (wheels.get(wheel - 1).isLocked()) {
-            operationError("No puedes girar una rueda fijada.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_LOCKED);
         }
-
-        Random random = new Random();
         for (int step = 0; step < steps; step++) {
             int index = wheel - 1;
             wheels.get(index).spin(index > 0 ? wheels.get(index - 1) : null);
-            if (!pauseBetweenSteps()) {
-                return;
-            }
+            pauseBetweenSteps();
         }
+        lastOperationOk = true;
     }
 
     /**
-     * Leaves the machine in the configuration described by a string.
-     * Colors may be separated by commas, semicolons, or whitespace. The
-     * configuration must contain exactly one supported color per wheel.
-     * A locked wheel may only keep its current color.
+     * Leaves the machine in the configuration described by an array with one
+     * color per wheel. A locked wheel may only keep its current color.
      *
      * @param setSymbols desired colors in wheel order
+     * @throws SlotMachineException if there are no wheels, the array is null or
+     *         has a wrong size, a color is not allowed, or the configuration
+     *         changes a locked wheel
      */
-    public void spin(String setSymbols) {
-        lastOperationOk = true;
+    public void spin(String[] setSymbols) throws SlotMachineException {
+        lastOperationOk = false;
         if (!hasWheels()) {
-            lastOperationOk = false;
-            operationError("No puedes establecer una configuración sin ruedas.");
-            return;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
-        String[] requestedSymbols = parseConfiguration(setSymbols);
-        if (requestedSymbols == null) {
-            return;
-        }
+        validateConfiguration(setSymbols);
 
         for (int i = 0; i < wheels.size(); i++) {
-            String currentColor; 
+            String currentColor;
             if (wheels.get(i).getSymbol() != null) {
                 currentColor = wheels.get(i).getSymbol().getColor();
             } else {
                 currentColor = "white";
             }
-            if (wheels.get(i).isLocked() && !requestedSymbols[i].equals(currentColor)) {
-                operationError("La configuración cambia una rueda fijada.");
-                return;
+            if (wheels.get(i).isLocked() && !setSymbols[i].equals(currentColor)) {
+                throw new SlotMachineException(SlotMachineException.CONFIGURATION_LOCKED);
             }
         }
         for (int i = 0; i < wheels.size(); i++) {
             if (!wheels.get(i).isLocked()) {
-                wheels.get(i).placeSymbolWheel(requestedSymbols[i]);
+                wheels.get(i).placeSymbolWheel(setSymbols[i]);
             }
         }
-        winner = allSymbolsEqual(requestedSymbols);
+        winner = allSymbolsEqual(setSymbols);
+        lastOperationOk = true;
         isjackpot();
     }
 
     /**
      * Checks whether a requested configuration contains the same symbol on
      * every wheel.
+     *
+     * @param requestedSymbols colors of the requested configuration
+     * @return true when all the colors are equal
      */
     private boolean allSymbolsEqual(String[] requestedSymbols) {
         for (int i = 1; i < requestedSymbols.length; i++) {
@@ -576,7 +593,13 @@ public class SlotMachine {
         return true;
     }
 
+    /**
+     * Checks whether all the wheels currently show the same visible color.
+     *
+     * @return true when every wheel shows the same visible color
+     */
     private boolean hasJackpot() {
+        lastOperationOk = false;
         if (wheels.isEmpty()) return false;
         String first = wheels.get(0).symbolColor();
         if (first == null || first.isEmpty()) return false;
@@ -584,110 +607,112 @@ public class SlotMachine {
             String current = wheels.get(i).symbolColor();
             if (current == null || current.isEmpty() || !first.equals(current)) return false;
         }
+        lastOperationOk = true;
         return true;
     }
 
     /**
-     * Parses and validates the textual representation of a configuration.
+     * Splits the textual representation of a configuration into colors.
+     *
+     * @param setSymbols text with one color per wheel
+     * @return the colors found in the text
+     * @throws SlotMachineException if the text is null or empty
      */
-    private String[] parseConfiguration(String setSymbols) {
+    private String[] parseConfiguration(String setSymbols) throws SlotMachineException {
+        lastOperationOk = false;
         if (setSymbols == null) {
-            operationError("La configuración no puede ser nula.");
-            return null;
+            throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
         }
         String configurationText = setSymbols.trim();
         if (configurationText.startsWith("[") && configurationText.endsWith("]")) {
             configurationText = configurationText.substring(1, configurationText.length() - 1).trim();
         }
         if (configurationText.isEmpty()) {
-            operationError("La configuración no puede estar vacía.");
-            return null;
+            throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
         }
-
-        String[] requestedSymbols = configurationText.split("[,;\\s]+");
-        if (requestedSymbols.length != wheels.size()) {
-            operationError("La configuración debe tener un símbolo por rueda.");
-            return null;
-        }
-        for (String color : requestedSymbols) {
-            if (!Symbol.isAvailableColor(color)) {
-                operationError("El símbolo '" + color
-                        + "' no está permitido en la versión actual.");
-                return null;
-            }
-        }
-        return requestedSymbols;
+        lastOperationOk = true;
+        return configurationText.split("[,;\\s]+");
     }
 
     /**
      * Waits between visible steps without hiding interruption from callers.
+     *
+     * @throws SlotMachineException if the wait is interrupted
      */
-    private boolean pauseBetweenSteps() {
+    private void pauseBetweenSteps() throws SlotMachineException {
         if (!isVisible) {
-            return true;
+            return;
         }
         try {
             Thread.sleep(STEP_DELAY_MILLISECONDS);
-            return true;
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            operationError("La animación del giro fue interrumpida.");
-            return false;
+            lastOperationOk = false;
+            throw new SlotMachineException(SlotMachineException.SPIN_INTERRUPTED);
         }
     }
 
     /**
      * Indicates whether the machine contains at least one wheel.
+     *
+     * @return true when there is at least one wheel
      */
     private boolean hasWheels() {
         return !wheels.isEmpty();
     }
+
     /**
-     * Returns the symbols currently assigned to the machine's wheels.
+     * Returns the colors of all the symbols that exist in the machine, whether
+     * or not they are shown in a wheel window. Repeated colors appear once.
      *
-     * @return an array containing the current symbols, or an empty array when
-     *         the machine has no wheels
+     * @return all symbol colors, or an empty array when the machine has no wheels
      */
     public String[] symbols() {
-        if (wheels.isEmpty()) {
-            return new String[0];
+        lastOperationOk = false;
+        ArrayList<String> all = new ArrayList<>();
+        for (Wheel wheel : wheels) {
+            for (String color : wheel.allColors()) {
+                if (!all.contains(color)) {
+                    all.add(color);
+                }
+            }
         }
-
-        String[] inventario = new String[wheels.size()];
-        for (int i = 0; i < wheels.size(); i++){
-            inventario[i] = wheels.get(i).symbolColor();
-        }
-        return inventario;
+        lastOperationOk = true;
+        return all.toArray(new String[0]);
     }
 
     /**
      * Returns the number of distinct symbols in the machine.
      *
-     * @return the number of distinct symbols
+     * @return the number of distinct symbols, or 0 when there are no wheels
      */
     public int distinctSymbols() {
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
             return 0;
         }
 
         String[] visibles = configuration();
-        java.util.ArrayList<String> UniqueColors = new java.util.ArrayList<>();
+        ArrayList<String> uniqueColors = new ArrayList<>();
         for (int i = 0; i < visibles.length; i++) {
             String colorActual = visibles[i];
-            if (colorActual != null && !UniqueColors.contains(colorActual)) {
-                UniqueColors.add(colorActual);
+            if (colorActual != null && !uniqueColors.contains(colorActual)) {
+                uniqueColors.add(colorActual);
             }
         }
-        return UniqueColors.size();
-        }
+        lastOperationOk = true;
+        return uniqueColors.size();
+    }
 
     /**
      * Returns the current configuration of the slot machine.
      *
-     * @return the machine configuration, or {@code null} if it is not
-     *         available
+     * @return the color shown by each wheel ("white" when a wheel has no
+     *         symbol, empty text when a shy symbol is hidden), or an empty
+     *         array when the machine has no wheels
      */
     public String[] configuration() {
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
             return new String[0];
         }
@@ -697,16 +722,19 @@ public class SlotMachine {
             String current = wheels.get(i).symbolColor();
             visibles[i] = current == null ? "white" : current;
         }
+        lastOperationOk = true;
         return visibles;
-        }
+    }
 
     /**
-     * Determines whether all wheels have the same symbol.
+     * Determines whether all wheels have the same symbol. The body of the
+     * machine turns green on a jackpot and blue otherwise.
      *
      * @return {@code true} when the machine is a jackpot; otherwise
      *         {@code false}
      */
     public boolean isjackpot() {
+        lastOperationOk = false;
         winner = hasJackpot();
         if (winner) {
             if (isVisible) JOptionPane.showMessageDialog(null, "GANASTE! FELICITACIONEES!!");
@@ -724,18 +752,24 @@ public class SlotMachine {
             }
             return false;
         }
+        lastOperationOk = true;
     }
 
-    /** Same jackpot query with conventional Java camel-case spelling. */
+    /**
+     * Same jackpot query with conventional Java camel-case spelling.
+     *
+     * @return {@code true} when the machine is a jackpot; otherwise
+     *         {@code false}
+     */
     public boolean isJackpot() { return isjackpot(); }
 
     /**
      * Makes the slot machine and all its wheels visible.
-     * Revisa la manera en como se hace vicivle
      */
     public void makeVisible() {
+        lastOperationOk = false;
         isVisible = true;
-        
+        if (isVisible){
             body.makeVisible();
             leverCircle.makeVisible();
             leverHorizontal.makeVisible();
@@ -743,13 +777,15 @@ public class SlotMachine {
             for (Wheel wheel : wheels) {
                 wheel.makeWheelVisible();
             }
-    
+        }
+        lastOperationOk = true;
     }
 
     /**
      * Makes the slot machine and all its wheels invisible.
      */
     public void makeInvisible() {
+        lastOperationOk = false;
         isVisible = false;
         if (isVisible == false) {
             body.makeInvisible();
@@ -760,17 +796,18 @@ public class SlotMachine {
                 wheel.makeWheelInvisible();
             }
         }
+        lastOperationOk = true;
     }
 
     /**
      * Hides the machine, if necessary, and exits the application.
      */
     public void exit() {
-        lastOperationOk = true;
+        lastOperationOk = false;
         if(isVisible){
             makeInvisible();
         }
-
+        lastOperationOk = true;
         System.exit(0);
     }
 
@@ -781,41 +818,55 @@ public class SlotMachine {
      *         {@code false}
      */
     public boolean ok() {
-        return lastOperationOk;
+        if (lastOperationOk) {
+            return true;    
+        }
+        return false;
     }
 
     /**
      * Checks two one-based wheel positions.
+     *
+     * @param first position of the first wheel
+     * @param second position of the second wheel
+     * @throws SlotMachineException if a wheel does not exist or both positions are the same
      */
-    private boolean validWheelPositions(int first, int second) {
-        if (!validWheelPosition(first) || !validWheelPosition(second)) {
-            return false;
-        }
+    private void validWheelPositions(int first, int second) throws SlotMachineException {
+        validWheelPosition(first);
+        validWheelPosition(second);
         if (first == second) {
-            operationError("No se puede intercambiar una rueda consigo misma.");
-            return false;
+            throw new SlotMachineException(SlotMachineException.WHEEL_SAME_POSITION);
         }
-        return true;
     }
 
     /**
      * Checks a one-based wheel position without silently adjusting it.
+     *
+     * @param pos position of the wheel
+     * @throws SlotMachineException if the wheel does not exist
      */
-    private boolean validWheelPosition(int pos) {
+    private void validWheelPosition(int pos) throws SlotMachineException {
         if (pos < 1 || pos > wheels.size()) {
-            operationError("La posición de la rueda no es válida.");
-            return false;
+            throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
-        return true;
     }
-
     /**
-     * Records an invalid operation and shows its message when the machine is visible.
+     * Validates a requested configuration.
+     *
+     * @param requested colors, one per wheel
+     * @throws SlotMachineException if the array is null, has a wrong number of
+     *         colors, or contains a color that is not allowed
      */
-    private void operationError(String message) {
-        lastOperationOk = false;
-        if (isVisible) {
-            JOptionPane.showMessageDialog(null, "Error: " + message);
+    private void validateConfiguration(String[] requested) throws SlotMachineException {
+        if (requested == null || requested.length != wheels.size()) {
+            throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
+        }
+        for (String color : requested) {
+            if (!Symbol.isAvailableColor(color)) {
+                throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
+            }
         }
     }
+    
 }
+    

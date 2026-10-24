@@ -6,14 +6,21 @@ public class EphemeralSymbol extends Symbol {
     private int size = INITIAL_SIZE;
     private int x;
     private int y;
+    /**
+     * Remembers the position so it can be restored after resizing.
+     *
+     * @param x horizontal place
+     * @param y vertical place
+     */
 
     public EphemeralSymbol(String color) {
         super(color);
+        Circle mark = new Circle();
+        mark.changeSize(BADGE_SIZE);
+        mark.changeColor("black");
+        setBadge(mark);
         resizeShape();
     }
-
-    /** Compatibility constructor: the project represents symbols by color only. */
-    public EphemeralSymbol(String color, String ignoredShape) { this(color); }
 
     @Override
     public void setPosition(int x, int y) {
