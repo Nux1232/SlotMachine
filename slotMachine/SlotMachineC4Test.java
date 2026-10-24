@@ -18,7 +18,7 @@ public class SlotMachineC4Test {
     }
 
     @Test
-    public void shouldSetAndReportAnExplicitWinningConfiguration() {
+    public void shouldSetAndReportAnExplicitWinningConfiguration() throws SlotMachineException{
         SlotMachine machine = new SlotMachine();
         machine.addWheel(1);
         machine.addWheel(2);

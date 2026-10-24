@@ -2,6 +2,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +14,7 @@ public class SlotMachineCC4Test {
     private SlotMachine machine;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws SlotMachineException {
         machine = new SlotMachine();
         String[] types = { "normal", "lefty", "rebel" };
         String[] colors = { "red", "green", "black" };
@@ -29,106 +30,27 @@ public class SlotMachineCC4Test {
     }
 
     /**
-     * Verifica que spin(String) establezca una configuración ganadora.
+     * Verifica que un símbolo efímero reduzca su tamaño con cada giro.
      */
     @Test
-    public void shouldDecreaseEphemeralSymbolSize() {
-        EphemeralSymbol symbol = new EphemeralSymbol("red", "red");
-        int initialSize = symbol.getSize();
-
-        symbol.onWheelSpin();
-
-        assertTrue(symbol.getSize() < initialSize);
-    }
-
-    /**
-     * Verifica que una posición mayor al número de ruedas elimine la última.
-     */
-    @Test
-    public void shouldAlternateShySymbolVisibility() {
-        ShySymbol symbol = new ShySymbol("green", "green");
-        boolean initialState = symbol.isShyVisible();
-
-        symbol.onSelected();
-        assertNotEquals(initialState, symbol.isShyVisible());
-        symbol.onSelected();
-        assertEquals(initialState, symbol.isShyVisible());
-    }
-
-    /**
-     * Verifica que los tres colores actuales sean aceptados.
-     */
-    @Test
-    public void leftyShouldCopyTheNormalWheelImmediatelyToItsLeft() {
-        machine.placeSymbol(1, "magenta");
-
-        machine.spin(2);
-
-        assertTrue(machine.ok());
-        assertEquals("magenta", machine.configuration()[1]);
-    }
-
-    @Test
-    public void rebelShouldRejectLockSwapAndRemoval() {
-        String[] original = machine.configuration();
-
-        machine.lock(3);
-        assertFalse(machine.ok());
-        machine.swap(3, 1);
-        assertFalse(machine.ok());
-        machine.delWheel(3);
-        assertFalse(machine.ok());
-
-        assertArrayEquals(original, machine.configuration());
-        assertEquals(3, machine.configuration().length);
-    }
-
-    @Test
-    public void hiddenShySymbolShouldNotProduceAJackpot() {
-        SlotMachine shyMachine = new SlotMachine();
-        shyMachine.addWheel(1);
-        shyMachine.addWheel(2);
-        shyMachine.addSymbol("shy", 1, "red");
-        shyMachine.placeSymbol(2, "red");
-        assertTrue(shyMachine.isJackpot());
-
-        shyMachine.spin(1);
-
-        assertFalse(shyMachine.isJackpot());
-        assertEquals("", shyMachine.configuration()[0]);
-        shyMachine.makeInvisible();
-    }
-
-    @Test
-    public void allWheelTypesAreAcceptedAndCrazyKeepsAValidSymbol() {
-        SlotMachine typedMachine = new SlotMachine();
-        typedMachine.addWheel(1, Wheel.Type.CRAZY);
-        typedMachine.addSymbol(1, "red");
-        typedMachine.addSymbol(1, "green");
-        for (int i = 0; i < 20; i++) typedMachine.spin(1);
-
-        assertEquals(Wheel.Type.CRAZY, typedMachine.wheelType(1));
-        assertTrue("red".equals(typedMachine.configuration()[0])
-                || "green".equals(typedMachine.configuration()[0]));
-        typedMachine.makeInvisible();
     public void shouldDecreaseEphemeralSymbolSize() {
         EphemeralSymbol symbol = new EphemeralSymbol("red");
-        int initialSize = symbol.getCurrentSize();
-
-        symbol.spinEffect();
-
-        assertTrue(symbol.getCurrentSize() < initialSize);
-        EphemeralSymbol symbol = new EphemeralSymbol("red", "red");
         int initialSize = symbol.getSize();
 
-        symbol.onWheelSpin();
+        symbol.spinEffect();
+        int afterFirstSpin = symbol.getSize();
+        assertTrue(afterFirstSpin < initialSize);
 
-        assertTrue(symbol.getSize() < initialSize);
+        symbol.onWheelSpin();
+        assertTrue(symbol.getSize() < afterFirstSpin);
     }
 
+    /**
+     * Verifica que un símbolo tímido alterne su visibilidad cada vez que es seleccionado.
+     */
     @Test
     public void shouldAlternateShySymbolVisibility() {
-        ShySymbol symbol = new ShySymbol("green", "green");
+        ShySymbol symbol = new ShySymbol("green");
         boolean initialState = symbol.isShyVisible();
 
         symbol.onSelected();
@@ -137,8 +59,11 @@ public class SlotMachineCC4Test {
         assertEquals(initialState, symbol.isShyVisible());
     }
 
+    /**
+     * Verifica que una rueda lefty copie el símbolo de la rueda a su izquierda.
+     */
     @Test
-    public void leftyShouldCopyTheNormalWheelImmediatelyToItsLeft() {
+    public void leftyShouldCopyTheNormalWheelImmediatelyToItsLeft() throws SlotMachineException {
         machine.placeSymbol(1, "magenta");
 
         machine.spin(2);
@@ -147,21 +72,38 @@ public class SlotMachineCC4Test {
         assertEquals("magenta", machine.configuration()[1]);
     }
 
+    /**
+     * Verifica que una rueda rebel rechace bloqueo, intercambio y eliminación.
+     */
     @Test
     public void rebelShouldRejectLockSwapAndRemoval() {
         String[] original = machine.configuration();
 
-        machine.lock(3);
+        assertThrows(SlotMachineException.class, () -> machine.lock(3));
         assertFalse(machine.ok());
-        machine.swap(3, 1);
+        assertThrows(SlotMachineException.class, () -> machine.swap(3, 1));
         assertFalse(machine.ok());
-        machine.delWheel(3);
+        assertThrows(SlotMachineException.class, () -> machine.delWheel(3));
         assertFalse(machine.ok());
 
         assertArrayEquals(original, machine.configuration());
         assertEquals(3, machine.configuration().length);
     }
 
+    /**
+     * Verifica que el mensaje de la excepción sea el de rueda rebelde.
+     */
+    @Test
+    public void rebelLockShouldReportRebelMessage() {
+        SlotMachineException exception =
+                assertThrows(SlotMachineException.class, () -> machine.lock(3));
+
+        assertEquals(SlotMachineException.WHEEL_REBEL, exception.getMessage());
+    }
+
+    /**
+     * Verifica que un símbolo tímido oculto no produzca jackpot.
+     */
     @Test
     public void hiddenShySymbolShouldNotProduceAJackpot() throws SlotMachineException {
         SlotMachine shyMachine = new SlotMachine();
@@ -178,8 +120,11 @@ public class SlotMachineCC4Test {
         shyMachine.makeInvisible();
     }
 
+    /**
+     * Verifica que todos los tipos de rueda se acepten y que la crazy conserve un símbolo válido.
+     */
     @Test
-    public void allWheelTypesAreAcceptedAndCrazyKeepsAValidSymbol() {
+    public void allWheelTypesAreAcceptedAndCrazyKeepsAValidSymbol() throws SlotMachineException {
         SlotMachine typedMachine = new SlotMachine();
         typedMachine.addWheel(1, Wheel.Type.CRAZY);
         typedMachine.addSymbol(1, "red");
@@ -190,5 +135,74 @@ public class SlotMachineCC4Test {
         assertTrue("red".equals(typedMachine.configuration()[0])
                 || "green".equals(typedMachine.configuration()[0]));
         typedMachine.makeInvisible();
+    }
+
+    /**
+     * Verifica que addSymbol cree símbolos a partir del nombre de la clase.
+     */
+    @Test
+    public void shouldCreateSymbolsByClassName() throws SlotMachineException {
+        SlotMachine m = new SlotMachine();
+        m.addWheel(1);
+
+        m.addSymbol("EphemeralSymbol", 1, "red");
+        assertTrue(m.ok());
+        m.addSymbol("ShySymbol", 1, "green");
+        assertTrue(m.ok());
+        m.addSymbol("normal", 1, "black");
+        assertTrue(m.ok());
+
+        assertEquals("red", m.configuration()[0]);
+        m.makeInvisible();
+    }
+
+    /**
+     * Verifica que addSymbol rechace tipos desconocidos, nulos o que no heredan de Symbol.
+     */
+    @Test
+    public void shouldRejectInvalidSymbolTypes() throws SlotMachineException {
+        SlotMachine m = new SlotMachine();
+        m.addWheel(1);
+
+        assertThrows(SlotMachineException.class, () -> m.addSymbol("Foo", 1, "red"));
+        assertFalse(m.ok());
+        assertThrows(SlotMachineException.class, () -> m.addSymbol("Wheel", 1, "red"));
+        assertThrows(SlotMachineException.class, () -> m.addSymbol("String", 1, "red"));
+        assertThrows(SlotMachineException.class, () -> m.addSymbol(null, 1, "red"));
+        m.makeInvisible();
+    }
+
+    /**
+     * Verifica que addSymbol rechace posiciones, colores y máquinas inválidas.
+     */
+    @Test
+    public void shouldRejectInvalidWheelOrColorOnAddSymbol() throws SlotMachineException {
+        SlotMachine empty = new SlotMachine();
+        assertThrows(SlotMachineException.class, () -> empty.addSymbol("normal", 1, "red"));
+
+        SlotMachine m = new SlotMachine();
+        m.addWheel(1);
+        assertThrows(SlotMachineException.class, () -> m.addSymbol("normal", 5, "red"));
+        assertThrows(SlotMachineException.class, () -> m.addSymbol("normal", 1, "blue"));
+        empty.makeInvisible();
+        m.makeInvisible();
+    }
+
+    /**
+     * Verifica las excepciones de swap y spin sobre ruedas bloqueadas o inexistentes.
+     */
+    @Test
+    public void shouldRejectSwapAndSpinOnInvalidWheels() throws SlotMachineException {
+        assertThrows(SlotMachineException.class, () -> machine.swap(1, 1));
+        assertThrows(SlotMachineException.class, () -> machine.swap(1, 9));
+        assertThrows(SlotMachineException.class, () -> machine.spin(9));
+        assertThrows(SlotMachineException.class, () -> machine.spin(1, -1));
+
+        machine.lock(1);
+        assertThrows(SlotMachineException.class, () -> machine.spin(1));
+        assertThrows(SlotMachineException.class, () -> machine.swap(1, 2));
+        machine.unlock(1);
+        machine.spin(1);
+        assertTrue(machine.ok());
     }
 }

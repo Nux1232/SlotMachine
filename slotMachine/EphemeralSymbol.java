@@ -6,13 +6,6 @@ public class EphemeralSymbol extends Symbol {
     private int size = INITIAL_SIZE;
     private int x;
     private int y;
-
-    public EphemeralSymbol(String color) {
-        super(color);
-        resizeShape();
-    }
-<<<<<<< HEAD
- 
     /**
      * Remembers the position so it can be restored after resizing.
      *
@@ -20,13 +13,12 @@ public class EphemeralSymbol extends Symbol {
      * @param y vertical place
      */
 
-    /** 
-     * Compatibility constructor: the project represents symbols by color only. 
-     **/
-=======
-
+    public EphemeralSymbol(String color) {
+        super(color);
+        resizeShape();
+    }
+ 
     /** Compatibility constructor: the project represents symbols by color only. */
->>>>>>> Juan-avance
     public EphemeralSymbol(String color, String ignoredShape) { this(color); }
 
     @Override
