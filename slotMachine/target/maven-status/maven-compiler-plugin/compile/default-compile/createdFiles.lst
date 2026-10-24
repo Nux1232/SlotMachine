@@ -1,0 +1,15 @@
+Canvas.class
+Triangle.class
+Canvas$ShapeDescription.class
+Canvas$CanvasPane.class
+SlotMachineContest.class
+Wheel.class
+Shapes.class
+Symbol.class
+Rectangle.class
+Circle.class
+SlotMachine.class
+ShySymbol.class
+EphemeralSymbol.class
+Wheel$Type.class
+SlotMachineException.class

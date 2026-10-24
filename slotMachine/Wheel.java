@@ -190,4 +190,17 @@ public class Wheel {
 
     public void lock() { if (!isRebel()) locked = true; }
     public void unlock() { if (!isRebel()) locked = false; }
+
+    /**
+     * Returns the colors of all the symbols of this wheel, not only the selected one.
+     *
+     * @return colors of the wheel's symbols in insertion order
+     */
+    public ArrayList<String> allColors() {
+        ArrayList<String> colors = new ArrayList<>();
+        for (Symbol symbol : symbols) {
+            colors.add(symbol.getColor());
+        }
+        return colors;
+    }
 }

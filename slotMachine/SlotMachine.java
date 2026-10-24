@@ -663,23 +663,23 @@ public class SlotMachine {
     }
 
     /**
-     * Returns the symbols currently assigned to the machine's wheels.
+     * Returns the colors of all the symbols that exist in the machine, whether
+     * or not they are shown in a wheel window. Repeated colors appear once.
      *
-     * @return an array containing the current symbols, or an empty array when
-     *         the machine has no wheels
+     * @return all symbol colors, or an empty array when the machine has no wheels
      */
     public String[] symbols() {
         lastOperationOk = false;
-        if (wheels.isEmpty()) {
-            return new String[0];
-        }
-
-        String[] inventario = new String[wheels.size()];
-        for (int i = 0; i < wheels.size(); i++){
-            inventario[i] = wheels.get(i).symbolColor();
+        ArrayList<String> all = new ArrayList<>();
+        for (Wheel wheel : wheels) {
+            for (String color : wheel.allColors()) {
+                if (!all.contains(color)) {
+                    all.add(color);
+                }
+            }
         }
         lastOperationOk = true;
-        return inventario;
+        return all.toArray(new String[0]);
     }
 
     /**
