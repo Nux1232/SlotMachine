@@ -156,6 +156,33 @@ public class SlotMachine {
         locationWheel();
     }
 
+<<<<<<< Updated upstream
+=======
+    /** Adds a wheel using the case-insensitive names normal, lefty, rebel, or crazy. */
+    public void addWheel(int pos, String type) {
+        lastOperationOk = true;
+        if (type == null) {
+            operationError("El tipo de rueda no puede ser nulo.");
+            return;
+        }
+        try {
+            addWheel(pos, Wheel.Type.valueOf(type.trim().toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException exception) {
+            operationError("Tipo de rueda desconocido: " + type);
+        }
+    }
+
+    /** 
+     * Convenience parameter order for BlueJ's object bench. 
+     **/
+    public void addWheel(String type, int pos) { addWheel(pos, type); }
+
+    public Wheel.Type wheelType(int pos) {
+        if (!validWheelPosition(pos)) return null;
+        return wheels.get(pos - 1).getType();
+    }
+
+>>>>>>> Stashed changes
     /**
      * Repositions all wheels in their current order.
      */
@@ -225,20 +252,28 @@ public class SlotMachine {
     /**
      * Adds a symbol of the given type to the wheel at the requested position.
      *
-     * @param type  symbol type: "normal", "ephemeral" or "shy"
+     * @param type  symbol type: "normal", "EphemeralSymbol" or "ShySymbol" It's the name of the class
+     * Or the normal type.
      * @param pos   one-based position of the wheel
      * @param color color used for the symbol
      */
-    public void addSymbol(String type, int pos, String color) {
-        lastOperationOk = true;
+    public void addSymbol(String type, int pos, String color) throws SlotMachineException {
+        lastOperationOk = false;
         if (wheels.isEmpty()) {
+<<<<<<< Updated upstream
             return;
         }
         if (!Symbol.isAvailableColor(color)) {
             return;
+=======
+           throw new SlotMachineException(SlotMachineException.WHEEL_NOT_FOUND);
         }
-        Symbol symbol;
+        if (!Symbol.isAvailableColor(color)) {
+            throw new SlotMachineException(SlotMachineException.SYMBOL_NOT_ALLOWED);
+>>>>>>> Stashed changes
+        }
         if (type == null) {
+<<<<<<< Updated upstream
             return;
         } else if (type.equalsIgnoreCase("normal")) {
             symbol = new Symbol(color);
@@ -247,6 +282,30 @@ public class SlotMachine {
         } else if (type.equalsIgnoreCase("shy")) {
             symbol = new ShySymbol(color);
         } else {
+=======
+            throw new SlotMachineException(SlotMachineException.SYMBOL_TYPE_NOTFOUND);
+        }
+        String className;
+        if (type.equalsIgnoreCase("normal")) {
+            className = "Symbol";
+        } else {
+            className = type;
+        }
+        try {
+            Symbol symbol = (Symbol) Class.forName(className).getConstructor(String.class).newInstance(color);
+            wheels.get(pos - 1).addSymbolWheel(symbol);    
+        } catch (ReflectiveOperationException | ClassCastException exception) {
+            throw new SlotMachineException(SlotMachineException.SYMBOL_TYPE_NOTFOUND);
+        }
+        
+    }
+
+    public void addSymbol(int pos, Symbol symbol) {
+        lastOperationOk = true;
+        if (!validWheelPosition(pos)) return;
+        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) {
+            operationError("El símbolo no es válido.");
+>>>>>>> Stashed changes
             return;
         }
     

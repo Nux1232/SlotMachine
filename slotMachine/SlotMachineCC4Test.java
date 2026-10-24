@@ -132,11 +132,86 @@ public class SlotMachineCC4Test {
      */
     @Test
     public void shouldDecreaseEphemeralSymbolSize() {
+<<<<<<< Updated upstream
         EphemeralSymbol symbol = new EphemeralSymbol("red");
         int initialSize = symbol.getCurrentSize();
  
         symbol.spinEffect();
  
         assertTrue(symbol.getCurrentSize() < initialSize);
+=======
+        EphemeralSymbol symbol = new EphemeralSymbol("red", "red");
+        int initialSize = symbol.getSize();
+
+        symbol.onWheelSpin();
+
+        assertTrue(symbol.getSize() < initialSize);
+    }
+
+    @Test
+    public void shouldAlternateShySymbolVisibility() {
+        ShySymbol symbol = new ShySymbol("green", "green");
+        boolean initialState = symbol.isShyVisible();
+
+        symbol.onSelected();
+        assertNotEquals(initialState, symbol.isShyVisible());
+        symbol.onSelected();
+        assertEquals(initialState, symbol.isShyVisible());
+    }
+
+    @Test
+    public void leftyShouldCopyTheNormalWheelImmediatelyToItsLeft() {
+        machine.placeSymbol(1, "magenta");
+
+        machine.spin(2);
+
+        assertTrue(machine.ok());
+        assertEquals("magenta", machine.configuration()[1]);
+    }
+
+    @Test
+    public void rebelShouldRejectLockSwapAndRemoval() {
+        String[] original = machine.configuration();
+
+        machine.lock(3);
+        assertFalse(machine.ok());
+        machine.swap(3, 1);
+        assertFalse(machine.ok());
+        machine.delWheel(3);
+        assertFalse(machine.ok());
+
+        assertArrayEquals(original, machine.configuration());
+        assertEquals(3, machine.configuration().length);
+    }
+
+    @Test
+    public void hiddenShySymbolShouldNotProduceAJackpot() throws SlotMachineException {
+        SlotMachine shyMachine = new SlotMachine();
+        shyMachine.addWheel(1);
+        shyMachine.addWheel(2);
+        shyMachine.addSymbol("ShySymbol", 1, "red");
+        shyMachine.placeSymbol(2, "red");
+        assertTrue(shyMachine.isJackpot());
+
+        shyMachine.spin(1);
+
+        assertFalse(shyMachine.isJackpot());
+        assertEquals("", shyMachine.configuration()[0]);
+        shyMachine.makeInvisible();
+    }
+
+    @Test
+    public void allWheelTypesAreAcceptedAndCrazyKeepsAValidSymbol() {
+        SlotMachine typedMachine = new SlotMachine();
+        typedMachine.addWheel(1, Wheel.Type.CRAZY);
+        typedMachine.addSymbol(1, "red");
+        typedMachine.addSymbol(1, "green");
+        for (int i = 0; i < 20; i++) typedMachine.spin(1);
+
+        assertEquals(Wheel.Type.CRAZY, typedMachine.wheelType(1));
+        assertTrue("red".equals(typedMachine.configuration()[0])
+                || "green".equals(typedMachine.configuration()[0]));
+        typedMachine.makeInvisible();
+>>>>>>> Stashed changes
     }
 }

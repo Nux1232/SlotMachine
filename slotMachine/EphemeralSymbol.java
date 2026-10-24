@@ -18,6 +18,7 @@ public class EphemeralSymbol extends Symbol {
         super(color);
         currentSize = 50;
     }
+<<<<<<< Updated upstream
  
     /**
      * Remembers the position so it can be restored after resizing.
@@ -25,6 +26,14 @@ public class EphemeralSymbol extends Symbol {
      * @param x horizontal place
      * @param y vertical place
      */
+=======
+
+    /** 
+     * Compatibility constructor: the project represents symbols by color only. 
+     **/
+    public EphemeralSymbol(String color, String ignoredShape) { this(color); }
+
+>>>>>>> Stashed changes
     @Override
     public void setPosition(int x, int y) {
         xPos = x;
