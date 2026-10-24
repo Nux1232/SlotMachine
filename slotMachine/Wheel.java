@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Random;
 
 /** A graphical wheel that holds symbols and displays one selected symbol. */
 public class Wheel {
@@ -9,6 +8,9 @@ public class Wheel {
     private final ArrayList<Symbol> symbols = new ArrayList<>();
     private final Rectangle wheelShape = new Rectangle();
     private final Rectangle window = new Rectangle();
+    private final Rectangle typeBand = new Rectangle();
+    private final Shapes typeMarker;
+    private final Shapes typeMarkerAccent;
     private int selectedIndex = -1;
     private int xPosition;
     private int yPosition;
@@ -17,22 +19,63 @@ public class Wheel {
 
     public Wheel() { this(Type.NORMAL); }
 
-    public Wheel(Type type) {
-        this.type = type == null ? Type.NORMAL : type;
+    protected Wheel(Type type) {
+        this.type = type;
         wheelShape.changeSize(210, 70);
         wheelShape.changeColor("white");
         window.changeSize(70, 70);
         window.changeColor("white");
+        typeBand.changeSize(12, 210);
+        typeBand.changeColor(typeColor(type));
+        typeMarker = createTypeMarker(type);
+        typeMarkerAccent = createTypeMarkerAccent(type);
     }
 
     public Type getType() { return type; }
-    public boolean isRebel() { return type == Type.REBEL; }
+    public boolean isRebel() { return false; }
     public boolean isLocked() { return locked; }
+
+    private String typeColor(Type wheelType) {
+        if (wheelType == Type.LEFTY) return "cyan";
+        if (wheelType == Type.REBEL) return "red";
+        if (wheelType == Type.CRAZY) return "magenta";
+        return "gray";
+    }
+
+    private Shapes createTypeMarker(Type wheelType) {
+        Shapes marker;
+        if (wheelType == Type.LEFTY) {
+            Triangle triangle = new Triangle();
+            triangle.changeSize(28, 28);
+            marker = triangle;
+        } else if (wheelType == Type.REBEL) {
+            Rectangle rectangle = new Rectangle();
+            rectangle.changeSize(28, 28);
+            marker = rectangle;
+        } else {
+            Circle circle = new Circle();
+            circle.changeSize(wheelType == Type.CRAZY ? 28 : 20);
+            marker = circle;
+        }
+        marker.changeColor(typeColor(wheelType));
+        return marker;
+    }
+
+    private Shapes createTypeMarkerAccent(Type wheelType) {
+        if (wheelType != Type.CRAZY) return null;
+        Triangle accent = new Triangle();
+        accent.changeSize(12, 12);
+        accent.changeColor("yellow");
+        return accent;
+    }
 
     public void setPositionWheel(int x, int y) {
         xPosition = x;
         yPosition = y;
         wheelShape.setPosition(x, y);
+        typeBand.setPosition(x, y);
+        typeMarker.setPosition(x + 180, y + 20);
+        if (typeMarkerAccent != null) typeMarkerAccent.setPosition(x + 180, y + 28);
         window.setPosition(x, y + 65);
         positionSelectedSymbol();
     }
@@ -40,6 +83,9 @@ public class Wheel {
     public void makeWheelVisible() {
         visible = true;
         wheelShape.makeVisible();
+        typeBand.makeVisible();
+        typeMarker.makeVisible();
+        if (typeMarkerAccent != null) typeMarkerAccent.makeVisible();
         window.makeVisible();
         showSelectedSymbol();
     }
@@ -47,6 +93,9 @@ public class Wheel {
     public void makeWheelInvisible() {
         visible = false;
         wheelShape.makeInvisible();
+        typeBand.makeInvisible();
+        typeMarker.makeInvisible();
+        if (typeMarkerAccent != null) typeMarkerAccent.makeInvisible();
         window.makeInvisible();
         if (getSymbol() != null) getSymbol().makeInvisible();
     }
@@ -92,44 +141,18 @@ public class Wheel {
         showSelectedSymbol();
     }
 
-    /** Rotates according to this wheel's type. */
+    /** Rotates this wheel once. Specialized wheels override this behavior. */
     public void spin() { spin((Wheel) null); }
 
     public void spin(Wheel leftNeighbor) {
         if (locked || symbols.isEmpty()) return;
-        switch (type) {
-            case LEFTY:
-                if (leftNeighbor != null && leftNeighbor.getSymbol() != null) {
-                    copySelectedFrom(leftNeighbor);
-                } else {
-                    rotateOnce();
-                }
-                break;
-            case CRAZY:
-                int choice = new Random().nextInt(3);
-                if (choice == 0) rotateOnce();
-                else if (choice == 1 && leftNeighbor != null && leftNeighbor.getSymbol() != null) {
-                    copySelectedFrom(leftNeighbor);
-                } else {
-                    applySelectedEffect();
-                }
-                break;
-            case NORMAL:
-            case REBEL:
-            default:
-                rotateOnce();
-                break;
-        }
+        rotateOnce();
     }
 
     /** Applies one deterministic step for the supplied spin/test values. */
     public void spin(String randomColor, String leftColor) {
         if (locked || symbols.isEmpty()) return;
-        if (type == Type.LEFTY && Symbol.isAvailableColor(leftColor)) {
-            placeSymbolWheel(leftColor);
-        } else if (type == Type.CRAZY) {
-            spin();
-        } else if (Symbol.isAvailableColor(randomColor)) {
+        if (Symbol.isAvailableColor(randomColor)) {
             if (symbols.size() == 1) placeSymbolWheel(randomColor);
             else rotateOnce();
         }
@@ -142,14 +165,14 @@ public class Wheel {
         applySelectedEffect();
     }
 
-    private void applySelectedEffect() {
+    protected void applySelectedEffect() {
         Symbol selected = getSymbol();
         if (selected != null) selected.spinEffect();
         positionSelectedSymbol();
         showSelectedSymbol();
     }
 
-    private void copySelectedFrom(Wheel leftNeighbor) {
+    protected void copySelectedFrom(Wheel leftNeighbor) {
         Symbol source = leftNeighbor.getSymbol();
         placeSymbolWheel(source.copy());
         positionSelectedSymbol();

@@ -161,13 +161,28 @@ public class SlotMachine {
      * @throws SlotMachineException if the machine already has nine wheels
      */
     public void addWheel(int pos, Wheel.Type type) throws SlotMachineException {
+        addWheel(pos, WheelFactory.create(type));
+    }
+
+    /**
+     * Adds a custom wheel implementation at the requested position.
+     *
+     * @param pos one-based position where the wheel will be inserted
+     * @param wheel wheel instance to insert
+     * @throws SlotMachineException if the wheel is null or the machine already
+     *         has nine wheels
+     */
+    public void addWheel(int pos, Wheel wheel) throws SlotMachineException {
         lastOperationOk = false;
+        if (wheel == null) {
+            throw new SlotMachineException(SlotMachineException.WHEEL_TYPE_NOTFOUND);
+        }
         if (wheels.size() >= 9) {
             throw new SlotMachineException(SlotMachineException.WHEEL_LIMIT_REACHED);
         }
         pos = validatePosition(pos, wheels.size() + 1);
         int index = pos - 1;
-        wheels.add(index, new Wheel(type));
+        wheels.add(index, wheel);
         locationWheel();
         lastOperationOk = true;
     }
@@ -743,6 +758,7 @@ public class SlotMachine {
             if (isVisible) {
                 makeVisible();
             }
+            lastOperationOk = true;
             return true;
         } else {
             body.changeColor("blue");
@@ -750,9 +766,9 @@ public class SlotMachine {
             if (isVisible){
                 makeVisible();
             }
+            lastOperationOk = true;
             return false;
         }
-        lastOperationOk = true;
     }
 
     /**

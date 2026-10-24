@@ -138,6 +138,27 @@ public class SlotMachineCC4Test {
     }
 
     /**
+     * Verifies that a custom wheel can provide its own behavior through inheritance.
+     */
+    @Test
+    public void customWheelUsesItsOverriddenSpinBehavior() throws SlotMachineException {
+        SlotMachine customMachine = new SlotMachine();
+        customMachine.addWheel(1, new Wheel() {
+            @Override
+            public void spin(Wheel leftNeighbor) {
+                selectColor("green");
+            }
+        });
+        customMachine.addSymbol(1, "red");
+        customMachine.addSymbol(1, "green");
+
+        customMachine.spin(1);
+
+        assertEquals("green", customMachine.configuration()[0]);
+        customMachine.makeInvisible();
+    }
+
+    /**
      * Verifica que addSymbol cree símbolos a partir del nombre de la clase.
      */
     @Test

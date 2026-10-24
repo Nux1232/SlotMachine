@@ -28,3 +28,4 @@ docs/slotMachine Diagrams.asta.lock
 .DS_Store
 .idea
 SlotMachine.iml
+/out
