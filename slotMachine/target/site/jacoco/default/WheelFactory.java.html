@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WheelFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">slot-machine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">WheelFactory.java</span></div><h1>WheelFactory.java</h1><pre class="source lang-java linenums">import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+/**
+ * Maps the legacy wheel type enum to its corresponding inheritance-based
+ * implementation.
+ */
+final class WheelFactory {
+<span class="fc" id="L10">    private static final Map&lt;Wheel.Type, Supplier&lt;? extends Wheel&gt;&gt; WHEEL_TYPES =</span>
+            new EnumMap&lt;&gt;(Wheel.Type.class);
+
+    static {
+<span class="fc" id="L14">        WHEEL_TYPES.put(Wheel.Type.NORMAL, NormalWheel::new);</span>
+<span class="fc" id="L15">        WHEEL_TYPES.put(Wheel.Type.LEFTY, LeftyWheel::new);</span>
+<span class="fc" id="L16">        WHEEL_TYPES.put(Wheel.Type.REBEL, RebelWheel::new);</span>
+<span class="fc" id="L17">        WHEEL_TYPES.put(Wheel.Type.CRAZY, CrazyWheel::new);</span>
+<span class="fc" id="L18">    }</span>
+
+    /** Prevents instances of this utility class. */
+    private WheelFactory() { }
+
+    /**
+     * Creates a wheel implementation for the requested type.
+     *
+     * @param type wheel type; {@code null} selects the standard wheel
+     * @return a new instance of the matching wheel implementation
+     */
+    static Wheel create(Wheel.Type type) {
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        Supplier&lt;? extends Wheel&gt; constructor = WHEEL_TYPES.get(type == null ? Wheel.Type.NORMAL : type);</span>
+<span class="fc" id="L31">        return constructor.get();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
