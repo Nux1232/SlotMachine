@@ -1,13 +1,13 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 slot-machine,default,Circle,0,55,0,2,0,16,0,4,0,3
-slot-machine,default,Wheel,124,529,42,58,20,132,34,47,4,27
+slot-machine,default,Wheel,121,416,41,45,20,105,33,39,4,25
 slot-machine,default,LeftyWheel,22,20,10,4,6,6,8,2,1,2
 slot-machine,default,ShySymbol,39,48,9,7,10,12,10,6,4,4
 slot-machine,default,Symbol,20,165,7,22,3,41,8,21,1,13
-slot-machine,default,Canvas,64,322,15,29,12,74,14,18,0,10
+slot-machine,default,Canvas,85,301,20,24,17,69,15,17,0,10
 slot-machine,default,Rectangle,0,60,0,2,0,19,0,5,0,4
 slot-machine,default,Triangle,0,107,0,2,0,21,0,5,0,4
-slot-machine,default,SlotMachine,339,1374,76,148,76,316,60,94,5,37
+slot-machine,default,SlotMachine,309,1404,67,157,71,321,52,102,5,37
 slot-machine,default,Canvas.CanvasPane,0,19,0,0,0,3,0,2,0,2
 slot-machine,default,WheelFactory,2,37,1,1,0,8,1,2,0,2
 slot-machine,default,SlotMachineContest,13,90,3,5,6,24,3,5,0,4
