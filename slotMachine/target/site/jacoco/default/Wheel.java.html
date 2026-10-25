@@ -7,45 +7,45 @@
  * overridable spin behavior for specialized wheel implementations.&lt;/p&gt;
  */
 public class Wheel {
+    private static final int WHEEL_WIDTH = 70;
+    private static final int WHEEL_HEIGHT = 80;
+    private static final int TYPE_BAND_HEIGHT = 210;
+
     /** Built-in wheel behaviors supported by the legacy type-based API. */
-<span class="fc" id="L11">    public enum Type {</span>
+<span class="fc" id="L15">    public enum Type {</span>
         /** Advances through the wheel's symbols in insertion order. */
-<span class="fc" id="L13">        NORMAL,</span>
+<span class="fc" id="L17">        NORMAL,</span>
         /** Copies the selected symbol from the wheel immediately to the left. */
-<span class="fc" id="L15">        LEFTY,</span>
+<span class="fc" id="L19">        LEFTY,</span>
         /** Cannot be locked, unlocked, swapped, or deleted. */
-<span class="fc" id="L17">        REBEL,</span>
+<span class="fc" id="L21">        REBEL,</span>
         /** Randomly advances, copies a neighbor, or reapplies an effect. */
-<span class="fc" id="L19">        CRAZY</span>
+<span class="fc" id="L23">        CRAZY</span>
     }
 
     private final Type type;
-<span class="fc" id="L23">    private final ArrayList&lt;Symbol&gt; symbols = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L24">    private final Rectangle wheelShape = new Rectangle();</span>
-<span class="fc" id="L25">    private final Rectangle window = new Rectangle();</span>
-<span class="fc" id="L26">    private final Rectangle typeBand = new Rectangle();</span>
-    private final Shapes typeMarker;
-    private final Shapes typeMarkerAccent;
-<span class="fc" id="L29">    private int selectedIndex = -1;</span>
+<span class="fc" id="L27">    private final ArrayList&lt;Symbol&gt; symbols = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L28">    private final Rectangle wheelShape = new Rectangle();</span>
+<span class="fc" id="L29">    private final Rectangle window = new Rectangle();</span>
+<span class="fc" id="L30">    private final Rectangle typeBand = new Rectangle();</span>
+<span class="fc" id="L31">    private int selectedIndex = -1;</span>
     private int xPosition;
     private int yPosition;
     private boolean visible;
     private boolean locked;
 
     /** Creates a standard wheel that advances through its symbols. */
-<span class="fc" id="L36">    public Wheel() { this(Type.NORMAL); }</span>
+<span class="fc" id="L38">    public Wheel() { this(Type.NORMAL); }</span>
 
     /** Creates a wheel tagged with the supplied built-in type. */
-<span class="fc" id="L39">    protected Wheel(Type type) {</span>
-<span class="fc" id="L40">        this.type = type;</span>
-<span class="fc" id="L41">        wheelShape.changeSize(210, 70);</span>
-<span class="fc" id="L42">        wheelShape.changeColor(&quot;white&quot;);</span>
-<span class="fc" id="L43">        window.changeSize(70, 70);</span>
-<span class="fc" id="L44">        window.changeColor(&quot;white&quot;);</span>
-<span class="fc" id="L45">        typeBand.changeSize(12, 210);</span>
-<span class="fc" id="L46">        typeBand.changeColor(typeColor(type));</span>
-<span class="fc" id="L47">        typeMarker = createTypeMarker(type);</span>
-<span class="fc" id="L48">        typeMarkerAccent = createTypeMarkerAccent(type);</span>
+<span class="fc" id="L41">    protected Wheel(Type type) {</span>
+<span class="fc" id="L42">        this.type = type;</span>
+<span class="fc" id="L43">        wheelShape.changeSize(WHEEL_HEIGHT, WHEEL_WIDTH);</span>
+<span class="fc" id="L44">        wheelShape.changeColor(&quot;white&quot;);</span>
+<span class="fc" id="L45">        window.changeSize(70, 70);</span>
+<span class="fc" id="L46">        window.changeColor(&quot;white&quot;);</span>
+<span class="fc" id="L47">        typeBand.changeSize(TYPE_BAND_HEIGHT, WHEEL_WIDTH);</span>
+<span class="fc" id="L48">        typeBand.changeColor(typeColor(type));</span>
 <span class="fc" id="L49">    }</span>
 
     /** @return the built-in type associated with this wheel */
@@ -61,74 +61,41 @@ public class Wheel {
 <span class="fc bfc" id="L61" title="All 2 branches covered.">        if (wheelType == Type.LEFTY) return &quot;cyan&quot;;</span>
 <span class="fc bfc" id="L62" title="All 2 branches covered.">        if (wheelType == Type.REBEL) return &quot;red&quot;;</span>
 <span class="fc bfc" id="L63" title="All 2 branches covered.">        if (wheelType == Type.CRAZY) return &quot;magenta&quot;;</span>
-<span class="fc" id="L64">        return &quot;gray&quot;;</span>
-    }
-
-    private Shapes createTypeMarker(Type wheelType) {
-        Shapes marker;
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (wheelType == Type.LEFTY) {</span>
-<span class="fc" id="L70">            Triangle triangle = new Triangle();</span>
-<span class="fc" id="L71">            triangle.changeSize(28, 28);</span>
-<span class="fc" id="L72">            marker = triangle;</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">        } else if (wheelType == Type.REBEL) {</span>
-<span class="fc" id="L74">            Rectangle rectangle = new Rectangle();</span>
-<span class="fc" id="L75">            rectangle.changeSize(28, 28);</span>
-<span class="fc" id="L76">            marker = rectangle;</span>
-<span class="fc" id="L77">        } else {</span>
-<span class="fc" id="L78">            Circle circle = new Circle();</span>
-<span class="fc bfc" id="L79" title="All 2 branches covered.">            circle.changeSize(wheelType == Type.CRAZY ? 28 : 20);</span>
-<span class="fc" id="L80">            marker = circle;</span>
-        }
-<span class="fc" id="L82">        marker.changeColor(typeColor(wheelType));</span>
-<span class="fc" id="L83">        return marker;</span>
-    }
-
-    private Shapes createTypeMarkerAccent(Type wheelType) {
-<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (wheelType != Type.CRAZY) return null;</span>
-<span class="fc" id="L88">        Triangle accent = new Triangle();</span>
-<span class="fc" id="L89">        accent.changeSize(12, 12);</span>
-<span class="fc" id="L90">        accent.changeColor(&quot;yellow&quot;);</span>
-<span class="fc" id="L91">        return accent;</span>
+<span class="fc" id="L64">        return &quot;white&quot;;</span>
     }
 
     /**
-     * Positions the wheel body, type indicator, window, and selected symbol.
+     * Positions the wheel body, type bar, window, and selected symbol.
      *
      * @param x horizontal coordinate of the wheel body
      * @param y vertical coordinate of the wheel body
      */
     public void setPositionWheel(int x, int y) {
-<span class="fc" id="L101">        xPosition = x;</span>
-<span class="fc" id="L102">        yPosition = y;</span>
-<span class="fc" id="L103">        wheelShape.setPosition(x, y);</span>
-<span class="fc" id="L104">        typeBand.setPosition(x, y);</span>
-<span class="fc" id="L105">        typeMarker.setPosition(x + 180, y + 20);</span>
-<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (typeMarkerAccent != null) typeMarkerAccent.setPosition(x + 180, y + 28);</span>
-<span class="fc" id="L107">        window.setPosition(x, y + 65);</span>
-<span class="fc" id="L108">        positionSelectedSymbol();</span>
-<span class="fc" id="L109">    }</span>
+<span class="fc" id="L74">        xPosition = x;</span>
+<span class="fc" id="L75">        yPosition = y;</span>
+<span class="fc" id="L76">        wheelShape.setPosition(x, y);</span>
+<span class="fc" id="L77">        typeBand.setPosition(x, y);</span>
+<span class="fc" id="L78">        window.setPosition(x, y + 65);</span>
+<span class="fc" id="L79">        positionSelectedSymbol();</span>
+<span class="fc" id="L80">    }</span>
 
     /** Shows the wheel and its selected symbol. */
     public void makeWheelVisible() {
-<span class="fc" id="L113">        visible = true;</span>
-<span class="fc" id="L114">        wheelShape.makeVisible();</span>
-<span class="fc" id="L115">        typeBand.makeVisible();</span>
-<span class="fc" id="L116">        typeMarker.makeVisible();</span>
-<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        if (typeMarkerAccent != null) typeMarkerAccent.makeVisible();</span>
-<span class="fc" id="L118">        window.makeVisible();</span>
-<span class="fc" id="L119">        showSelectedSymbol();</span>
-<span class="fc" id="L120">    }</span>
+<span class="fc" id="L84">        visible = true;</span>
+<span class="fc" id="L85">        wheelShape.makeVisible();</span>
+<span class="fc" id="L86">        typeBand.makeVisible();</span>
+<span class="fc" id="L87">        window.makeVisible();</span>
+<span class="fc" id="L88">        showSelectedSymbol();</span>
+<span class="fc" id="L89">    }</span>
 
     /** Hides the wheel and its selected symbol. */
     public void makeWheelInvisible() {
-<span class="fc" id="L124">        visible = false;</span>
-<span class="fc" id="L125">        wheelShape.makeInvisible();</span>
-<span class="fc" id="L126">        typeBand.makeInvisible();</span>
-<span class="fc" id="L127">        typeMarker.makeInvisible();</span>
-<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (typeMarkerAccent != null) typeMarkerAccent.makeInvisible();</span>
-<span class="fc" id="L129">        window.makeInvisible();</span>
-<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (getSymbol() != null) getSymbol().makeInvisible();</span>
-<span class="fc" id="L131">    }</span>
+<span class="fc" id="L93">        visible = false;</span>
+<span class="fc" id="L94">        wheelShape.makeInvisible();</span>
+<span class="fc" id="L95">        typeBand.makeInvisible();</span>
+<span class="fc" id="L96">        window.makeInvisible();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (getSymbol() != null) getSymbol().makeInvisible();</span>
+<span class="fc" id="L98">    }</span>
 
     /**
      * Adds a normal symbol with the requested color.
@@ -136,8 +103,8 @@ public class Wheel {
      * @param color supported symbol color
      */
     public void addSymbolWheel(String color) {
-<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (Symbol.isAvailableColor(color)) addSymbolWheel(new Symbol(color));</span>
-<span class="nc" id="L140">    }</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (Symbol.isAvailableColor(color)) addSymbolWheel(new Symbol(color));</span>
+<span class="nc" id="L107">    }</span>
 
     /**
      * Adds a symbol object, retaining any specialized symbol behavior.
@@ -145,12 +112,12 @@ public class Wheel {
      * @param symbol symbol to add
      */
     public void addSymbolWheel(Symbol symbol) {
-<span class="pc bpc" id="L148" title="2 of 4 branches missed.">        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;</span>
-<span class="fc" id="L149">        symbols.add(symbol);</span>
-<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (selectedIndex &lt; 0) selectedIndex = 0;</span>
-<span class="fc" id="L151">        positionSelectedSymbol();</span>
-<span class="fc" id="L152">        showSelectedSymbol();</span>
-<span class="fc" id="L153">    }</span>
+<span class="pc bpc" id="L115" title="2 of 4 branches missed.">        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;</span>
+<span class="fc" id="L116">        symbols.add(symbol);</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (selectedIndex &lt; 0) selectedIndex = 0;</span>
+<span class="fc" id="L118">        positionSelectedSymbol();</span>
+<span class="fc" id="L119">        showSelectedSymbol();</span>
+<span class="fc" id="L120">    }</span>
 
     /**
      * Replaces all symbols with a normal symbol of the requested color.
@@ -158,10 +125,10 @@ public class Wheel {
      * @param color supported symbol color
      */
     public void placeSymbolWheel(String color) {
-<span class="pc bpc" id="L161" title="1 of 2 branches missed.">        if (!Symbol.isAvailableColor(color)) return;</span>
-<span class="fc" id="L162">        clearSymbols();</span>
-<span class="fc" id="L163">        addSymbolWheel(new Symbol(color));</span>
-<span class="fc" id="L164">    }</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if (!Symbol.isAvailableColor(color)) return;</span>
+<span class="fc" id="L129">        clearSymbols();</span>
+<span class="fc" id="L130">        addSymbolWheel(new Symbol(color));</span>
+<span class="fc" id="L131">    }</span>
 
     /**
      * Replaces all symbols with the supplied symbol object.
@@ -169,10 +136,10 @@ public class Wheel {
      * @param symbol symbol to place
      */
     public void placeSymbolWheel(Symbol symbol) {
-<span class="pc bpc" id="L172" title="2 of 4 branches missed.">        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;</span>
-<span class="fc" id="L173">        clearSymbols();</span>
-<span class="fc" id="L174">        addSymbolWheel(symbol);</span>
-<span class="fc" id="L175">    }</span>
+<span class="pc bpc" id="L139" title="2 of 4 branches missed.">        if (symbol == null || !Symbol.isAvailableColor(symbol.getColor())) return;</span>
+<span class="fc" id="L140">        clearSymbols();</span>
+<span class="fc" id="L141">        addSymbolWheel(symbol);</span>
+<span class="fc" id="L142">    }</span>
 
     /**
      * Removes every symbol with the requested color.
@@ -180,24 +147,24 @@ public class Wheel {
      * @param color color of the symbols to remove
      */
     public void delSymbolWheel(String color) {
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (int i = symbols.size() - 1; i &gt;= 0; i--) {</span>
-<span class="nc bnc" id="L184" title="All 2 branches missed.">            if (symbols.get(i).hasColor(color)) {</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">                boolean selected = i == selectedIndex;</span>
-<span class="nc" id="L186">                symbols.get(i).makeInvisible();</span>
-<span class="nc" id="L187">                symbols.remove(i);</span>
-<span class="nc bnc" id="L188" title="All 2 branches missed.">                if (symbols.isEmpty()) selectedIndex = -1;</span>
-<span class="nc bnc" id="L189" title="All 2 branches missed.">                else if (i &lt; selectedIndex) selectedIndex--;</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">                else if (selected) selectedIndex %= symbols.size();</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (int i = symbols.size() - 1; i &gt;= 0; i--) {</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            if (symbols.get(i).hasColor(color)) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                boolean selected = i == selectedIndex;</span>
+<span class="nc" id="L153">                symbols.get(i).makeInvisible();</span>
+<span class="nc" id="L154">                symbols.remove(i);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">                if (symbols.isEmpty()) selectedIndex = -1;</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">                else if (i &lt; selectedIndex) selectedIndex--;</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                else if (selected) selectedIndex %= symbols.size();</span>
             }
         }
-<span class="nc" id="L193">        showSelectedSymbol();</span>
-<span class="nc" id="L194">    }</span>
+<span class="nc" id="L160">        showSelectedSymbol();</span>
+<span class="nc" id="L161">    }</span>
 
     /**
      * Spins this wheel once without a left neighbor.
      * Specialized wheels can override either spin overload.
      */
-<span class="nc" id="L200">    public void spin() { spin((Wheel) null); }</span>
+<span class="nc" id="L167">    public void spin() { spin((Wheel) null); }</span>
 
     /**
      * Spins this wheel once, optionally using its left neighbor.
@@ -205,9 +172,9 @@ public class Wheel {
      * @param leftNeighbor wheel immediately to the left, or {@code null}
      */
     public void spin(Wheel leftNeighbor) {
-<span class="pc bpc" id="L208" title="2 of 4 branches missed.">        if (locked || symbols.isEmpty()) return;</span>
-<span class="fc" id="L209">        rotateOnce();</span>
-<span class="fc" id="L210">    }</span>
+<span class="pc bpc" id="L175" title="2 of 4 branches missed.">        if (locked || symbols.isEmpty()) return;</span>
+<span class="fc" id="L176">        rotateOnce();</span>
+<span class="fc" id="L177">    }</span>
 
     /**
      * Applies one step using caller-supplied values, primarily for deterministic
@@ -217,28 +184,28 @@ public class Wheel {
      * @param leftColor color supplied by the left-neighbor behavior
      */
     public void spin(String randomColor, String leftColor) {
-<span class="nc bnc" id="L220" title="All 4 branches missed.">        if (locked || symbols.isEmpty()) return;</span>
-<span class="nc bnc" id="L221" title="All 2 branches missed.">        if (Symbol.isAvailableColor(randomColor)) {</span>
-<span class="nc bnc" id="L222" title="All 2 branches missed.">            if (symbols.size() == 1) placeSymbolWheel(randomColor);</span>
-<span class="nc" id="L223">            else rotateOnce();</span>
+<span class="nc bnc" id="L187" title="All 4 branches missed.">        if (locked || symbols.isEmpty()) return;</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        if (Symbol.isAvailableColor(randomColor)) {</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            if (symbols.size() == 1) placeSymbolWheel(randomColor);</span>
+<span class="nc" id="L190">            else rotateOnce();</span>
         }
-<span class="nc" id="L225">    }</span>
+<span class="nc" id="L192">    }</span>
 
     /** Advances the selected symbol by one position and applies its spin effect. */
     public void rotateOnce() {
-<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        if (symbols.isEmpty()) return;</span>
-<span class="pc bpc" id="L230" title="1 of 2 branches missed.">        if (selectedIndex &gt;= 0) symbols.get(selectedIndex).makeInvisible();</span>
-<span class="fc" id="L231">        selectedIndex = (selectedIndex + 1) % symbols.size();</span>
-<span class="fc" id="L232">        applySelectedEffect();</span>
-<span class="fc" id="L233">    }</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if (symbols.isEmpty()) return;</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">        if (selectedIndex &gt;= 0) symbols.get(selectedIndex).makeInvisible();</span>
+<span class="fc" id="L198">        selectedIndex = (selectedIndex + 1) % symbols.size();</span>
+<span class="fc" id="L199">        applySelectedEffect();</span>
+<span class="fc" id="L200">    }</span>
 
     /** Applies the selected symbol's spin effect and refreshes its display. */
     protected void applySelectedEffect() {
-<span class="fc" id="L237">        Symbol selected = getSymbol();</span>
-<span class="pc bpc" id="L238" title="1 of 2 branches missed.">        if (selected != null) selected.spinEffect();</span>
-<span class="fc" id="L239">        positionSelectedSymbol();</span>
-<span class="fc" id="L240">        showSelectedSymbol();</span>
-<span class="fc" id="L241">    }</span>
+<span class="fc" id="L204">        Symbol selected = getSymbol();</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (selected != null) selected.spinEffect();</span>
+<span class="fc" id="L206">        positionSelectedSymbol();</span>
+<span class="fc" id="L207">        showSelectedSymbol();</span>
+<span class="fc" id="L208">    }</span>
 
     /**
      * Replaces this wheel's symbols with a copy of the neighbor's selection.
@@ -246,36 +213,36 @@ public class Wheel {
      * @param leftNeighbor neighbor that supplies the selected symbol
      */
     protected void copySelectedFrom(Wheel leftNeighbor) {
-<span class="fc" id="L249">        Symbol source = leftNeighbor.getSymbol();</span>
-<span class="fc" id="L250">        placeSymbolWheel(source.copy());</span>
-<span class="fc" id="L251">        positionSelectedSymbol();</span>
-<span class="fc" id="L252">        showSelectedSymbol();</span>
-<span class="fc" id="L253">    }</span>
+<span class="fc" id="L216">        Symbol source = leftNeighbor.getSymbol();</span>
+<span class="fc" id="L217">        placeSymbolWheel(source.copy());</span>
+<span class="fc" id="L218">        positionSelectedSymbol();</span>
+<span class="fc" id="L219">        showSelectedSymbol();</span>
+<span class="fc" id="L220">    }</span>
 
     private void clearSymbols() {
-<span class="fc bfc" id="L256" title="All 2 branches covered.">        for (Symbol symbol : symbols) symbol.makeInvisible();</span>
-<span class="fc" id="L257">        symbols.clear();</span>
-<span class="fc" id="L258">        selectedIndex = -1;</span>
-<span class="fc" id="L259">    }</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        for (Symbol symbol : symbols) symbol.makeInvisible();</span>
+<span class="fc" id="L224">        symbols.clear();</span>
+<span class="fc" id="L225">        selectedIndex = -1;</span>
+<span class="fc" id="L226">    }</span>
 
     private void positionSelectedSymbol() {
-<span class="fc" id="L262">        Symbol selected = getSymbol();</span>
-<span class="fc bfc" id="L263" title="All 2 branches covered.">        if (selected != null) selected.setPosition(xPosition + 10, yPosition + 75);</span>
-<span class="fc" id="L264">    }</span>
+<span class="fc" id="L229">        Symbol selected = getSymbol();</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        if (selected != null) selected.setPosition(xPosition + 10, yPosition + 75);</span>
+<span class="fc" id="L231">    }</span>
 
     private void showSelectedSymbol() {
-<span class="fc" id="L267">        Symbol selected = getSymbol();</span>
-<span class="pc bpc" id="L268" title="1 of 4 branches missed.">        if (!visible || selected == null) return;</span>
-<span class="pc bpc" id="L269" title="3 of 4 branches missed.">        if (selected instanceof ShySymbol &amp;&amp; !((ShySymbol) selected).isShyVisible()) {</span>
-<span class="nc" id="L270">            selected.makeInvisible();</span>
+<span class="fc" id="L234">        Symbol selected = getSymbol();</span>
+<span class="pc bpc" id="L235" title="1 of 4 branches missed.">        if (!visible || selected == null) return;</span>
+<span class="pc bpc" id="L236" title="3 of 4 branches missed.">        if (selected instanceof ShySymbol &amp;&amp; !((ShySymbol) selected).isShyVisible()) {</span>
+<span class="nc" id="L237">            selected.makeInvisible();</span>
         } else {
-<span class="fc" id="L272">            selected.makeVisible();</span>
+<span class="fc" id="L239">            selected.makeVisible();</span>
         }
-<span class="fc" id="L274">    }</span>
+<span class="fc" id="L241">    }</span>
 
     /** Returns the currently selected symbol, if any. */
     public Symbol getSymbol() {
-<span class="pc bpc" id="L278" title="1 of 4 branches missed.">        return selectedIndex &lt; 0 || selectedIndex &gt;= symbols.size() ? null : symbols.get(selectedIndex);</span>
+<span class="pc bpc" id="L245" title="1 of 4 branches missed.">        return selectedIndex &lt; 0 || selectedIndex &gt;= symbols.size() ? null : symbols.get(selectedIndex);</span>
     }
 
     /**
@@ -285,17 +252,17 @@ public class Wheel {
      *         {@code null} when the wheel has no selected symbol
      */
     public String symbolColor() {
-<span class="fc" id="L288">        Symbol selected = getSymbol();</span>
-<span class="fc bfc" id="L289" title="All 2 branches covered.">        if (selected == null) return null;</span>
-<span class="fc bfc" id="L290" title="All 4 branches covered.">        if (selected instanceof ShySymbol &amp;&amp; !((ShySymbol) selected).isShyVisible()) return &quot;&quot;;</span>
-<span class="fc" id="L291">        return selected.getColor();</span>
+<span class="fc" id="L255">        Symbol selected = getSymbol();</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        if (selected == null) return null;</span>
+<span class="fc bfc" id="L257" title="All 4 branches covered.">        if (selected instanceof ShySymbol &amp;&amp; !((ShySymbol) selected).isShyVisible()) return &quot;&quot;;</span>
+<span class="fc" id="L258">        return selected.getColor();</span>
     }
 
     /** Locks this wheel unless the wheel type disallows locking. */
-<span class="pc bpc" id="L295" title="1 of 2 branches missed.">    public void lock() { if (!isRebel()) locked = true; }</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">    public void lock() { if (!isRebel()) locked = true; }</span>
 
     /** Unlocks this wheel unless the wheel type disallows unlocking. */
-<span class="pc bpc" id="L298" title="1 of 2 branches missed.">    public void unlock() { if (!isRebel()) locked = false; }</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">    public void unlock() { if (!isRebel()) locked = false; }</span>
 
     /**
      * Returns the colors of all the symbols of this wheel, not only the selected one.
@@ -303,11 +270,11 @@ public class Wheel {
      * @return colors of the wheel's symbols in insertion order
      */
     public ArrayList&lt;String&gt; allColors() {
-<span class="fc" id="L306">        ArrayList&lt;String&gt; colors = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L307" title="All 2 branches covered.">        for (Symbol symbol : symbols) {</span>
-<span class="fc" id="L308">            colors.add(symbol.getColor());</span>
-<span class="fc" id="L309">        }</span>
-<span class="fc" id="L310">        return colors;</span>
+<span class="fc" id="L273">        ArrayList&lt;String&gt; colors = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">        for (Symbol symbol : symbols) {</span>
+<span class="fc" id="L275">            colors.add(symbol.getColor());</span>
+<span class="fc" id="L276">        }</span>
+<span class="fc" id="L277">        return colors;</span>
     }
     /**
      * Selects the symbol of the given color if this wheel has one.
@@ -316,18 +283,18 @@ public class Wheel {
      * @return true when the wheel has a symbol with that color
      */
     public boolean selectColor(String color) {
-<span class="pc bpc" id="L319" title="1 of 2 branches missed.">        for (int i = 0; i &lt; symbols.size(); i++) {</span>
-<span class="fc bfc" id="L320" title="All 2 branches covered.">            if (symbols.get(i).hasColor(color)) {</span>
-<span class="pc bpc" id="L321" title="1 of 2 branches missed.">                if (selectedIndex &gt;= 0) {</span>
-<span class="fc" id="L322">                    symbols.get(selectedIndex).makeInvisible();</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">        for (int i = 0; i &lt; symbols.size(); i++) {</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">            if (symbols.get(i).hasColor(color)) {</span>
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">                if (selectedIndex &gt;= 0) {</span>
+<span class="fc" id="L289">                    symbols.get(selectedIndex).makeInvisible();</span>
                 }
-<span class="fc" id="L324">                selectedIndex = i;</span>
-<span class="fc" id="L325">                positionSelectedSymbol();</span>
-<span class="fc" id="L326">                showSelectedSymbol();</span>
-<span class="fc" id="L327">                return true;</span>
+<span class="fc" id="L291">                selectedIndex = i;</span>
+<span class="fc" id="L292">                positionSelectedSymbol();</span>
+<span class="fc" id="L293">                showSelectedSymbol();</span>
+<span class="fc" id="L294">                return true;</span>
             }
         }
-<span class="nc" id="L330">        return false;</span>
+<span class="nc" id="L297">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
