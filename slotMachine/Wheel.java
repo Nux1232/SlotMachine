@@ -7,6 +7,10 @@ import java.util.ArrayList;
  * overridable spin behavior for specialized wheel implementations.</p>
  */
 public class Wheel {
+    private static final int WHEEL_WIDTH = 70;
+    private static final int WHEEL_HEIGHT = 80;
+    private static final int TYPE_BAND_HEIGHT = 210;
+
     /** Built-in wheel behaviors supported by the legacy type-based API. */
     public enum Type {
         /** Advances through the wheel's symbols in insertion order. */
@@ -24,8 +28,6 @@ public class Wheel {
     private final Rectangle wheelShape = new Rectangle();
     private final Rectangle window = new Rectangle();
     private final Rectangle typeBand = new Rectangle();
-    private final Shapes typeMarker;
-    private final Shapes typeMarkerAccent;
     private int selectedIndex = -1;
     private int xPosition;
     private int yPosition;
@@ -38,14 +40,12 @@ public class Wheel {
     /** Creates a wheel tagged with the supplied built-in type. */
     protected Wheel(Type type) {
         this.type = type;
-        wheelShape.changeSize(210, 70);
+        wheelShape.changeSize(WHEEL_HEIGHT, WHEEL_WIDTH);
         wheelShape.changeColor("white");
         window.changeSize(70, 70);
         window.changeColor("white");
-        typeBand.changeSize(12, 210);
+        typeBand.changeSize(TYPE_BAND_HEIGHT, WHEEL_WIDTH);
         typeBand.changeColor(typeColor(type));
-        typeMarker = createTypeMarker(type);
-        typeMarkerAccent = createTypeMarkerAccent(type);
     }
 
     /** @return the built-in type associated with this wheel */
@@ -61,38 +61,11 @@ public class Wheel {
         if (wheelType == Type.LEFTY) return "cyan";
         if (wheelType == Type.REBEL) return "red";
         if (wheelType == Type.CRAZY) return "magenta";
-        return "gray";
-    }
-
-    private Shapes createTypeMarker(Type wheelType) {
-        Shapes marker;
-        if (wheelType == Type.LEFTY) {
-            Triangle triangle = new Triangle();
-            triangle.changeSize(28, 28);
-            marker = triangle;
-        } else if (wheelType == Type.REBEL) {
-            Rectangle rectangle = new Rectangle();
-            rectangle.changeSize(28, 28);
-            marker = rectangle;
-        } else {
-            Circle circle = new Circle();
-            circle.changeSize(wheelType == Type.CRAZY ? 28 : 20);
-            marker = circle;
-        }
-        marker.changeColor(typeColor(wheelType));
-        return marker;
-    }
-
-    private Shapes createTypeMarkerAccent(Type wheelType) {
-        if (wheelType != Type.CRAZY) return null;
-        Triangle accent = new Triangle();
-        accent.changeSize(12, 12);
-        accent.changeColor("yellow");
-        return accent;
+        return "white";
     }
 
     /**
-     * Positions the wheel body, type indicator, window, and selected symbol.
+     * Positions the wheel body, type bar, window, and selected symbol.
      *
      * @param x horizontal coordinate of the wheel body
      * @param y vertical coordinate of the wheel body
@@ -102,8 +75,6 @@ public class Wheel {
         yPosition = y;
         wheelShape.setPosition(x, y);
         typeBand.setPosition(x, y);
-        typeMarker.setPosition(x + 180, y + 20);
-        if (typeMarkerAccent != null) typeMarkerAccent.setPosition(x + 180, y + 28);
         window.setPosition(x, y + 65);
         positionSelectedSymbol();
     }
@@ -113,8 +84,6 @@ public class Wheel {
         visible = true;
         wheelShape.makeVisible();
         typeBand.makeVisible();
-        typeMarker.makeVisible();
-        if (typeMarkerAccent != null) typeMarkerAccent.makeVisible();
         window.makeVisible();
         showSelectedSymbol();
     }
@@ -124,8 +93,6 @@ public class Wheel {
         visible = false;
         wheelShape.makeInvisible();
         typeBand.makeInvisible();
-        typeMarker.makeInvisible();
-        if (typeMarkerAccent != null) typeMarkerAccent.makeInvisible();
         window.makeInvisible();
         if (getSymbol() != null) getSymbol().makeInvisible();
     }

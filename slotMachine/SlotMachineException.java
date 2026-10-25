@@ -6,6 +6,9 @@
  * symbol, locking, and configuration operations.</p>
  */
 public class SlotMachineException extends Exception {
+    @java.io.Serial
+    private static final long serialVersionUID = 1L;
+
     /** Error message used when a requested wheel does not exist. */
     public static final String WHEEL_NOT_FOUND = "Error: The Wheel does not exist or hasn't been found.";
     /** Error message used when a symbol color is unsupported. */
@@ -15,7 +18,7 @@ public class SlotMachineException extends Exception {
     /** Error message used when adding a wheel exceeds the machine limit. */
     public static final String WHEEL_LIMIT_REACHED = "Error: The machine can not have more than 9 wheels";
     /** Error message used when a wheel type cannot be resolved. */
-    public static final String WHEEL_TYPE_NOTFOUND = "Error: The Wheel type is not found or can not be null";
+    public static final String WHEEL_TYPE_NOTFOUND = "Error: The wheel type is unknown or the wheel is null";
     /** Error message used when a rebel wheel operation is forbidden. */
     public static final String WHEEL_REBEL = "Error: A rebel wheel can not be deleted, locked, unlocked or swapped";
     /** Error message used when an operation targets a locked wheel. */
@@ -27,7 +30,7 @@ public class SlotMachineException extends Exception {
     /** Error message used when a spin animation is interrupted. */
     public static final String SPIN_INTERRUPTED = "Error: The spin was interrupted";
     /** Error message used when a configuration is missing or invalid. */
-    public static final String CONFIGURATION_INVALID = "Error: The configuration is null, empty or does not have one symbol per wheel";
+    public static final String CONFIGURATION_INVALID = "Error: The configuration is null, empty or does not contain exactly one symbol per wheel";
     /** Error message used when a configuration changes a locked wheel. */
     public static final String CONFIGURATION_LOCKED = "Error: The configuration changes a locked wheel";
 
