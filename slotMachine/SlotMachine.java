@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import javax.swing.JOptionPane;
 
@@ -679,28 +678,7 @@ public class SlotMachine {
         return true;
     }
 
-    /**
-     * Splits the textual representation of a configuration into colors.
-     *
-     * @param setSymbols text with one color per wheel
-     * @return the colors found in the text
-     * @throws SlotMachineException if the text is null or empty
-     */
-    private String[] parseConfiguration(String setSymbols) throws SlotMachineException {
-        lastOperationOk = false;
-        if (setSymbols == null) {
-            throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
-        }
-        String configurationText = setSymbols.trim();
-        if (configurationText.startsWith("[") && configurationText.endsWith("]")) {
-            configurationText = configurationText.substring(1, configurationText.length() - 1).trim();
-        }
-        if (configurationText.isEmpty()) {
-            throw new SlotMachineException(SlotMachineException.CONFIGURATION_INVALID);
-        }
-        lastOperationOk = true;
-        return configurationText.split("[,;\\s]+");
-    }
+
 
     /**
      * Waits between visible steps without hiding interruption from callers.
