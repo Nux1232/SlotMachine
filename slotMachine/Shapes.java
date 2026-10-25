@@ -1,8 +1,7 @@
 /**
- * Esta clase contiene los atributos y comportamientos comunes de las figuras.
+ * Base class for graphical shapes that can be positioned, colored, and shown.
  *
- * La clase base conserva la posicion, el color y la visibilidad. Las
- * subclases solo deben definir como se dibuja su forma concreta.
+ * <p>Subclasses provide the concrete drawing implementation.</p>
  */
 public abstract class Shapes {
     protected int xPosition;
@@ -11,7 +10,7 @@ public abstract class Shapes {
     protected boolean isVisible;
 
     /**
-     * Make this rectangle visible. If it was already visible, do nothing.
+     * Makes this shape visible.
      */
     public void makeVisible(){
         isVisible = true;
@@ -19,15 +18,14 @@ public abstract class Shapes {
     }
 
     /**
-     * Dibuja la forma concreta. Debe ser implementado por cada subclase.
+     * Draws this shape using its current state.
      *
-     * Antes estaba declarado como private y vacio. Por eso los movimientos
-     * heredados no redibujaban Rectangle ni Triangle.
+     * <p>Concrete subclasses must implement this method.</p>
      */
     protected abstract void draw();
 
     /**
-     * Make this rectangle invisible. If it was already invisible, do nothing.
+     * Makes this shape invisible.
      */
     public void makeInvisible(){
         erase();
@@ -35,36 +33,37 @@ public abstract class Shapes {
     }
 
     /**
-     * Move the rectangle a few pixels to the right.
+     * Moves this shape 20 pixels to the right.
      */
     public void moveRight(){
         moveHorizontal(20);
     }
 
     /**
-     * Move the rectangle a few pixels to the left.
+     * Moves this shape 20 pixels to the left.
      */
     public void moveLeft(){
         moveHorizontal(-20);
     }
 
     /**
-     * Move the rectangle a few pixels up.
+     * Moves this shape 20 pixels up.
      */
     public void moveUp(){
         moveVertical(-20);
     }
 
     /**
-     * Move the rectangle a few pixels down.
+     * Moves this shape 20 pixels down.
      */
     public void moveDown(){
         moveVertical(20);
     }
 
     /**
-     * Move the rectangle horizontally.
-     * @param distance the desired distance in pixels
+     * Moves this shape horizontally.
+     *
+     * @param distance horizontal distance in pixels; negative values move left
      */
     public void moveHorizontal(int distance){
         erase();
@@ -73,8 +72,9 @@ public abstract class Shapes {
     }
 
     /**
-     * Move the rectangle vertically.
-     * @param distance the desired distance in pixels
+     * Moves this shape vertically.
+     *
+     * @param distance vertical distance in pixels; negative values move up
      */
     public void moveVertical(int distance){
         erase();
@@ -83,8 +83,9 @@ public abstract class Shapes {
     }
 
     /**
-     * Slowly move the rectangle horizontally.
-     * @param distance the desired distance in pixels
+     * Moves this shape horizontally one pixel at a time.
+     *
+     * @param distance horizontal distance in pixels; negative values move left
      */
     public void slowMoveHorizontal(int distance){
         int delta;
@@ -102,8 +103,9 @@ public abstract class Shapes {
     }
 
     /**
-     * Slowly move the rectangle vertically.
-     * @param distance the desired distance in pixels
+     * Moves this shape vertically one pixel at a time.
+     *
+     * @param distance vertical distance in pixels; negative values move up
      */
     public void slowMoveVertical(int distance){
         int delta;
@@ -121,17 +123,15 @@ public abstract class Shapes {
     }
 
     /**
-     * Change the color.
-     * @param color the new color. Valid colors are "red", "yellow", "blue", "green",
-     * "magenta" and "black".
+     * Changes the color of this shape.
+     *
+     * @param newColor new color name supported by the canvas
      */
     public void changeColor(String newColor){
         color = newColor;
         draw();
     }
-    /*
-     * Erase the rectangle on screen.
-     */
+    /** Removes this shape's current drawing from the canvas. */
     protected void erase(){
         if(isVisible) {
             Canvas canvas = Canvas.getCanvas();
@@ -140,9 +140,10 @@ public abstract class Shapes {
     }
 
     /**
-     * Change the position of the Rectangle
-     * @param x The distance where the Rectangle will be (Horizontal).
-     * @param y The distance where the Rectangle will be (Vertical).
+     * Sets this shape's absolute position.
+     *
+     * @param x horizontal coordinate
+     * @param y vertical coordinate
      */
     public void setPosition(int x, int y) {
         erase();

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LeftyWheel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">slot-machine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">LeftyWheel.java</span></div><h1>LeftyWheel.java</h1><pre class="source lang-java linenums">/** A wheel that copies the selected symbol from its left neighbor. */
+public class LeftyWheel extends Wheel {
+    /** Creates a wheel that copies the selected symbol from its left neighbor. */
+    public LeftyWheel() {
+<span class="fc" id="L5">        super(Type.LEFTY);</span>
+<span class="fc" id="L6">    }</span>
+
+    /** Copies its left neighbor's selection, or advances when none is available. */
+    @Override
+    public void spin(Wheel leftNeighbor) {
+<span class="pc bpc" id="L11" title="2 of 4 branches missed.">        if (isLocked() || getSymbol() == null) return;</span>
+<span class="pc bpc" id="L12" title="2 of 4 branches missed.">        if (leftNeighbor != null &amp;&amp; leftNeighbor.getSymbol() != null) {</span>
+<span class="fc" id="L13">            copySelectedFrom(leftNeighbor);</span>
+        } else {
+<span class="nc" id="L15">            rotateOnce();</span>
+        }
+<span class="fc" id="L17">    }</span>
+
+    /** Uses the supplied left color, falling back to standard spin behavior. */
+    @Override
+    public void spin(String randomColor, String leftColor) {
+<span class="nc bnc" id="L22" title="All 4 branches missed.">        if (isLocked() || getSymbol() == null) return;</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        if (Symbol.isAvailableColor(leftColor)) {</span>
+<span class="nc" id="L24">            placeSymbolWheel(leftColor);</span>
+        } else {
+<span class="nc" id="L26">            super.spin(randomColor, leftColor);</span>
+        }
+<span class="nc" id="L28">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

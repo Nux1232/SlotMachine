@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CrazyWheel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">slot-machine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">CrazyWheel.java</span></div><h1>CrazyWheel.java</h1><pre class="source lang-java linenums">import java.util.Random;
+
+/** A wheel that randomly advances, copies its left neighbor, or reapplies its effect. */
+public class CrazyWheel extends Wheel {
+    /** Creates a wheel with randomized spin behavior. */
+    public CrazyWheel() {
+<span class="fc" id="L7">        super(Type.CRAZY);</span>
+<span class="fc" id="L8">    }</span>
+
+    /**
+     * Randomly advances, copies the left neighbor, or reapplies the selected
+     * symbol's effect.
+     */
+    @Override
+    public void spin(Wheel leftNeighbor) {
+<span class="pc bpc" id="L16" title="2 of 4 branches missed.">        if (isLocked() || getSymbol() == null) return;</span>
+<span class="fc" id="L17">        int choice = new Random().nextInt(3);</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">        if (choice == 0) {</span>
+<span class="fc" id="L19">            rotateOnce();</span>
+<span class="pc bpc" id="L20" title="3 of 6 branches missed.">        } else if (choice == 1 &amp;&amp; leftNeighbor != null &amp;&amp; leftNeighbor.getSymbol() != null) {</span>
+<span class="nc" id="L21">            copySelectedFrom(leftNeighbor);</span>
+        } else {
+<span class="fc" id="L23">            applySelectedEffect();</span>
+        }
+<span class="fc" id="L25">    }</span>
+
+    /** Performs a randomized spin; the supplied colors are not used. */
+    @Override
+    public void spin(String randomColor, String leftColor) {
+<span class="nc" id="L30">        spin();</span>
+<span class="nc" id="L31">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

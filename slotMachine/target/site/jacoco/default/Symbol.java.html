@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Symbol.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">slot-machine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Symbol.java</span></div><h1>Symbol.java</h1><pre class="source lang-java linenums">import java.util.Random;
+import java.util.List;
+
+/**
+ * Represents one of the symbols displayed by a slot machine wheel.
+ *
+ * Symbols are identified by color and rendered as one of the supported shapes.
+ */
+public class Symbol {
+<span class="fc" id="L10">    private static final List&lt;String&gt; AVAILABLE_COLORS = List.of(</span>
+        &quot;red&quot;, &quot;black&quot;, &quot;green&quot;, &quot;orange&quot;, &quot;yellow&quot;, &quot;magenta&quot;,
+        &quot;brown&quot;, &quot;gray&quot;, &quot;pink&quot;, &quot;cyan&quot;
+    );
+    private final String color;
+    protected Shapes symbolShape;
+    protected Shapes badge;
+    protected static final int BADGE_SIZE = 10;
+
+    /**
+     * Creates a symbol and chooses its graphical shape from the color palette.
+     *
+     * @param color supported symbol color
+     * @throws IllegalArgumentException if the color is not supported
+     */
+<span class="fc" id="L25">    public Symbol(String color) {</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        if (!isAvailableColor(color)) {</span>
+<span class="nc" id="L27">            throw new IllegalArgumentException(&quot;Unsupported symbol color: &quot; + color);</span>
+        }
+<span class="fc" id="L29">        this.color = color;</span>
+        // The shape depends on the position of the color in the palette,
+        // so new colors get a shape automatically.
+<span class="fc bfc" id="L32" title="All 3 branches covered.">        switch (Math.floorMod(AVAILABLE_COLORS.indexOf(color), 3)) {</span>
+            case 0:
+<span class="fc" id="L34">                symbolShape = new Triangle();</span>
+<span class="fc" id="L35">                ((Triangle) symbolShape).changeSize(50, 50);</span>
+<span class="fc" id="L36">                break;</span>
+            case 1:
+<span class="fc" id="L38">                symbolShape = new Rectangle();</span>
+<span class="fc" id="L39">                ((Rectangle) symbolShape).changeSize(50, 50);</span>
+<span class="fc" id="L40">                break;</span>
+            default:
+<span class="fc" id="L42">                symbolShape = new Circle();</span>
+<span class="fc" id="L43">                ((Circle) symbolShape).changeSize(50);</span>
+                break;
+        }
+<span class="fc" id="L46">        symbolShape.changeColor(color);</span>
+<span class="fc" id="L47">    }</span>
+    /**
+     * Returns this symbol's color.
+     *
+     * @return the symbol color
+     */
+    public String getColor() {
+<span class="fc" id="L54">        return color;</span>
+    }
+
+    /** Creates an independent copy for wheels that mirror a neighbor. */
+<span class="fc" id="L58">    Symbol copy() { return new Symbol(color); }</span>
+
+    /**
+     * Checks whether this symbol has the specified color.
+     *
+     * @param otherColor color to compare
+     * @return true when both colors match
+     */
+    public boolean hasColor(String otherColor) {
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">        return color != null &amp;&amp; color.equals(otherColor);</span>
+    }
+
+    /**
+     * Creates a symbol with a randomly selected available symbol color.
+     *
+     * @param random source used to select the color
+     * @return a new randomly colored symbol
+     */
+    public static Symbol random(Random random) {
+<span class="nc" id="L77">        return new Symbol(AVAILABLE_COLORS.get(random.nextInt(AVAILABLE_COLORS.size())));</span>
+    }
+
+    /**
+     * Checks whether a color belongs to the symbol palette supported by the
+     * current version of the slot machine.
+     *
+     * @param color color to check
+     * @return {@code true} when the color is supported
+     */
+    public static boolean isAvailableColor(String color) {
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        return color != null &amp;&amp; AVAILABLE_COLORS.contains(color);</span>
+    }
+
+    /** @return an immutable list of supported symbol colors */
+    public static List&lt;String&gt; getAvailableColors() {
+<span class="fc" id="L93">        return AVAILABLE_COLORS;</span>
+    }
+
+    /**
+     * Sets the position of the symbol and its badge.
+     *
+     * @param x horizontal coordinate
+     * @param y vertical coordinate
+     */
+    public void setPosition(int x, int y) {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (symbolShape != null) {</span>
+<span class="fc" id="L104">            int adjustedX = x;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (symbolShape instanceof Triangle) {</span>
+<span class="fc" id="L106">                adjustedX = x + 30;</span>
+            }
+<span class="fc" id="L108">            symbolShape.setPosition(adjustedX, y);</span>
+        }
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (badge != null) {</span>
+<span class="fc" id="L111">            badge.setPosition(x + 50, y - 10);</span>
+        }
+<span class="fc" id="L113">    }</span>
+
+    /**
+     * Makes the symbol and its badge visible.
+     */
+    public void makeVisible() {
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (symbolShape != null) {</span>
+<span class="fc" id="L120">            symbolShape.makeVisible();</span>
+        }
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (badge != null) {</span>
+<span class="nc" id="L123">            badge.makeVisible();</span>
+        }
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * Makes the symbol and its badge invisible.
+     */
+    public void makeInvisible() {
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (symbolShape != null) {</span>
+<span class="fc" id="L132">            symbolShape.makeInvisible();</span>
+        }
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (badge != null) {</span>
+<span class="fc" id="L135">            badge.makeInvisible();</span>
+        }
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * Applies the symbol's effect when selected during a spin.
+     * The standard symbol has no additional effect.
+     */
+    public void spinEffect() {
+
+<span class="fc" id="L145">    }</span>
+
+    /**
+     * Sets the small mark that tells this symbol type apart from the others.
+     * Normal symbols have no badge.
+     *
+     * @param newBadge shape drawn in the upper right corner of the wheel window
+     */
+    protected void setBadge(Shapes newBadge) {
+<span class="fc" id="L154">        badge = newBadge;</span>
+<span class="fc" id="L155">    }</span>
+
+    /**
+     * Tells whether this symbol has a badge.
+     *
+     * @return true when the symbol is marked as a special type
+     */
+    public boolean hasBadge() {
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        return badge != null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

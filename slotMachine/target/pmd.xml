@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd xmlns="http://pmd.sourceforge.net/report/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pmd.sourceforge.net/report/2.0.0 https://pmd.github.io/schema/report_2_0_0.xsd" version="7.17.0" timestamp="2026-10-24T23:11:25.931">
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\Canvas.java">
+<violation beginline="178" endline="180" begincolumn="11" endcolumn="10" rule="EmptyCatchBlock" ruleset="Error Prone" class="Canvas" method="wait" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachine.java">
+<violation beginline="3" endline="3" begincolumn="1" endcolumn="25" rule="UnnecessaryImport" ruleset="Code Style" class="SlotMachine" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'java.util.Locale'
+</violation>
+<violation beginline="689" endline="689" begincolumn="22" endcolumn="40" rule="UnusedPrivateMethod" ruleset="Best Practices" class="SlotMachine" method="parseConfiguration" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_bestpractices.html#unusedprivatemethod" priority="3">
+Avoid unused private methods such as 'parseConfiguration(String)'.
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachineC1Test.java">
+<violation beginline="1" endline="105" begincolumn="1" endcolumn="3" rule="TooManyStaticImports" ruleset="Code Style" class="SlotMachineC1Test" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#toomanystaticimports" priority="3">
+Too many static imports may lead to messy code
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachineC2Test.java">
+<violation beginline="1" endline="251" begincolumn="1" endcolumn="3" rule="TooManyStaticImports" ruleset="Code Style" class="SlotMachineC2Test" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#toomanystaticimports" priority="3">
+Too many static imports may lead to messy code
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachineC4Test.java">
+<violation beginline="1" endline="41" begincolumn="1" endcolumn="3" rule="TooManyStaticImports" ruleset="Code Style" class="SlotMachineC4Test" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#toomanystaticimports" priority="3">
+Too many static imports may lead to messy code
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachineCC1Test.java">
+<violation beginline="1" endline="96" begincolumn="1" endcolumn="3" rule="TooManyStaticImports" ruleset="Code Style" class="SlotMachineCC1Test" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#toomanystaticimports" priority="3">
+Too many static imports may lead to messy code
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachineCC2Test.java">
+<violation beginline="1" endline="104" begincolumn="1" endcolumn="3" rule="TooManyStaticImports" ruleset="Code Style" class="SlotMachineCC2Test" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#toomanystaticimports" priority="3">
+Too many static imports may lead to messy code
+</violation>
+<violation beginline="2" endline="2" begincolumn="1" endcolumn="61" rule="UnnecessaryImport" ruleset="Code Style" class="SlotMachineCC2Test" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused static import 'org.junit.jupiter.api.Assertions.assertEquals'
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachineCC4Test.java">
+<violation beginline="1" endline="229" begincolumn="1" endcolumn="2" rule="TooManyStaticImports" ruleset="Code Style" class="SlotMachineCC4Test" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#toomanystaticimports" priority="3">
+Too many static imports may lead to messy code
+</violation>
+</file>
+<file name="C:\Users\infan\Documentos\GitHub\SlotMachine\slotMachine\SlotMachineContestTest.java">
+<violation beginline="1" endline="54" begincolumn="1" endcolumn="3" rule="TooManyStaticImports" ruleset="Code Style" class="SlotMachineContestTest" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.17.0/pmd_rules_java_codestyle.html#toomanystaticimports" priority="3">
+Too many static imports may lead to messy code
+</violation>
+</file>
+</pmd>

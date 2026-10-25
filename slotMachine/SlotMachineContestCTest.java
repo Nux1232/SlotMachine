@@ -17,7 +17,7 @@ public class SlotMachineContestCTest {
      * tenga un símbolo actualmente montado.
      */
     @Test
-    public void accordingCjMcShouldCreateEqualWheelsAndSymbolsPerWheel() {
+    public void accordingCjMcShouldCreateEqualWheelsAndSymbolsPerWheel() throws SlotMachineException {
         int n = 5;
         SlotMachine sm = new SlotMachine(n);
 

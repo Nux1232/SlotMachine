@@ -13,6 +13,15 @@ public class Symbol {
     );
     private final String color;
     protected Shapes symbolShape;
+    protected Shapes badge;
+    protected static final int BADGE_SIZE = 10;
+
+    /**
+     * Creates a symbol and chooses its graphical shape from the color palette.
+     *
+     * @param color supported symbol color
+     * @throws IllegalArgumentException if the color is not supported
+     */
     public Symbol(String color) {
         if (!isAvailableColor(color)) {
             throw new IllegalArgumentException("Unsupported symbol color: " + color);
@@ -79,18 +88,16 @@ public class Symbol {
         return color != null && AVAILABLE_COLORS.contains(color);
     }
 
-    /**
-     * Return the color list supported by the actual version.
-     * @return AVAILABLE_COLORS Color supported
-     */
+    /** @return an immutable list of supported symbol colors */
     public static List<String> getAvailableColors() {
         return AVAILABLE_COLORS;
     }
 
     /**
-     * Set the position of the symbol
-     * @param x horizontal place
-     * @param y vertical place
+     * Sets the position of the symbol and its badge.
+     *
+     * @param x horizontal coordinate
+     * @param y vertical coordinate
      */
     public void setPosition(int x, int y) {
         if (symbolShape != null) {
@@ -100,31 +107,59 @@ public class Symbol {
             }
             symbolShape.setPosition(adjustedX, y);
         }
+        if (badge != null) {
+            badge.setPosition(x + 50, y - 10);
+        }
     }
 
     /**
-     * Makes visible the symbol
+     * Makes the symbol and its badge visible.
      */
     public void makeVisible() {
         if (symbolShape != null) {
             symbolShape.makeVisible();
         }
+        if (badge != null) {
+            badge.makeVisible();
+        }
     }
 
     /**
-     * Makes invisible the symbol
+     * Makes the symbol and its badge invisible.
      */
     public void makeInvisible() {
         if (symbolShape != null) {
             symbolShape.makeInvisible();
         }
+        if (badge != null) {
+            badge.makeInvisible();
+        }
     }
 
     /**
-     * Reacts to a Spin
-     * In a Normal Symbol this method makes no funtion.
+     * Applies the symbol's effect when selected during a spin.
+     * The standard symbol has no additional effect.
      */
     public void spinEffect() {
 
+    }
+
+    /**
+     * Sets the small mark that tells this symbol type apart from the others.
+     * Normal symbols have no badge.
+     *
+     * @param newBadge shape drawn in the upper right corner of the wheel window
+     */
+    protected void setBadge(Shapes newBadge) {
+        badge = newBadge;
+    }
+
+    /**
+     * Tells whether this symbol has a badge.
+     *
+     * @return true when the symbol is marked as a special type
+     */
+    public boolean hasBadge() {
+        return badge != null;
     }
 }

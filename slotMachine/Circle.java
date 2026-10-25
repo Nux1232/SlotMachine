@@ -1,18 +1,14 @@
 import java.awt.geom.*;
 
-/**
- * A circle that can be manipulated and that draws itself on a canvas.
- * 
- * @author  Michael Kolling and David J. Barnes
- * @version 1.0.  (15 July 2000) 
- */
-
+/** A movable, resizable circle rendered on the shared canvas. */
 public class Circle extends Shapes{
 
+    /** Approximation of pi used by the original shape example. */
     public static final double PI=3.1416;
     
     private int diameter;
 
+    /** Creates a circle at its default position and size. */
     public Circle(){
         diameter = 30;
         xPosition = 20;
@@ -21,6 +17,7 @@ public class Circle extends Shapes{
         isVisible = false;
     }
 
+    /** Draws this circle on the shared canvas when it is visible. */
     @Override
     protected void draw(){
         if(isVisible) {
@@ -33,8 +30,9 @@ public class Circle extends Shapes{
     }
 
     /**
-     * Change the size.
-     * @param newDiameter the new size (in pixels). Size must be >=0.
+     * Changes the diameter of the circle.
+     *
+     * @param newDiameter new diameter in pixels
      */
     public void changeSize(int newDiameter){
         erase();

@@ -2,14 +2,24 @@
 public class ShySymbol extends Symbol {
     private boolean hidden;
 
-    public ShySymbol(String color) { super(color); }
+    /**
+     * Creates a shy symbol that alternates visibility when selected.
+     *
+     * @param color supported symbol color
+     */
+    public ShySymbol(String color) {
+        super(color);
+        Rectangle mark = new Rectangle();
+        mark.changeSize(BADGE_SIZE, BADGE_SIZE);
+        mark.changeColor("blue");
+        setBadge(mark);
+    }
 
-    /** Compatibility constructor: the project represents symbols by color only. */
-    public ShySymbol(String color, String ignoredShape) { this(color); }
-
+    /** Toggles this symbol's visibility. */
     @Override
     public void spinEffect() { onSelected(); }
 
+    /** Toggles whether this symbol is visible. */
     public void onSelected() {
         boolean shapeWasVisible = symbolShape != null && symbolShape.isVisible;
         hidden = !hidden;
@@ -19,12 +29,16 @@ public class ShySymbol extends Symbol {
         }
     }
 
+    /** Makes the symbol visible only when its hidden state permits it. */
     @Override
     public void makeVisible() {
         if (!hidden) super.makeVisible();
     }
 
+    /** @return whether this symbol is currently visible */
     public boolean isShyVisible() { return !hidden; }
+
+    /** @return whether this symbol is currently hidden */
     public boolean isHidden() { return hidden; }
 
     void setShyVisible(boolean visible) {
