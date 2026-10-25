@@ -7,7 +7,7 @@ slot-machine,default,Symbol,20,165,7,22,3,41,8,21,1,13
 slot-machine,default,Canvas,64,322,15,29,12,74,14,18,0,10
 slot-machine,default,Rectangle,0,60,0,2,0,19,0,5,0,4
 slot-machine,default,Triangle,0,107,0,2,0,21,0,5,0,4
-slot-machine,default,SlotMachine,334,1379,75,149,75,317,59,95,5,37
+slot-machine,default,SlotMachine,339,1374,76,148,76,316,60,94,5,37
 slot-machine,default,Canvas.CanvasPane,0,19,0,0,0,3,0,2,0,2
 slot-machine,default,WheelFactory,2,37,1,1,0,8,1,2,0,2
 slot-machine,default,SlotMachineContest,13,90,3,5,6,24,3,5,0,4
