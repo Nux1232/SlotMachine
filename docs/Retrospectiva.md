@@ -186,3 +186,69 @@ Las pruebas unitarias y el *refactoring*. Las pruebas nos mostraron de inmediato
 * Oracle. (s. f.). *Class ArrayList*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
 * Oracle. (s. f.). *Class JOptionPane*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html
 * Oracle. (s. f.). *Class Random*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/Random.html
+
+## Cierre
+
+**1. ¿Cuáles fueron los mini-ciclos definidos? Justifíquenlos.**
+
+* **Mini-ciclo 1 (Manejo de excepciones):** Se creó SlotMachineException con constantes de mensaje (WHEEL_NOT_FOUND, SYMBOL_NOT_ALLOWED, WHEEL_REBEL, WHEEL_LOCKED, CONFIGURATION_INVALID, entre otras). Los métodos públicos y los validadores privados *lanzan* la excepción cuando el dato o el estado es inválido, los métodos que dependen de ellos la *propagan* con throws, y quienes pueden recuperarse la *atienden*: SlotMachineContest y el constructor SlotMachine(int n). Se conservó ok(), que queda en false al fallar. Se hizo primero porque reemplazó el esquema anterior de mensajes con JOptionPane y volvió robusto el resto del código.
+
+* **Mini-ciclo 2 (Extensibilidad de símbolos con reflexión):** addSymbol(type, pos, color) dejó de usar una cadena de if / else if por tipo. Ahora recibe el nombre de la clase (EphemeralSymbol, ShySymbol) o normal, y crea el símbolo con Class.forName(...).getConstructor(String.class).newInstance(color). Un tipo nuevo solo exige crear la subclase de Symbol con su constructor público, sin tocar SlotMachine. Cualquier fallo de reflexión se convierte en SlotMachineException.
+
+* **Mini-ciclo 3 (Refactorización de las ruedas):** El comportamiento por tipo, que estaba en un switch dentro de Wheel, pasó a subclases (NormalWheel, LeftyWheel, RebelWheel, CrazyWheel) creadas por WheelFactory. Se añadió addWheel(pos, Wheel) para recibir ruedas ya construidas. Se hizo para aplicar polimorfismo también en las ruedas, igual que en los símbolos.
+
+* **Mini-ciclo 4 (Ajustes funcionales y de usabilidad):**
+  * spin(String[]) pasó a ser la operación principal, como pide el diseño.
+  * symbols() devuelve todos los símbolos de la máquina y configuration() solo los visibles.
+  * El giro global (spin()) dejó de reemplazar los símbolos de las ruedas al caer el 20 %: ahora selecciona el color ganador con Wheel.selectColor.
+  * Se añadieron insignias visuales para distinguir los tipos de símbolo: cuadrado azul para el *shy* y círculo negro para el *ephemeral*.
+  * SlotMachineContest cambió a un algoritmo que solo usa SlotMachine(n), spin(wheel, steps), distinctSymbols(), makeVisible() y makeInvisible().
+
+* **Mini-ciclo 5 (Calidad con herramientas modernas):** Migración del proyecto a VS Code con Maven, informe de cobertura con JaCoCo (meta: más de 75 %), informe de análisis estático con PMD (meta: cero reglas de prioridad alta) y limpieza de código sin uso (campo winner, allSymbolsEqual, parseConfiguration, Symbol.random, Wheel.spin(String, String), import Locale).
+
+* **Mini-ciclo 6 (Diseño y documentación):** Actualización en Astah del diagrama de clases (excepción, fábrica, subclases de rueda, firmas con throws) y de los diagramas de secuencia de los métodos públicos de SlotMachine.
+
+**2. ¿Cuál es el estado actual del proyecto en términos de mini-ciclos? ¿Por qué?**
+
+* **Mini-ciclos 1, 2 y 3:** implementados y cubiertos por pruebas (SlotMachineCC4Test, SlotMachineC4Test).
+* **Mini-ciclo 4:** implementado. [Completar: confirmar que las insignias y el algoritmo de solve ya están en la rama final.]
+* **Mini-ciclo 5:** [Completar: cobertura inicial % → final %; reglas rojas de PMD inicial → final.] Queda pendiente borrar el código sin uso detectado y agregar una prueba para delSymbol, que ninguna prueba ejecuta.
+* **Mini-ciclo 6:** [Completar: indicar qué diagramas de secuencia están terminados.] El diagrama de clases debe quedar sincronizado con las firmas finales.
+* **Pendiente heredado del ciclo 4:** Wheel todavía debe resolver con polimorfismo (por ejemplo, un método en Symbol que ShySymbol sobrescriba) el instanceof ShySymbol que usa para decidir cómo mostrar el símbolo. [Completar: si ya se resolvió, quitar esta línea.]
+
+**3. ¿Cuál fue el tiempo total invertido por cada uno de ustedes? (Horas/Hombre)**
+
+* JUAN PABLO CUERVO CONTRERAS: 20 horas.
+* SAMUEL INFANTE CAMARGO: 20 horas.
+
+**4. ¿Cuál consideran que fue el mayor logro? ¿Por qué?**
+
+Eliminar los condicionales por tipo sin perder control. Con la reflexión en addSymbol y las subclases de rueda creadas por la fábrica, agregar un tipo nuevo de símbolo o de rueda ya no obliga a modificar SlotMachine ni la lógica de giro. Además, el manejo de excepciones dejó claro qué falla y quién se encarga de atenderlo, en lugar de depender solo de ok() y de diálogos.
+
+**5. ¿Cuál consideran que fue el mayor problema técnico? ¿Qué hicieron para resolverlo?**
+
+* **El giro global ganaba casi siempre.** Al caer el 20 %, spin() usaba placeSymbolWheel, que borraba todos los símbolos de la rueda y los volvía normales. Se resolvió con selectColor, que solo cambia el símbolo seleccionado. Aun así, al crear la máquina con SlotMachine(n), todas las ruedas tienen los mismos símbolos en el mismo orden, así que un giro global conserva las alineaciones. Lo dejamos documentado como comportamiento conocido.
+
+* **Compilación con Maven.** List.of con diez elementos fallaba porque el compilador estaba en Java 8. Se resolvió subiendo la versión de Java en el pom.xml.
+
+* **Propagación de la excepción verificada.** Al volver SlotMachineException una excepción *checked*, hubo que ajustar el constructor, SlotMachineContest y todas las pruebas.
+
+**6. ¿Qué hicieron bien como equipo? ¿Qué se comprometen a hacer para mejorar los resultados?**
+
+Mantuvimos el código existente y lo ajustamos por pasos, apoyándonos en las pruebas para detectar qué se rompía con cada cambio. Para el cierre nos comprometemos a: eliminar el código sin uso, dejar fuera de Git los archivos generados (target/) y conservar solo los informes de JaCoCo y PMD en docs/, y verificar que el diagrama de clases, los de secuencia y el código coincidan antes de publicar.
+
+**7. Considerando las prácticas XP incluidas en los laboratorios, ¿cuál fue la más útil? ¿Por qué?**
+
+Las pruebas unitarias y el *refactoring*. JaCoCo mostró qué partes no tenían pruebas (por ejemplo, delSymbol) y PMD señaló el código sin uso. Con las pruebas en verde pudimos cambiar el manejo de errores y las ruedas sin romper el comportamiento anterior.
+
+**8. ¿Qué referencias usaron? ¿Cuál fue la más útil? Incluyan citas con estándares adecuados.**
+
+* Anthropic. (2026). *Claude Sonnet 5.5* [Modelo de lenguaje de gran tamaño]. https://claude.ai. Se usó como guía para el manejo de excepciones, la reflexión, la lectura de errores de compilación y la revisión de código sin uso.
+* GeeksforGeeks. (s. f.). *Class forName() method in Java with examples*. https://www.geeksforgeeks.org/java/class-forname-method-in-java-with-examples/ (la más útil para el mini-ciclo 2).
+* Oracle. (s. f.). *Lesson: Exceptions*. The Java Tutorials. https://docs.oracle.com/javase/tutorial/essential/exceptions/
+* JaCoCo. (s. f.). *JaCoCo Java Code Coverage Library*. https://www.jacoco.org/jacoco/trunk/doc/
+* PMD. (s. f.). *PMD Source Code Analyzer*. https://pmd.github.io/
+* JUnit Team. (s. f.). *JUnit 5 User Guide*. https://junit.org/junit5/docs/current/user-guide/
+* Oracle. (s. f.). *Polymorphism*. The Java Tutorials. https://docs.oracle.com/javase/tutorial/java/IandI/polymorphism.html
+* Oracle. (s. f.). *Class ArrayList*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
+* Oracle. (s. f.). *Class Random*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/Random.html
