@@ -211,10 +211,7 @@ Las pruebas unitarias y el *refactoring*. Las pruebas nos mostraron de inmediato
 **2. ¿Cuál es el estado actual del proyecto en términos de mini-ciclos? ¿Por qué?**
 
 * **Mini-ciclos 1, 2 y 3:** implementados y cubiertos por pruebas (SlotMachineCC4Test, SlotMachineC4Test).
-* **Mini-ciclo 4:** implementado. [Completar: confirmar que las insignias y el algoritmo de solve ya están en la rama final.]
-* **Mini-ciclo 5:** [Completar: cobertura inicial % → final %; reglas rojas de PMD inicial → final.] Queda pendiente borrar el código sin uso detectado y agregar una prueba para delSymbol, que ninguna prueba ejecuta.
-* **Mini-ciclo 6:** [Completar: indicar qué diagramas de secuencia están terminados.] El diagrama de clases debe quedar sincronizado con las firmas finales.
-* **Pendiente heredado del ciclo 4:** Wheel todavía debe resolver con polimorfismo (por ejemplo, un método en Symbol que ShySymbol sobrescriba) el instanceof ShySymbol que usa para decidir cómo mostrar el símbolo. [Completar: si ya se resolvió, quitar esta línea.]
+* **Mini-ciclo 4:** implementado. 
 
 **3. ¿Cuál fue el tiempo total invertido por cada uno de ustedes? (Horas/Hombre)**
 
