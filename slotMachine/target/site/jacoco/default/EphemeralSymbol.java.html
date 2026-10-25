@@ -7,57 +7,59 @@ public class EphemeralSymbol extends Symbol {
     private int x;
     private int y;
     /**
-     * Remembers the position so it can be restored after resizing.
+     * Creates an ephemeral symbol that shrinks whenever it is selected.
      *
-     * @param x horizontal place
-     * @param y vertical place
+     * @param color supported symbol color
      */
-
     public EphemeralSymbol(String color) {
-<span class="fc" id="L17">        super(color);</span>
-<span class="fc" id="L18">        Circle mark = new Circle();</span>
-<span class="fc" id="L19">        mark.changeSize(BADGE_SIZE);</span>
-<span class="fc" id="L20">        mark.changeColor(&quot;black&quot;);</span>
-<span class="fc" id="L21">        setBadge(mark);</span>
-<span class="fc" id="L22">        resizeShape();</span>
-<span class="fc" id="L23">    }</span>
+<span class="fc" id="L15">        super(color);</span>
+<span class="fc" id="L16">        Circle mark = new Circle();</span>
+<span class="fc" id="L17">        mark.changeSize(BADGE_SIZE);</span>
+<span class="fc" id="L18">        mark.changeColor(&quot;black&quot;);</span>
+<span class="fc" id="L19">        setBadge(mark);</span>
+<span class="fc" id="L20">        resizeShape();</span>
+<span class="fc" id="L21">    }</span>
 
+    /** Remembers its position and updates the symbol and badge positions. */
     @Override
     public void setPosition(int x, int y) {
-<span class="fc" id="L27">        this.x = x;</span>
-<span class="fc" id="L28">        this.y = y;</span>
-<span class="fc" id="L29">        super.setPosition(x, y);</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L26">        this.x = x;</span>
+<span class="fc" id="L27">        this.y = y;</span>
+<span class="fc" id="L28">        super.setPosition(x, y);</span>
+<span class="fc" id="L29">    }</span>
 
+    /** Shrinks this symbol when selected by its wheel. */
     @Override
 <span class="fc" id="L33">    public void spinEffect() { onWheelSpin(); }</span>
 
+    /** Reduces the symbol size by one step, down to the minimum size. */
     public void onWheelSpin() {
-<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (size &gt; MINIMUM_SIZE) {</span>
-<span class="fc" id="L37">            size = Math.max(MINIMUM_SIZE, size - SIZE_STEP);</span>
-<span class="fc" id="L38">            resizeShape();</span>
-<span class="fc" id="L39">            super.setPosition(x, y);</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (size &gt; MINIMUM_SIZE) {</span>
+<span class="fc" id="L38">            size = Math.max(MINIMUM_SIZE, size - SIZE_STEP);</span>
+<span class="fc" id="L39">            resizeShape();</span>
+<span class="fc" id="L40">            super.setPosition(x, y);</span>
         }
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L42">    }</span>
 
-<span class="fc" id="L43">    public int getSize() { return size; }</span>
+    /** @return the current symbol size in pixels */
+<span class="fc" id="L45">    public int getSize() { return size; }</span>
 
     void setSize(int newSize) {
-<span class="nc" id="L46">        size = Math.max(MINIMUM_SIZE, Math.min(INITIAL_SIZE, newSize));</span>
-<span class="nc" id="L47">        resizeShape();</span>
-<span class="nc" id="L48">    }</span>
+<span class="nc" id="L48">        size = Math.max(MINIMUM_SIZE, Math.min(INITIAL_SIZE, newSize));</span>
+<span class="nc" id="L49">        resizeShape();</span>
+<span class="nc" id="L50">    }</span>
 
     @Override
     Symbol copy() {
-<span class="nc" id="L52">        EphemeralSymbol copy = new EphemeralSymbol(getColor());</span>
-<span class="nc" id="L53">        copy.setSize(size);</span>
-<span class="nc" id="L54">        return copy;</span>
+<span class="nc" id="L54">        EphemeralSymbol copy = new EphemeralSymbol(getColor());</span>
+<span class="nc" id="L55">        copy.setSize(size);</span>
+<span class="nc" id="L56">        return copy;</span>
     }
 
     private void resizeShape() {
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (symbolShape instanceof Circle) ((Circle) symbolShape).changeSize(size);</span>
-<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        else if (symbolShape instanceof Rectangle) ((Rectangle) symbolShape).changeSize(size, size);</span>
-<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        else if (symbolShape instanceof Triangle) ((Triangle) symbolShape).changeSize(size, size);</span>
-<span class="fc" id="L61">    }</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (symbolShape instanceof Circle) ((Circle) symbolShape).changeSize(size);</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        else if (symbolShape instanceof Rectangle) ((Rectangle) symbolShape).changeSize(size, size);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        else if (symbolShape instanceof Triangle) ((Triangle) symbolShape).changeSize(size, size);</span>
+<span class="fc" id="L63">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

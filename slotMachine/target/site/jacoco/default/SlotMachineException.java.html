@@ -1,26 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SlotMachineException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">slot-machine</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">SlotMachineException.java</span></div><h1>SlotMachineException.java</h1><pre class="source lang-java linenums">
 /**
- * This class manages the SlotMachine exceptions.
- * 
- * @author Juan Pablo Cuervo, Samuel Infante Camargo
- * @version Cierre
+ * Checked exception for invalid slot-machine operations.
+ *
+ * &lt;p&gt;The constants in this class provide standard messages for invalid wheel,
+ * symbol, locking, and configuration operations.&lt;/p&gt;
  */
 public class SlotMachineException extends Exception {
+    /** Error message used when a requested wheel does not exist. */
     public static final String WHEEL_NOT_FOUND = &quot;Error: The Wheel does not exist or hasn't been found.&quot;;
+    /** Error message used when a symbol color is unsupported. */
     public static final String SYMBOL_NOT_ALLOWED = &quot;Error: The Symbol is not allowed&quot;;
+    /** Error message used when a symbol type cannot be resolved. */
     public static final String SYMBOL_TYPE_NOTFOUND = &quot;Error: The Symbol type is not found or can not be null&quot;;
+    /** Error message used when adding a wheel exceeds the machine limit. */
     public static final String WHEEL_LIMIT_REACHED = &quot;Error: The machine can not have more than 9 wheels&quot;;
+    /** Error message used when a wheel type cannot be resolved. */
     public static final String WHEEL_TYPE_NOTFOUND = &quot;Error: The Wheel type is not found or can not be null&quot;;
+    /** Error message used when a rebel wheel operation is forbidden. */
     public static final String WHEEL_REBEL = &quot;Error: A rebel wheel can not be deleted, locked, unlocked or swapped&quot;;
+    /** Error message used when an operation targets a locked wheel. */
     public static final String WHEEL_LOCKED = &quot;Error: The Wheel is locked&quot;;
+    /** Error message used when attempting to swap a wheel with itself. */
     public static final String WHEEL_SAME_POSITION = &quot;Error: A wheel can not be swapped with itself&quot;;
+    /** Error message used when the requested spin step count is negative. */
     public static final String STEPS_NEGATIVE = &quot;Error: The number of steps can not be negative&quot;;
+    /** Error message used when a spin animation is interrupted. */
     public static final String SPIN_INTERRUPTED = &quot;Error: The spin was interrupted&quot;;
+    /** Error message used when a configuration is missing or invalid. */
     public static final String CONFIGURATION_INVALID = &quot;Error: The configuration is null, empty or does not have one symbol per wheel&quot;;
+    /** Error message used when a configuration changes a locked wheel. */
     public static final String CONFIGURATION_LOCKED = &quot;Error: The configuration changes a locked wheel&quot;;
 
+    /**
+     * Creates an exception with a descriptive operation error.
+     *
+     * @param message explanation of the invalid operation
+     */
     public SlotMachineException(String message) {
-<span class="fc" id="L23">        super(message);</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L40">        super(message);</span>
+<span class="fc" id="L41">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
