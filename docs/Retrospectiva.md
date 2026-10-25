@@ -138,8 +138,114 @@ Pair Programming y Refactoring. Tener a uno estructurando la lógica de las nuev
 
 **8. ¿Qué referencias usaron? ¿Cuál fue la más útil? Incluyan citas con estándares adecuados.**
 
-* Oracle. (s. f.). *Class ArrayList*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html](https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html?utm_source=gemini)
-* Oracle. (s. f.). *Class JOptionPane*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html](https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html?utm_source=gemini)
-* Oracle. (s. f.). *Class Random*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/Random.html](https://docs.oracle.com/javase/8/docs/api/java/util/Random.html?utm_source=gemini)
-* Oracle. (s. f.). *Interface List*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/List.html](https://docs.oracle.com/javase/8/docs/api/java/util/List.html?utm_source=gemini)
-* Oracle. (s. f.). *Enum TimeUnit*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/TimeUnit.html](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/TimeUnit.html?utm_source=gemini)
+* Oracle. (s. f.). *Class ArrayList*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html](https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html)
+* Oracle. (s. f.). *Class JOptionPane*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html](https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html)
+* Oracle. (s. f.). *Class Random*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/Random.html](https://docs.oracle.com/javase/8/docs/api/java/util/Random.html)
+* Oracle. (s. f.). *Interface List*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/List.html](https://docs.oracle.com/javase/8/docs/api/java/util/List.html)
+* Oracle. (s. f.). *Enum TimeUnit*. Oracle Help Center. Recuperado de [https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/TimeUnit.html](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/TimeUnit.html)
+
+## Ciclo 4
+
+**1. ¿Cuáles fueron los mini-ciclos definidos? Justifíquenlos.**
+
+* **Mini-ciclo 1 (Jerarquía de símbolos):** Se extendió Symbol con las subclases EphemeralSymbol (reduce su tamaño 10 unidades en cada giro hasta quedar en un punto) y ShySymbol (alterna entre visible e invisible cada vez que es seleccionado en la rueda). Ambas sobrescriben spinEffect(), de modo que Wheel no necesita conocer el tipo concreto de cada símbolo. Se hizo primero porque es la base del requisito de extensibilidad.
+* **Mini-ciclo 2 (Tipos de ruedas):** Se añadió a Wheel el enumerado Type (`NORMAL`, `LEFTY`, `REBEL`, `CRAZY`). La rueda *lefty* copia el estado de la rueda a su izquierda al girar, la *rebel* no se deja bloquear, y la *crazy* es el nuevo elemento propuesto por nosotros (requisito 19): en cada giro elige al azar entre rotar, copiar a su vecina o solo aplicar el efecto del símbolo.
+* **Mini-ciclo 3 (Integración en SlotMachine):** Se agregó addSymbol(type, pos, color), que crea el símbolo según el tipo pedido y valida tipo, color y posición. El método anterior addSymbol(pos, color) quedó delegando a este con el tipo "normal, para no romper el código previo.
+* **Mini-ciclo 4 (Pruebas y diseño):** Se adaptaron las pruebas de los ciclos anteriores a los cambios del código, se escribió SlotMachineC4Test (pruebas propias de este ciclo) y SlotMachineCC4Test (dos pruebas compartidas con otros grupos y dos propias), y se actualizó el diagrama de clases en Astah.
+
+**2. ¿Cuál es el estado actual del proyecto en términos de mini-ciclos? ¿por qué?**
+Los mini-ciclos 1, 2 y 3 están implementados: existen los tres tipos de símbolos, los tipos de ruedas y la creación de símbolos por tipo desde SlotMachine,  El mini-ciclo 4 está avanzado pero **no está cerrado**, porque quedan dos pendientes:
+
+* **Revisión de detalles de código y diseño.** Hay que revisar algunos puntos pequeños, por ejemplo que Wheel use instanceof ShySymbol para decidir cómo mostrar el símbolo (lo ideal sería que lo resuelva el propio símbolo con polimorfismo), que los diálogos JOptionPane de SlotMachine se muestren solo cuando la máquina es visible, y que el diagrama de clases coincida exactamente con las firmas del código.
+* **Corrección de los diagramas de secuencia.** Quedamos debiendo ajustar los diagramas de secuencia a la nueva estructura, en particular los de addSymbol(type, pos, color) y spin, donde ahora interviene spinEffect() de cada tipo de símbolo.
+
+**3. ¿Cuál fue el tiempo total invertido por cada uno de ustedes? (Horas/Hombre)**
+
+* JUAN PABLO CUERVO CONTRERAS: 12 horas
+* SAMUEL INFANTE CAMARGO: 12 horas
+
+**4. ¿Cuál consideran fue el mayor logro? ¿Por qué?**
+Demostrar la extensibilidad del diseño mediante polimorfismo. Agregar EphemeralSymbol y ShySymbol no obligó a modificar la lógica de giro de Wheel: basta con que cada símbolo implemente su propio spinEffect(). Esto confirma que la separación de responsabilidades de los ciclos anteriores sirvió para crecer sin reescribir lo que ya funcionaba.
+
+**5. ¿Cuál consideran que fue el mayor problema técnico? ¿Qué hicieron para resolverlo?**
+Dos problemas relacionados. Primero, la interacción entre ShySymbol y la visibilidad: Wheel vuelve a mostrar el símbolo seleccionado justo después de aplicar el efecto, lo que anulaba el ocultamiento. Lo resolvimos haciendo que ShySymbol sobrescriba makeVisible() y respete su estado oculto. Segundo, al cambiar el comportamiento de placeSymbol (que dejó de crear símbolos y pasó a rotar o reemplazar), varias pruebas de ciclos anteriores quedaron desactualizadas. Las reescribimos para preparar primero el estado con addSymbol y verificar el resultado final.
+
+**6. ¿Qué hicieron bien como equipo? ¿Qué se comprometen a hacer para mejorar los resultados?**
+Mantuvimos la compatibilidad con el código anterior (el addSymbol original sigue funcionando) y adaptamos las pruebas en lugar de eliminarlas. Nos comprometemos a cerrar los pendientes: revisar los detalles de código y diseño señalados, corregir los diagramas de secuencia y verificar que el diagrama de clases y el código queden sincronizados antes de la entrega final.
+
+**7. Considerando las prácticas XP incluidas en los laboratorios. ¿cuál fue la más útil? ¿por qué?**
+Las pruebas unitarias y el *refactoring*. Las pruebas nos mostraron de inmediato qué dejó de funcionar al cambiar Wheel y placeSymbol, y el refactoring nos permitió introducir los nuevos tipos sin romper el comportamiento existente. El trabajo en pareja ayudó a revisar cada cambio antes de integrarlo.
+
+**8. ¿Qué referencias usaron? ¿Cuál fue la más útil? Incluyan citas con estándares adecuados.**
+
+* Anthropic. (2026). *Claude Sonnet 5.5* [Modelo de lenguaje de gran tamaño]. https://claude.ai. Se usó como herramienta de guía ante confusiones en cuánto conceptos y errores de sintaxis.
+* Oracle. (s. f.). *Inheritance*. The Java Tutorials. https://docs.oracle.com/javase/tutorial/java/IandI/subclasses.html
+* Oracle. (s. f.). *Polymorphism*. The Java Tutorials. https://docs.oracle.com/javase/tutorial/java/IandI/polymorphism.html
+* Oracle. (s. f.). *Enum Types*. The Java Tutorials. https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html
+* JUnit Team. (s. f.). *JUnit 5 User Guide*. https://junit.org/junit5/docs/current/user-guide/
+* Oracle. (s. f.). *Class ArrayList*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
+* Oracle. (s. f.). *Class JOptionPane*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/javax/swing/JOptionPane.html
+* Oracle. (s. f.). *Class Random*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/Random.html
+
+## Cierre
+
+**1. ¿Cuáles fueron los mini-ciclos definidos? Justifíquenlos.**
+
+* **Mini-ciclo 1 (Manejo de excepciones):** Se creó SlotMachineException con constantes de mensaje (WHEEL_NOT_FOUND, SYMBOL_NOT_ALLOWED, WHEEL_REBEL, WHEEL_LOCKED, CONFIGURATION_INVALID, entre otras). Los métodos públicos y los validadores privados *lanzan* la excepción cuando el dato o el estado es inválido, los métodos que dependen de ellos la *propagan* con throws, y quienes pueden recuperarse la *atienden*: SlotMachineContest y el constructor SlotMachine(int n). Se conservó ok(), que queda en false al fallar. Se hizo primero porque reemplazó el esquema anterior de mensajes con JOptionPane y volvió robusto el resto del código.
+
+* **Mini-ciclo 2 (Extensibilidad de símbolos con reflexión):** addSymbol(type, pos, color) dejó de usar una cadena de if / else if por tipo. Ahora recibe el nombre de la clase (EphemeralSymbol, ShySymbol) o normal, y crea el símbolo con Class.forName(...).getConstructor(String.class).newInstance(color). Un tipo nuevo solo exige crear la subclase de Symbol con su constructor público, sin tocar SlotMachine. Cualquier fallo de reflexión se convierte en SlotMachineException.
+
+* **Mini-ciclo 3 (Refactorización de las ruedas):** El comportamiento por tipo, que estaba en un switch dentro de Wheel, pasó a subclases (NormalWheel, LeftyWheel, RebelWheel, CrazyWheel) creadas por WheelFactory. Se añadió addWheel(pos, Wheel) para recibir ruedas ya construidas. Se hizo para aplicar polimorfismo también en las ruedas, igual que en los símbolos.
+
+* **Mini-ciclo 4 (Ajustes funcionales y de usabilidad):**
+  * spin(String[]) pasó a ser la operación principal, como pide el diseño.
+  * symbols() devuelve todos los símbolos de la máquina y configuration() solo los visibles.
+  * El giro global (spin()) dejó de reemplazar los símbolos de las ruedas al caer el 20 %: ahora selecciona el color ganador con Wheel.selectColor.
+  * Se añadieron insignias visuales para distinguir los tipos de símbolo: cuadrado azul para el *shy* y círculo negro para el *ephemeral*.
+  * SlotMachineContest cambió a un algoritmo que solo usa SlotMachine(n), spin(wheel, steps), distinctSymbols(), makeVisible() y makeInvisible().
+
+* **Mini-ciclo 5 (Calidad con herramientas modernas):** Migración del proyecto a VS Code con Maven, informe de cobertura con JaCoCo (meta: más de 75 %), informe de análisis estático con PMD (meta: cero reglas de prioridad alta) y limpieza de código sin uso (campo winner, allSymbolsEqual, parseConfiguration, Symbol.random, Wheel.spin(String, String), import Locale).
+
+* **Mini-ciclo 6 (Diseño y documentación):** Actualización en Astah del diagrama de clases (excepción, fábrica, subclases de rueda, firmas con throws) y de los diagramas de secuencia de los métodos públicos de SlotMachine.
+
+**2. ¿Cuál es el estado actual del proyecto en términos de mini-ciclos? ¿Por qué?**
+
+* **Mini-ciclos 1, 2 y 3:** implementados y cubiertos por pruebas (SlotMachineCC4Test, SlotMachineC4Test).
+* **Mini-ciclo 4:** implementado. 
+
+**3. ¿Cuál fue el tiempo total invertido por cada uno de ustedes? (Horas/Hombre)**
+
+* JUAN PABLO CUERVO CONTRERAS: 20 horas.
+* SAMUEL INFANTE CAMARGO: 20 horas.
+
+**4. ¿Cuál consideran que fue el mayor logro? ¿Por qué?**
+
+Eliminar los condicionales por tipo sin perder control. Con la reflexión en addSymbol y las subclases de rueda creadas por la fábrica, agregar un tipo nuevo de símbolo o de rueda ya no obliga a modificar SlotMachine ni la lógica de giro. Además, el manejo de excepciones dejó claro qué falla y quién se encarga de atenderlo, en lugar de depender solo de ok() y de diálogos.
+
+**5. ¿Cuál consideran que fue el mayor problema técnico? ¿Qué hicieron para resolverlo?**
+
+* **El giro global ganaba casi siempre.** Al caer el 20 %, spin() usaba placeSymbolWheel, que borraba todos los símbolos de la rueda y los volvía normales. Se resolvió con selectColor, que solo cambia el símbolo seleccionado. Aun así, al crear la máquina con SlotMachine(n), todas las ruedas tienen los mismos símbolos en el mismo orden, así que un giro global conserva las alineaciones. Lo dejamos documentado como comportamiento conocido.
+
+* **Compilación con Maven.** List.of con diez elementos fallaba porque el compilador estaba en Java 8. Se resolvió subiendo la versión de Java en el pom.xml.
+
+* **Propagación de la excepción verificada.** Al volver SlotMachineException una excepción *checked*, hubo que ajustar el constructor, SlotMachineContest y todas las pruebas.
+
+**6. ¿Qué hicieron bien como equipo? ¿Qué se comprometen a hacer para mejorar los resultados?**
+
+Mantuvimos el código existente y lo ajustamos por pasos, apoyándonos en las pruebas para detectar qué se rompía con cada cambio. Para el cierre nos comprometemos a: eliminar el código sin uso, dejar fuera de Git los archivos generados (target/) y conservar solo los informes de JaCoCo y PMD en docs/, y verificar que el diagrama de clases, los de secuencia y el código coincidan antes de publicar.
+
+**7. Considerando las prácticas XP incluidas en los laboratorios, ¿cuál fue la más útil? ¿Por qué?**
+
+Las pruebas unitarias y el *refactoring*. JaCoCo mostró qué partes no tenían pruebas (por ejemplo, delSymbol) y PMD señaló el código sin uso. Con las pruebas en verde pudimos cambiar el manejo de errores y las ruedas sin romper el comportamiento anterior.
+
+**8. ¿Qué referencias usaron? ¿Cuál fue la más útil? Incluyan citas con estándares adecuados.**
+
+* Anthropic. (2026). *Claude Sonnet 5.5* [Modelo de lenguaje de gran tamaño]. https://claude.ai. Se usó como guía para el manejo de excepciones, la reflexión, la lectura de errores de compilación y la revisión de código sin uso.
+* GeeksforGeeks. (s. f.). *Class forName() method in Java with examples*. https://www.geeksforgeeks.org/java/class-forname-method-in-java-with-examples/ (la más útil para el mini-ciclo 2).
+* Oracle. (s. f.). *Lesson: Exceptions*. The Java Tutorials. https://docs.oracle.com/javase/tutorial/essential/exceptions/
+* JaCoCo. (s. f.). *JaCoCo Java Code Coverage Library*. https://www.jacoco.org/jacoco/trunk/doc/
+* PMD. (s. f.). *PMD Source Code Analyzer*. https://pmd.github.io/
+* JUnit Team. (s. f.). *JUnit 5 User Guide*. https://junit.org/junit5/docs/current/user-guide/
+* Oracle. (s. f.). *Polymorphism*. The Java Tutorials. https://docs.oracle.com/javase/tutorial/java/IandI/polymorphism.html
+* Oracle. (s. f.). *Class ArrayList*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html
+* Oracle. (s. f.). *Class Random*. Oracle Help Center. https://docs.oracle.com/javase/8/docs/api/java/util/Random.html
